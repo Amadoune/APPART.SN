@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS professional_profile.public_portfolio_intents;
+DROP TABLE IF EXISTS professional_profile.public_portfolios;
+DROP TABLE IF EXISTS professional_profile.verification_intents;
+DROP TABLE IF EXISTS professional_profile.verification_decisions;
+DROP TABLE IF EXISTS professional_profile.verifications;
+DROP TABLE IF EXISTS professional_profile.public_profile_intents;
+DROP TABLE IF EXISTS professional_profile.public_profile_revisions;
+DROP TABLE IF EXISTS professional_profile.public_profiles;
+DROP SCHEMA IF EXISTS professional_profile;

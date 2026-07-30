@@ -2,12 +2,70 @@
 
 ## Statut du document
 
-- **Sprint :** 2 — Master Blueprint
-- **Version :** 1.0
+- **Origine :** Sprint 2 — Master Blueprint
+- **Version de gouvernance :** 2.0 — alignement Phase 5.0B
 - **Date :** 16 juillet 2026
-- **Statut :** proposition soumise à validation
+- **Dernier alignement :** 28 juillet 2026 — GO FINAL 5.2B / Discovery 5.2C
+- **Statut :** vision produit conservée ; gouvernance et séquencement remplacés
+  par la baseline Phase 5.0
 - **Sources autorisées :** MASTER AUDIT validé, sauvegarde de la base Legacy, patrimoine SEO, fonctionnalités recensées et architecture existante
 - **Hors périmètre :** choix de framework, code, API, schéma de base de données, infrastructure détaillée et implémentation
+
+## Baseline normative actuelle
+
+Ce document conserve la vision, les publics, les invariants produit et le
+périmètre fonctionnel d'origine. Les mentions prospectives (« proposé »,
+« futur », « à définir ») décrivent leur contexte historique et ne doivent
+plus être utilisées pour déterminer l'état d'implémentation.
+
+Les références normatives actuelles sont, par ordre de priorité :
+
+1. les décisions expresses de certification ;
+2. `PHASE-5.0B-BASELINE-ALIGNMENT.md`, les registres 5.0B et les règles de
+   certification ;
+3. les six livrables certifiés de Phase 5.0A ;
+4. les certifications et amendements versionnés des Phases 2 à 4 ;
+5. le code, les migrations et les tests pour constater l'implémentation ;
+6. le présent Blueprint pour la vision produit.
+
+Identity & Access Completion 5.1A–5.1J est GO CERTIFIÉ.
+`A-5.1-IAM-OUTBOX-CONCURRENCY-01` est GO CERTIFIÉ et FERMÉ ; la réserve
+concurrente Outbox IAM est levée. Phase 5.1 est GO FINAL CERTIFIÉE, FERMÉE et
+GELÉE. F-17 et F-18 sont exécutoires. Phase 5.2A a certifié Discovery,
+Contracts, Implementation, Persistence, Runtime, HTTP, Operations et Public
+Integration. Phase 5.2A est GO FINAL CERTIFIÉE, FERMÉE et GELÉE. F-19 et
+F-20 sont actifs et exécutoires. Phase 5.2B — Media Ingestion est GO FINAL
+CERTIFIÉE, FERMÉE et GELÉE ; F-21/F-22 sont actifs. Professional Profile 5.2C
+est ouvert exclusivement pour son Discovery / Blueprint.
+
+État consolidé au 28 juillet 2026 :
+
+- les neuf chaînes lifecycle identifiées par 5.0A sont certifiées et gelées ;
+- Account Status Lifecycle est fermé depuis le GO FINAL 4.9 ;
+- la projection publique, le Runtime Health à 58 capacités et les
+  infrastructures de delivery certifiées sont des baselines protégées ;
+- 5.0A est `GO CERTIFIÉ` et fermée ;
+- 5.2B Atomic Delivery / Outbox Integration Foundation est GO CERTIFIÉE et
+  FERMÉE ; les migrations 058–060 sont certifiées et gelées ;
+- Phase 5.2B est GO FINAL CERTIFIÉE, FERMÉE et GELÉE ; F-21 et F-22 sont
+  actifs et exécutoires ;
+- Professional Profile Discovery / Blueprint, Contracts, Persistence et Runtime
+  Foundations sont GO CERTIFIÉS et FERMÉS ; HTTP Foundation reste ouverte en
+  NO GO CERTIFIÉ ; l’audit
+  `A-5.2C-PROFESSIONAL-STATUS-READ-BOUNDARY-01` est NO GO CERTIFIÉ et FERMÉ ;
+  `A-5.2C-PROFESSIONAL-STATUS-PUBLIC-READ-01` est GO CERTIFIÉ et FERMÉ ;
+  `A-5.2C-PROFESSIONAL-MANDATE-RESOLUTION-01` est NO GO CERTIFIÉ et FERMÉ ;
+  `A-5.2C-PROFESSIONAL-MANDATE-PUBLIC-RESOLUTION-01` est GO CERTIFIÉ et FERMÉ ;
+  HTTP Foundation corrective reste NO GO faute d’implémentations owner et de
+  bindings autorisés ; le sprint Owner Read Implementations & Runtime Bindings
+  est NO GO CERTIFIÉ et FERMÉ ; Professional Mandate Owner Source Foundation est
+  ouverte et en attente de preuve PostgreSQL terminale,
+  sans jalon suivant ouvert ;
+- les capacités produit encore à construire et leur ordre sont ceux de
+  `PHASE-5.0-ROADMAP.md`.
+
+En cas de divergence, ce bloc et les références ci-dessus prévalent sur les
+formulations historiques du reste du document.
 
 ## Principes directeurs
 

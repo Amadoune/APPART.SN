@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Application\RuntimeHealth;
+
+enum RuntimeHealthComponent: string
+{
+    case ProjectionSourceLookup = 'projection_source_lookup';
+    case ProjectionRuntimeSource = 'projection_runtime_source';
+    case PublicGeographySource = 'public_geography_source';
+    case PublicMediaSource = 'public_media_source';
+    case MediaCollectionPropertyResolver = 'media_collection_property_resolver';
+    case MultiTargetStrategy = 'multi_target_strategy';
+    case ProjectionUpdater = 'projection_updater';
+    case ProjectionStore = 'projection_store';
+    case RebuildEnumerator = 'rebuild_enumerator';
+    case DeliveryConsumer = 'delivery_consumer';
+    case HistoricalRedirectResolver = 'historical_redirect_resolver';
+    case HistoricalCanonicalQualifier = 'historical_canonical_qualifier';
+    case ListingPublicationWorkflow = 'listing_publication_workflow';
+    case ListingPublicationWorkflowStore = 'listing_publication_workflow_store';
+    case ListingPublicationEventDestination = 'listing_publication_event_destination';
+    case ListingPublicationEventRouter = 'listing_publication_event_router';
+    case ListingPublicationEventOrchestrator = 'listing_publication_event_orchestrator';
+    case PropertyLifecycleWorkflow = 'property_lifecycle_workflow';
+    case PropertyLifecycleWorkflowStore = 'property_lifecycle_workflow_store';
+    case PropertyLifecycleOrchestrator = 'property_lifecycle_orchestrator';
+    case PropertyLifecycleEventDestination = 'property_lifecycle_event_destination';
+    case PropertyLifecycleEventRouter = 'property_lifecycle_event_router';
+    case PropertyLifecycleEventOrchestrator = 'property_lifecycle_event_orchestrator';
+    case ReservationLifecycleWorkflow = 'reservation_lifecycle_workflow';
+    case ReservationLifecycleWorkflowStore = 'reservation_lifecycle_workflow_store';
+    case ReservationLifecycleInboxStore = 'reservation_lifecycle_inbox_store';
+    case ReservationLifecycleEventRouter = 'reservation_lifecycle_event_router';
+    case LeadLifecycleWorkflow = 'lead_lifecycle_workflow';
+    case LeadLifecycleWorkflowStore = 'lead_lifecycle_workflow_store';
+    case LeadLifecycleOrchestrator = 'lead_lifecycle_orchestrator';
+    case LeadLifecycleInboxStore = 'lead_lifecycle_inbox_store';
+    case LeadLifecycleEventRouter = 'lead_lifecycle_event_router';
+    case LeadEligibilityDecisionMaterializer = 'lead_eligibility_decision_materializer';
+    case ListingCatalog = 'listing_catalog';
+    case AdvertiserCatalog = 'advertiser_catalog';
+    case ProfessionalStatusWorkflow = 'professional_status_workflow';
+    case ProfessionalStatusWorkflowStore = 'professional_status_workflow_store';
+    case ProfessionalStatusOrchestrator = 'professional_status_orchestrator';
+    case ProfessionalStatusInboxStore = 'professional_status_inbox_store';
+    case ProfessionalStatusEventRouter = 'professional_status_event_router';
+    case ProfessionalMandateResolver = 'professional_mandate_resolver';
+    case ProfessionalPublicStatusReader = 'professional_public_status_reader';
+    case ProfessionalEndpoint = 'professional_http';
+    case MediaItemLifecycleWorkflow = 'media_item_lifecycle_workflow';
+    case MediaItemLifecycleWorkflowStore = 'media_item_lifecycle_workflow_store';
+    case MediaItemLifecycleOrchestrator = 'media_item_lifecycle_orchestrator';
+    case MediaItemLifecycleInboxStore = 'media_item_lifecycle_inbox_store';
+    case MediaItemLifecycleEventRouter = 'media_item_lifecycle_event_router';
+    case AdministrativeActionLifecycleWorkflow = 'administrative_action_lifecycle_workflow';
+    case AdministrativeActionLifecycleWorkflowStore = 'administrative_action_lifecycle_workflow_store';
+    case AdministrativeActionLifecycleOrchestrator = 'administrative_action_lifecycle_orchestrator';
+    case AdministrativeActionLifecycleInboxStore = 'administrative_action_lifecycle_inbox_store';
+    case AdministrativeActionLifecycleEventRouter = 'administrative_action_lifecycle_event_router';
+    case PlaceLifecycleWorkflow = 'place_lifecycle_workflow';
+    case PlaceLifecycleWorkflowStore = 'place_lifecycle_workflow_store';
+    case PlaceLifecycleInboxStore = 'place_lifecycle_inbox_store';
+    case PlaceLifecycleEventRouter = 'place_lifecycle_event_router';
+    case PlaceLifecycleDeliveryConsumer = 'place_lifecycle_delivery_consumer';
+    case AccountStatusWorkflow = 'account_status_workflow';
+    case AccountStatusWorkflowStore = 'account_status_workflow_store';
+    case AccountStatusOrchestrator = 'account_status_orchestrator';
+    case ModerationRuntime = 'moderation_runtime';
+    case ModerationQueue = 'moderation_queue';
+}

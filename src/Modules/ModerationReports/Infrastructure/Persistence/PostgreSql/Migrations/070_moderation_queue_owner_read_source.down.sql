@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS moderation_reports.moderation_reports_queue_category_read_idx;

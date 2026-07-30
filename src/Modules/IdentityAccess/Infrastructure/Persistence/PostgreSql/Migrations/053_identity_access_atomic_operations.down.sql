@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS identity_access_completion.atomic_operation_intents;

@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS professionals.professional_status_transition_contexts;

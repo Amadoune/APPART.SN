@@ -1,0 +1,15 @@
+<?php
+
+namespace Appart\Modules\AdministrationAudit\Application\AdministrativeActionTransitionContext\Contract;
+
+use Appart\Modules\AdministrationAudit\Application\AdministrativeActionLifecyclePersistence\AdministrativeActionLifecyclePersistenceReadResult;
+use Appart\Modules\AdministrationAudit\Application\AdministrativeActionTransitionContext\AdministrativeActionContextualAppend;
+use Appart\Modules\AdministrationAudit\Application\AdministrativeActionTransitionContext\AdministrativeActionContextualWriteResult;
+use Appart\Modules\AdministrationAudit\Domain\ValueObject\AdministrativeActionId;
+
+interface AdministrativeActionContextualTransitionStore
+{
+    public function read(AdministrativeActionId $actionId): AdministrativeActionLifecyclePersistenceReadResult;
+
+    public function append(AdministrativeActionContextualAppend $append): AdministrativeActionContextualWriteResult;
+}

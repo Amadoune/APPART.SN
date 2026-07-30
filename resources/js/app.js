@@ -1,1 +1,1 @@
-//
+import './authoring.js';

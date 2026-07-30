@@ -1,0 +1,11 @@
+<?php
+
+namespace Appart\Modules\AdministrationAudit\Application\AdministrativeActionTransitionContext\Contract;
+
+use Appart\Modules\AdministrationAudit\Application\AdministrativeActionTransitionContext\AdministrativeActionContextualInspectionResult;
+use Appart\Modules\AdministrationAudit\Domain\ValueObject\AdministrativeActionId;
+
+interface AdministrativeActionContextualReplayInspector
+{
+    public function inspectLatest(AdministrativeActionId $actionId): AdministrativeActionContextualInspectionResult;
+}

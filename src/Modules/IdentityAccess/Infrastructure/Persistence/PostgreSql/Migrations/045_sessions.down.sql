@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS identity_access_completion.sessions;
+DROP TABLE IF EXISTS identity_access_completion.session_invalidation_checkpoints;

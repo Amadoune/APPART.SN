@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS moderation_reports.queue_checkpoints;
+DROP TABLE IF EXISTS moderation_reports.queue_items;
+DROP TABLE IF EXISTS moderation_reports.case_intents;
+DROP TABLE IF EXISTS moderation_reports.decision_supersessions;
+DROP TABLE IF EXISTS moderation_reports.decision_revisions;
+DROP TABLE IF EXISTS moderation_reports.finding_revisions;
+DROP TABLE IF EXISTS moderation_reports.report_revisions;
+DROP TABLE IF EXISTS moderation_reports.cases;
+DROP SCHEMA IF EXISTS moderation_reports;

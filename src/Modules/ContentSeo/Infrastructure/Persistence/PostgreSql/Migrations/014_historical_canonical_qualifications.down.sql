@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS content_seo.historical_canonical_qualifications;

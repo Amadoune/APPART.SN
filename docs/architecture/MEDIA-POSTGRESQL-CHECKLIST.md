@@ -1,0 +1,22 @@
+# MediaCollection PostgreSQL Checklist
+
+- [x] 14 contrats Fake réutilisés sans duplication
+- [x] contrats PostgreSQL branchés au même contrat
+- [x] snapshots entièrement typés et spécifiques
+- [x] mapping fidèle et reconstruction sans événements
+- [x] migration `004_media.sql` et schéma propriétaire `media`
+- [x] réservation permanente et atomique de `MediaId`
+- [x] optimistic locking et rollback total
+- [x] conflits publics distincts sans analyse de messages SQL
+- [x] trois concurrences réelles à deux processus
+- [x] transaction locale, aucun composant générique
+- [x] exactement quatre Repositories PostgreSQL
+- [x] aucune Unit of Work globale, Outbox, Dispatcher ou cinquième Registry
+- [x] suite PostgreSQL réelle : 91 tests, 415 assertions, zéro erreur et zéro échec
+- [x] trois concurrences Media couvertes par la suite PostgreSQL
+- [x] bind booléen `is_primary` explicite en `1` ou `0`, sans contrainte affaiblie
+- [x] mapper : 8 tests, 12 assertions
+- [x] suite complète : 709 tests, 16 745 assertions
+- [x] Architecture : 30 tests, 14 856 assertions
+- [x] Pint, Larastan zéro erreur, `composer quality` et `git diff --check`
+- [x] audit secrets : zéro occurrence

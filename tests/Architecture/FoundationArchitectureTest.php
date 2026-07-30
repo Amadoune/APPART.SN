@@ -23,10 +23,11 @@ final class FoundationArchitectureTest extends TestCase
         'MonetizationPayments',
         'Professionals',
         'RealEstateCatalog',
+        'ReservationLifecycle',
         'SearchDiscovery',
     ];
 
-    public function test_the_thirteen_domain_envelopes_exist(): void
+    public function test_the_fourteen_module_envelopes_exist(): void
     {
         $modulesPath = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'Modules';
         $directories = [];

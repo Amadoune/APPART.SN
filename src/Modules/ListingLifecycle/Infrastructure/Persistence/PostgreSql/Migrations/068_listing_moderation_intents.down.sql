@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS listing_lifecycle.moderation_command_intent_results;
+DROP TABLE IF EXISTS listing_lifecycle.moderation_command_intents;

@@ -41,6 +41,7 @@
             "@php artisan test"
         ],
         "test:architecture": "@php artisan test --testsuite=Architecture",
+        "test:postgresql": "@php vendor/bin/phpunit --configuration phpunit.postgresql.xml",
         "analyse": "@php vendor/bin/phpstan analyse --no-progress",
         "security:audit": "@composer audit --locked",
         "quality": [

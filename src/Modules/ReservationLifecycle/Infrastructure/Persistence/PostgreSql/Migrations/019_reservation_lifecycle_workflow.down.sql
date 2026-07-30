@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS reservation_lifecycle.reservation_lifecycle_transitions;

@@ -1,0 +1,11 @@
+<?php
+
+namespace Appart\Modules\ReservationLifecycle\Application\ReservationLifecycleOrchestration\Contract;
+
+use Appart\Modules\ReservationLifecycle\Application\ReservationLifecycleOrchestration\ReservationLifecycleOrchestrationRequest;
+use Appart\Modules\ReservationLifecycle\Application\ReservationLifecycleOrchestration\ReservationLifecycleOrchestrationResult;
+
+interface ReservationLifecycleEventOrchestrator
+{
+    public function transition(ReservationLifecycleOrchestrationRequest $request): ReservationLifecycleOrchestrationResult;
+}

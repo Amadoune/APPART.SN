@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS administration_audit.administrative_action_lifecycle_event_inbox;

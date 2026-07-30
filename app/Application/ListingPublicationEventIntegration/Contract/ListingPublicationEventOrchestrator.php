@@ -1,0 +1,11 @@
+<?php
+
+namespace App\Application\ListingPublicationEventIntegration\Contract;
+
+use App\Application\ListingPublicationEventIntegration\ListingPublicationEventOrchestrationRequest;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationResult;
+
+interface ListingPublicationEventOrchestrator
+{
+    public function transition(ListingPublicationEventOrchestrationRequest $request): ListingPublicationOrchestrationResult;
+}

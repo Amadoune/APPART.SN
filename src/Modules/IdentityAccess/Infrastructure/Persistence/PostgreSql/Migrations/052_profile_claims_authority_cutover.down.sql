@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS identity_access_completion.profile_claim_seed_quarantine;
+DROP TABLE IF EXISTS identity_access_completion.profile_claim_seed_manifest;
+DROP TABLE IF EXISTS identity_access_completion.profile_claim_seed_runs;
+DROP TABLE IF EXISTS identity_access_completion.profile_claim_authority;

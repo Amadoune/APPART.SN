@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS identity_access_completion.recovery_challenges;

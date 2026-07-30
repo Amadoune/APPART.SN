@@ -1,0 +1,11 @@
+<?php
+
+namespace Appart\Modules\Professionals\Application\ProfessionalStatusTransitionContext\Contract;
+
+use Appart\Modules\Professionals\Application\ProfessionalStatusPersistence\ProfessionalStatusId;
+use Appart\Modules\Professionals\Application\ProfessionalStatusTransitionContext\ProfessionalStatusContextualInspectionResult;
+
+interface ProfessionalStatusContextualReplayInspector
+{
+    public function inspectLatest(ProfessionalStatusId $professionalId): ProfessionalStatusContextualInspectionResult;
+}

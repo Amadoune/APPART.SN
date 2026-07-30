@@ -1,0 +1,15 @@
+<?php
+
+namespace Appart\Modules\Professionals\Application\ProfessionalStatusTransitionContext\Contract;
+
+use Appart\Modules\Professionals\Application\ProfessionalStatusPersistence\ProfessionalStatusId;
+use Appart\Modules\Professionals\Application\ProfessionalStatusPersistence\ProfessionalStatusPersistenceReadResult;
+use Appart\Modules\Professionals\Application\ProfessionalStatusTransitionContext\ProfessionalStatusContextualAppend;
+use Appart\Modules\Professionals\Application\ProfessionalStatusTransitionContext\ProfessionalStatusContextualWriteResult;
+
+interface ProfessionalStatusContextualTransitionStore
+{
+    public function read(ProfessionalStatusId $professionalId): ProfessionalStatusPersistenceReadResult;
+
+    public function append(ProfessionalStatusContextualAppend $append): ProfessionalStatusContextualWriteResult;
+}

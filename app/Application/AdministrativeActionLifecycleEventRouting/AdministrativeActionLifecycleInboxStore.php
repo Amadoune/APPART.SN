@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Application\AdministrativeActionLifecycleEventRouting;
+
+use App\Application\AdministrativeActionLifecycleEventTransport\AdministrativeActionLifecycleTransportEnvelope;
+
+interface AdministrativeActionLifecycleInboxStore
+{
+    public function store(AdministrativeActionLifecycleTransportEnvelope $envelope): AdministrativeActionLifecycleInboxStoreResult;
+}

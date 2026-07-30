@@ -1,0 +1,11 @@
+<?php
+
+namespace Appart\Modules\AdministrationAudit\Application\AdministrativeActionLifecycleOrchestration\Contract;
+
+use Appart\Modules\AdministrationAudit\Application\AdministrativeActionLifecycleOrchestration\AdministrativeActionLifecycleOrchestrationResult;
+use Appart\Modules\AdministrationAudit\Application\AdministrativeActionLifecycleOrchestration\AdministrativeActionLifecycleTransitionRequest;
+
+interface AdministrativeActionLifecycleOrchestrator
+{
+    public function execute(AdministrativeActionLifecycleTransitionRequest $request): AdministrativeActionLifecycleOrchestrationResult;
+}
