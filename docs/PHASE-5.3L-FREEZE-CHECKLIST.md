@@ -15,6 +15,8 @@
 - [x] inventaire Git exhaustif et manifeste SHA-256 préparé.
 - [x] absence de secret, dump ou artefact sensible démontrée par scan renforcé.
 - [x] documentation normative directrice sans contradiction active identifiée.
-- [ ] matérialisation du commit de baseline et worktree terminal propre.
+- [x] commit `84be4995abaf171d76eadf97df329a647a105186`
+  matérialisé, tag candidat annoté créé et worktree terminal propre.
 
-Un seul item non satisfait interdit un GO proposé de freeze final.
+Toutes les gates préparatoires sont satisfaites. Cette checklist ne prononce
+pas le freeze final.

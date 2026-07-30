@@ -60,3 +60,14 @@ empreinte propre est consignée dans la représentation d'autorité.
 
 Aucune fonctionnalité, migration, règle métier ou capacité certifiée n'a été
 modifiée par cette opération.
+
+## Clôture
+
+Workspace Hygiene & Baseline Materialization est GO CERTIFIÉ — FERMÉ.
+
+La baseline candidate est matérialisée par :
+
+- commit `84be4995abaf171d76eadf97df329a647a105186` ;
+- tag annoté `phase-5.3-baseline-candidate`.
+
+Le worktree terminal est propre. Cette clôture ne prononce aucun freeze.

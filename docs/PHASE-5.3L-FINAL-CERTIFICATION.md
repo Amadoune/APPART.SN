@@ -25,11 +25,19 @@ d'autorité ; il ne prononce aucun gel.
 - Pint : PASS ;
 - `git diff --check` : PASS ;
 - migrations 063–071 et rollbacks : cohérents ;
-- inventaire Git et manifeste SHA-256 : SATISFAITS sous réserve du commit ;
+- inventaire Git et manifeste SHA-256 : SATISFAITS ;
 - absence de secret ou artefact local : DÉMONTRÉE par scan renforcé.
+- commit de baseline :
+  `84be4995abaf171d76eadf97df329a647a105186` ;
+- tag candidat annoté : `phase-5.3-baseline-candidate` ;
+- parent historique :
+  `2ae29f6ad2d2fbb6730397ba6224acd12a61223c` ;
+- Git terminal : PASS, worktree propre et aucun fichier non suivi ;
+- amendements de Phase 5.3 : tous GO CERTIFIÉS — FERMÉS ;
+- contradiction documentaire active : aucune.
 
 ## Verdict proposé
 
-À établir après matérialisation du commit et vérification du worktree terminal.
+Prêt pour le prononcé final d'autorité.
 
 Le dossier ne prononce aucun gel.

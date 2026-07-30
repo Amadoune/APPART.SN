@@ -1,6 +1,6 @@
 # Phase 5.3L — Inventaire Git final
 
-## Résumé terminal
+## Résumé historique avant matérialisation
 
 L'inventaire exhaustif `git status --porcelain=v1 -uall` du 30 juillet 2026
 relève :
@@ -10,9 +10,8 @@ relève :
 - 11 entrées supprimées ;
 - 4 119 entrées non suivies.
 
-Le worktree partagé contient la construction complète du dépôt et des phases
-antérieures sous forme majoritairement non suivie. Aucune suppression ou
-normalisation automatique n'a été effectuée.
+Cet état constitue la preuve historique ayant déclenché la qualification et
+l'assainissement contrôlé.
 
 ## Qualification
 
@@ -34,11 +33,11 @@ Les fichiers temporaires identifiés sont :
 - `.codex-postgresql-48c.err` ;
 - `.codex-postgresql-48c.out`.
 
-Les onze suppressions suivies portent sur les fichiers `.gitkeep` des modules
+Les onze suppressions suivies portaient sur les fichiers `.gitkeep` des modules
 AdministrationAudit, ContactsLeads, ContentSeo, Geography, IdentityAccess,
 Media, ModerationReports, MonetizationPayments, Professionals,
-RealEstateCatalog et SearchDiscovery. Elles ne sont pas restaurées ni
-qualifiées comme attendues par 5.3L.
+RealEstateCatalog et SearchDiscovery. Leur retrait est qualifié
+`EXPECTED_PLACEHOLDER_RETIREMENT`.
 
 ## Gate
 
@@ -52,5 +51,16 @@ d'hygiène. Les onze `.gitkeep` sont qualifiés
 peuplés. Les autres candidats sont qualifiés dans le manifeste SHA-256 final.
 
 Le scan renforcé ne détecte aucun secret ou artefact sensible parmi les
-candidats. La gate doit être considérée satisfaite uniquement après indexation,
-contrôle du diff indexé et matérialisation du commit de baseline.
+candidats.
+
+## État terminal matérialisé
+
+- commit : `84be4995abaf171d76eadf97df329a647a105186` ;
+- parent : `2ae29f6ad2d2fbb6730397ba6224acd12a61223c` ;
+- tag annoté : `phase-5.3-baseline-candidate` ;
+- fichiers modifiés ou non suivis : 0 ;
+- `git show --check HEAD` : PASS ;
+- `git diff HEAD^..HEAD --check` : PASS ;
+- inventaire, scan et matérialisation : GO CERTIFIÉS — FERMÉS.
+
+La gate d'inventaire Git est satisfaite. Aucun freeze final n'est prononcé.

@@ -25,6 +25,7 @@
 | A-5.2A-LISTING-CREATION-BOUNDARY-01 | frontière Listing/F-01 | frontière publique `CreateListingDraftV1` additive | dossiers `A-5.2A-LISTING-CREATION-BOUNDARY-01-*` | GO CERTIFIÉ, FERMÉ |
 | A-5.3-ROADMAP-SEQUENCING-ALIGNMENT-01 | séquence terminale Phase 5.3 | conservation de 5.3I Command Handoff Listing et alignement prospectif 5.3J/5.3K/5.3L | dossiers `A-5.3-ROADMAP-SEQUENCING-ALIGNMENT-01*` | GO CERTIFIÉ, FERMÉ |
 | A-5.3-BASELINE-IMPORT-WHITESPACE-QUALIFICATION-01 | première matérialisation Git de la baseline certifiée | qualification du retrait strict d'un LF terminal dans 220 Markdown et 19 SQL gelés | dossiers `A-5.3-BASELINE-IMPORT-WHITESPACE-QUALIFICATION-01*` | GO CERTIFIÉ, FERMÉ |
+| A-5.3-BASELINE-IMPORT-WHITESPACE-NORMALIZATION-01 | première matérialisation Git de la baseline certifiée | retrait certifié d'un LF terminal dans 220 Markdown et 19 SQL gelés, puis recertification Architecture/PostgreSQL | `A-5.3-BASELINE-IMPORT-WHITESPACE-NORMALIZATION-01-CERTIFICATION.md` | GO CERTIFIÉ, FERMÉ |
 
 Les rapports de suspension et NO GO sont des preuves historiques, pas des
 amendements ouverts. Leur résolution certifiée est enregistrée ci-dessus.
@@ -33,7 +34,8 @@ amendements ouverts. Leur résolution certifiée est enregistrée ci-dessus.
 
 | ID | Cible | Objet | Statut |
 |---|---|---|---|
-| A-5.3-BASELINE-IMPORT-WHITESPACE-NORMALIZATION-01 | première matérialisation Git de la baseline certifiée | appliquer le retrait certifié d'un LF terminal et recertifier Architecture/PostgreSQL | OUVERT — GO PROPOSÉ |
+
+Aucun amendement n'est ouvert.
 
 ## 3. Amendements identifiés et décisions
 

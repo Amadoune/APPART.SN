@@ -1,5 +1,20 @@
 # Changelog
 
+## [Phase 5.3L — Post-Candidate Documentation Alignment] — 2026-07-31
+
+- `A-5.3-BASELINE-IMPORT-WHITESPACE-QUALIFICATION-01` enregistré
+  GO CERTIFIÉ — FERMÉ.
+- `A-5.3-BASELINE-IMPORT-WHITESPACE-NORMALIZATION-01` enregistré
+  GO CERTIFIÉ — FERMÉ.
+- Workspace Hygiene & Baseline Materialization enregistré
+  GO CERTIFIÉ — FERMÉ.
+- Baseline Commit & Candidate Tag Materialization enregistré
+  GO CERTIFIÉ — FERMÉ.
+- Commit de baseline
+  `84be4995abaf171d76eadf97df329a647a105186` et tag annoté
+  `phase-5.3-baseline-candidate` vérifiés.
+- Worktree terminal propre ; aucune ouverture ou prononcé de freeze.
+
 ## [A-5.3-BASELINE-IMPORT-WHITESPACE-NORMALIZATION-01] — 2026-07-31
 
 - Normalisation strictement limitée aux 239 chemins certifiés : 220 Markdown
