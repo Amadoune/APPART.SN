@@ -1,8 +1,8 @@
 # Phase 5.4 — Roadmap
 
-## Transition normative courante 5.9 — Reproducible Build & CI Evidence 02
+## Transition normative courante 5.9 — Candidate Baseline Integrity Correction
 
-`PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` est NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif : cinq échecs Architecture apparaissent dans le clone propre, et les preuves CI externe/reproduction indépendante restent absentes. Candidate Baseline Materialization est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Les jalons historiques restent inchangés, les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS et aucune Foundation 5.9 n'est ouverte.
+`PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` est OUVERTE, unique jalon 5.9 actif. Build & CI Evidence 02 est NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Le GO historique R1 reste conservé avec référence à l'anomalie découverte par clean-room. Evidence 03 et les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS ; aucune Foundation 5.9 n'est ouverte.
 
 ## HISTORICAL_ONLY — Transition normative 5.9 — Candidate Baseline Materialization
 

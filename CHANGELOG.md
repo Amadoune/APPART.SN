@@ -1,8 +1,15 @@
 # Changelog
 
-## [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02] — 2026-08-08
+## [PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01] — 2026-08-08
 
-- statut : NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- statut : OUVERTE, unique jalon 5.9 actif ;
+- objectif : corriger exclusivement la matérialisation Git de `database/migrations` et les admissions Architecture nominatives ExperienceAcceptance Outbox/091 ;
+- `REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-03` : IDENTIFIÉ — NON OUVERT ;
+- aucune Foundation ni aucun autre chantier 5.9 ouvert.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
 - source obligatoire : commit `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7`, tag annoté `phase-5.9-baseline-candidate` ;
 - objectif : chaîne probatoire runtime, dépendances, CI, clean-room, artefact, checksums, manifeste et reproduction indépendante ;
 - aucune Foundation 5.9 ni aucun autre chantier ouvert.

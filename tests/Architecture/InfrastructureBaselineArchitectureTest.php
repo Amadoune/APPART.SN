@@ -83,6 +83,7 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             'PostgreSqlLeadLifecycleContextualTransitionRepository' => 'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/PostgreSqlLeadLifecycleContextualTransitionRepository.php',
             'PostgreSqlLeadLifecycleWorkflowRepository' => 'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/PostgreSqlLeadLifecycleWorkflowRepository.php',
             'PostgreSqlContentSeoOutboxRepository' => 'src/Modules/ContentSeo/Infrastructure/Outbox/PostgreSqlContentSeoOutboxRepository.php',
+            'PostgreSqlExperienceAcceptanceOutboxRepository' => 'src/Modules/ExperienceAcceptance/Infrastructure/Outbox/PostgreSqlExperienceAcceptanceOutboxRepository.php',
             'PostgreSqlAccountRepository' => 'src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/PostgreSqlAccountRepository.php',
             'PostgreSqlLegacyMigrationOutboxRepository' => 'src/Modules/LegacyMigration/Infrastructure/Outbox/PostgreSqlLegacyMigrationOutboxRepository.php',
             'PostgreSqlListingPublicationWorkflowRepository' => 'src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/PostgreSqlListingPublicationWorkflowRepository.php',
@@ -426,6 +427,7 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             'src/Modules/AdministrationConsole/Infrastructure/Outbox/Migrations/',
             'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/ExperienceAcceptance/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/ExperienceAcceptance/Infrastructure/Outbox/Migrations/',
             'src/Modules/Geography/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/LegacyMigration/Infrastructure/Persistence/PostgreSql/Migrations/',
@@ -548,6 +550,7 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             || str_starts_with($relative, 'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/ContentSeo/Infrastructure/Outbox/')
             || str_starts_with($relative, 'src/Modules/ExperienceAcceptance/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/ExperienceAcceptance/Infrastructure/Outbox/')
             || str_starts_with($relative, 'src/Modules/Geography/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/LegacyMigration/Infrastructure/Persistence/PostgreSql/')

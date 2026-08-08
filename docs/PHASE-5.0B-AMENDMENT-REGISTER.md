@@ -1,9 +1,16 @@
 # Phase 5.0B — Amendment Register
 
-## PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02
+## PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01
+
+- nature : correction d'intégrité de baseline candidate ;
+- statut : OUVERTE, unique jalon 5.9 actif ;
+- périmètre : matérialisation Git de `database/migrations` et alignements Architecture nominatifs ExperienceAcceptance Outbox/091 ;
+- Build & CI Evidence 03 : IDENTIFIÉ — NON OUVERT ; aucune Foundation 5.9 ouverte.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02
 
 - nature : Reproducible Build & CI Evidence ;
-- statut : NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
 - source : `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7` via le tag annoté immuable `phase-5.9-baseline-candidate` ;
 - aucune Foundation 5.9 ouverte.
 - blocages : cinq échecs Architecture clean-room, aucune exécution CI externe, aucune reproduction indépendante.

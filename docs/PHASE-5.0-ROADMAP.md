@@ -1,9 +1,11 @@
 # Phase 5.0 → Production — Roadmap directrice
 
-## État normatif courant 5.9 — Reproducible Build & CI Evidence 02
+## État normatif courant 5.9 — Candidate Baseline Integrity Correction
 
-- `PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` : NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
-- clean-room : Unit et Feature PASS ; Architecture FAIL, 5 échecs sur 908 ; CI externe et reproduction indépendante MISSING ;
+- `PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` : OUVERTE, unique jalon 5.9 actif ;
+- Build & CI Evidence 02 : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- anomalie R1 découverte ultérieurement : `database/migrations` absent et baseline Architecture ExperienceAcceptance Outbox/091 incomplète ;
+- Build & CI Evidence 03 : IDENTIFIÉ — NON OUVERT ;
 - source candidate immuable : `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7` / `phase-5.9-baseline-candidate` ;
 - Candidate Baseline Materialization : GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
 - `PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-01` : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;

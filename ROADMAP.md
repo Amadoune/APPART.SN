@@ -1,8 +1,8 @@
 # Roadmap APPART.SN REBUILD 2026
 
-## État normatif courant 5.9 — Reproducible Build & CI Evidence 02
+## État normatif courant 5.9 — Candidate Baseline Integrity Correction
 
-`PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` est NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif : le clean-room révèle cinq échecs Architecture liés au répertoire `database/migrations` absent du commit et à la baseline Outbox ExperienceAcceptance 091 non synchronisée ; aucune CI externe ni reproduction indépendante n'est disponible. Candidate Baseline Materialization est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Les jalons historiques restent inchangés, les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS et aucune Foundation 5.9 n'est ouverte.
+`PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` est OUVERTE, unique jalon 5.9 actif. Build & CI Evidence 02 est NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Le GO historique de Candidate Baseline Materialization reste conservé, avec anomalie de complétude découverte ultérieurement : `database/migrations` absent et admissions nominatives ExperienceAcceptance Outbox/091 non synchronisées. Evidence 03 et les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS ; aucune Foundation 5.9 n'est ouverte.
 
 ## HISTORICAL_ONLY — État normatif 5.9 — Candidate Baseline Materialization
 
