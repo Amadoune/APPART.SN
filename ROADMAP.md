@@ -2,7 +2,7 @@
 
 ## État normatif courant 5.9 — Candidate Baseline Integrity Correction
 
-`PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` est OUVERTE, unique jalon 5.9 actif. Build & CI Evidence 02 est NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Le GO historique de Candidate Baseline Materialization reste conservé, avec anomalie de complétude découverte ultérieurement : `database/migrations` absent et admissions nominatives ExperienceAcceptance Outbox/091 non synchronisées. Evidence 03 et les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS ; aucune Foundation 5.9 n'est ouverte.
+`PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` est GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif. La baseline R2 `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988` est matérialisée et ses gates ciblées sont PASS. Build & CI Evidence 02 est NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Evidence 03 et les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS ; aucune Foundation 5.9 n'est ouverte.
 
 ## HISTORICAL_ONLY — État normatif 5.9 — Candidate Baseline Materialization
 

@@ -3,9 +3,10 @@
 ## PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01
 
 - nature : correction d'intégrité de baseline candidate ;
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
 - périmètre : matérialisation Git de `database/migrations` et alignements Architecture nominatifs ExperienceAcceptance Outbox/091 ;
 - Build & CI Evidence 03 : IDENTIFIÉ — NON OUVERT ; aucune Foundation 5.9 ouverte.
+- baseline R2 : `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988`, tag annoté `phase-5.9-baseline-candidate-r2`.
 
 ## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02
 

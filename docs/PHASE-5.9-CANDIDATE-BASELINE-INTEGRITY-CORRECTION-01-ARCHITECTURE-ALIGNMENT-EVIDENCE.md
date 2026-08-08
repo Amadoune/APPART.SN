@@ -8,4 +8,6 @@ Admissions ajoutées :
 
 Ces admissions sont symétriques aux Outboxes AdministrationConsole, LegacyMigration, Notifications, ReliabilityOperations et SecurityCompliance déjà listées. Aucun wildcard générique supplémentaire n'est introduit.
 
-Résultat Architecture R2 : à consigner après clone neuf.
+Résultat Architecture complète depuis le clone neuf R2 : PASS — 908/908 tests, 85 816 assertions, exit code 0. Les cinq échecs -02 sont levés sans aucune admission générique.
+
+PostgreSQL ciblé ExperienceAcceptance Outbox/091 : PASS — 4 tests, 47 assertions, exit code 0.

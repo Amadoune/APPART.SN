@@ -2,7 +2,7 @@
 
 ## [PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01] — 2026-08-08
 
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
 - objectif : corriger exclusivement la matérialisation Git de `database/migrations` et les admissions Architecture nominatives ExperienceAcceptance Outbox/091 ;
 - `REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-03` : IDENTIFIÉ — NON OUVERT ;
 - aucune Foundation ni aucun autre chantier 5.9 ouvert.

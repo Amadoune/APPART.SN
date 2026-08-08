@@ -2,7 +2,8 @@
 
 ## État normatif courant 5.9 — Candidate Baseline Integrity Correction
 
-- `PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` : OUVERTE, unique jalon 5.9 actif ;
+- `PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- baseline R2 : `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988`, Architecture et PostgreSQL ciblé PASS ;
 - Build & CI Evidence 02 : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
 - anomalie R1 découverte ultérieurement : `database/migrations` absent et baseline Architecture ExperienceAcceptance Outbox/091 incomplète ;
 - Build & CI Evidence 03 : IDENTIFIÉ — NON OUVERT ;
