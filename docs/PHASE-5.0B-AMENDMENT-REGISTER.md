@@ -1,9 +1,36 @@
 # Phase 5.0B — Amendment Register
 
-## PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02
+## PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-03
+
+- nature : matérialisation de la candidate incluant le correctif Packaging certifié ;
+- statut : OUVERTE, unique jalon 5.9 actif ;
+- Evidence 06 : NON OUVERTE.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-05
+
+- nature : campagne complète Reproducible Build & CI depuis R3 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- aucun artifact Evidence 04 réutilisé.
+- première divergence : blob packaging certifié absent de la source R3 obligatoire.
+
+## HISTORICAL_ONLY — PHASE-5.9-DETERMINISTIC-PACKAGING-CORRECTION-01
+
+- nature : correction procédurale bornée du packaging R3 ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- preuve : Packaging A terminal PASS, exit 0, 14 min 08 s, manifeste complet ;
+- Evidence 05 : NON OUVERTE.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-04
+
+- nature : campagne complète Reproducible Build & CI depuis R3 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source exclusive : `phase-5.9-baseline-candidate-r3` → `a2c53c00094a219c9858261f952f5599a260a828`.
+- première divergence : packaging A timeout 124 ; CI et reproduction indépendante MISSING.
+
+## HISTORICAL_ONLY — PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02
 
 - nature : matérialisation de la baseline candidate R3 ;
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - Evidence 04 : IDENTIFIÉ — NON OUVERT.
 
 ## HISTORICAL_ONLY — PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-02

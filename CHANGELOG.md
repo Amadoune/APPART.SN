@@ -1,8 +1,35 @@
 # Changelog
 
-## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02] — 2026-08-08
+## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-03] — 2026-08-08
 
 - statut : OUVERTE, unique jalon 5.9 actif ;
+- objectif : matérialisation d'une candidate descendante de R3 contenant exactement le blob Packaging certifié ;
+- Evidence 06 : NON OUVERTE.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-05] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source unique : clone neuf du tag annoté `phase-5.9-baseline-candidate-r3` ;
+- aucune preuve ou artifact Evidence 04 recyclé.
+- première divergence : R3 ne contient pas le blob packaging certifié ; toutes les portes suivantes sont bloquées ou manquantes.
+
+## HISTORICAL_ONLY — [PHASE-5.9-DETERMINISTIC-PACKAGING-CORRECTION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- périmètre : correction exclusive du timeout Packaging A et du champ `composerVersion` ;
+- Packaging A terminal PASS — exit 0, 14 min 08 s, manifeste complet, 9 522 fichiers ;
+- R3 inchangée ; Evidence 05 NON OUVERTE.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-04] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source unique : clone neuf du tag annoté `phase-5.9-baseline-candidate-r3` ;
+- aucune preuve Evidence 01–03 recyclée.
+- première porte rouge : packaging A timeout 124 ; packaging B, comparaison, CI et reproduction indépendante non exécutés.
+
+## HISTORICAL_ONLY — [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - objectif : création exclusive du commit candidat R3 et de son tag annoté immuable ;
 - Evidence 04 : IDENTIFIÉ — NON OUVERT.
 

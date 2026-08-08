@@ -55,6 +55,10 @@ php "$ROOT/tools/release/create-deterministic-tar.php" "$RELEASE_ROOT" "$OUTPUT_
 sha256sum "$OUTPUT_DIR/appart-release.tar" > "$OUTPUT_DIR/artifact-sha256.txt"
 sha256sum "$OUTPUT_DIR/tree-sha256.txt" > "$OUTPUT_DIR/tree-root-sha256.txt"
 
+readonly COMPOSER_VERSION="$(composer --version --no-ansi 2>/dev/null | head -n 1)"
+test -n "$COMPOSER_VERSION"
+export APPART_COMPOSER_VERSION="$COMPOSER_VERSION"
+
 php -r '
 $root=$argv[1]; $out=$argv[2]; $project=getcwd();
 $migrations=[];
@@ -70,7 +74,7 @@ $manifest=[
  "buildCommitSha"=>getenv("BUILD_SHA"),
  "buildDateUtc"=>gmdate("Y-m-d\\TH:i:s\\Z"),
  "phpVersion"=>PHP_VERSION,
- "composerVersion"=>trim((string)shell_exec("composer --version --no-ansi 2>/dev/null")),
+ "composerVersion"=>getenv("APPART_COMPOSER_VERSION"),
  "nodeVersion"=>trim((string)shell_exec("node --version")),
  "npmVersion"=>trim((string)shell_exec("npm --version")),
  "buildEnvironmentIdentity"=>getenv("BUILD_ENVIRONMENT_IDENTITY")?:PHP_OS_FAMILY,
