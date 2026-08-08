@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly EXPECTED_SOURCE_BASE="5b1d0e647d1f74629b5f7e99e6f9d7e31941e988"
-readonly EXPECTED_CANDIDATE_TAG="phase-5.9-baseline-candidate-r3"
+readonly EXPECTED_SOURCE_BASE="058719f8aa154466056299b8c26bd7d51f944127"
+readonly EXPECTED_CANDIDATE_TAG="phase-5.9-baseline-candidate-r5"
 readonly ROOT="$(git rev-parse --show-toplevel)"
 readonly BUILD_SHA="$(git rev-parse HEAD)"
 readonly OUTPUT_DIR="${1:-$ROOT/dist/release}"

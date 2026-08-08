@@ -6,11 +6,13 @@ use PHPUnit\Framework\TestCase;
 
 final class BuildCiSourceIdentityArchitectureTest extends TestCase
 {
-    private const CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r3';
+    private const CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
 
-    private const SOURCE_BASE = '5b1d0e647d1f74629b5f7e99e6f9d7e31941e988';
+    private const SOURCE_BASE = '058719f8aa154466056299b8c26bd7d51f944127';
 
-    private const R1 = '1337e225c63e6a3e25c5926f7c4fbddb4ba24da7';
+    private const PREVIOUS_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r3';
+
+    private const PREVIOUS_CANDIDATE_COMMIT = 'a2c53c00094a219c9858261f952f5599a260a828';
 
     public function test_runtime_lock_expresses_the_non_self_referential_identity_policy(): void
     {
@@ -37,7 +39,8 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
             self::assertStringContainsString(self::CANDIDATE_TAG, $control);
             self::assertStringContainsString('git cat-file -t', $control);
             self::assertStringContainsString('git merge-base --is-ancestor', $control);
-            self::assertStringNotContainsString(self::R1, $control);
+            self::assertStringNotContainsString(self::PREVIOUS_CANDIDATE_TAG, $control);
+            self::assertStringNotContainsString(self::PREVIOUS_CANDIDATE_COMMIT, $control);
         }
 
         self::assertStringContainsString('= "$GITHUB_SHA"', $workflow);

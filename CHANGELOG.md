@@ -1,8 +1,28 @@
 # Changelog
 
-## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-03] — 2026-08-08
+## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04] — 2026-08-08
 
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- objet : matérialiser la candidate R5 descendante de R4 contenant exactement la correction certifiée et sa traçabilité normative ;
+- Evidence 07 : IDENTIFIÉE — NON OUVERTE.
+
+## HISTORICAL_ONLY — [PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-03] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- objectif : aligner Runtime lock, workflow et packaging sur R4 → future R5 ;
+- preuves terminales : identité ciblée, Unit, Feature, Architecture, Foundation, PostgreSQL, PHPStan, Pint, Frontend, scan ciblé de secrets et `git diff --check` PASS ;
+- Candidate Materialization 04 : OUVERTE ; Evidence 07 : NON OUVERTE.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-06] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source unique : clone neuf du tag annoté `phase-5.9-baseline-candidate-r4` ;
+- aucun artifact ni PASS Evidence 04/05 recyclé.
+- première porte rouge : identité candidate R4 FAIL, les trois contrôles exigent encore R3 ; portes suivantes bloquées ou manquantes.
+
+## HISTORICAL_ONLY — [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-03] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - objectif : matérialisation d'une candidate descendante de R3 contenant exactement le blob Packaging certifié ;
 - Evidence 06 : NON OUVERTE.
 

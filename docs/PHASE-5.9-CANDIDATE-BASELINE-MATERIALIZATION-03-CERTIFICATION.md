@@ -1,6 +1,6 @@
 # Candidate Baseline Materialization 03
 
-Statut : `OUVERTE`.
+Statut : `GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY`.
 
 Objectif exclusif : matérialiser une nouvelle baseline candidate descendante de R3 contenant exactement le blob Packaging certifié `53cb5974a56e428aaae811be5c7cead09476b719`, puis créer un tag annoté immuable.
 

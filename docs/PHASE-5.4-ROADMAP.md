@@ -1,8 +1,8 @@
 # Phase 5.4 — Roadmap
 
-## Transition normative courante 5.9 — Candidate Baseline Materialization 03
+## Transition normative courante 5.9 — Candidate Baseline Materialization 04
 
-`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-03` est OUVERTE, unique jalon 5.9 actif. Evidence 05 est NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. La candidate doit descendre de R3 et intégrer exactement le blob Packaging certifié. R1/R2/R3 restent immuables ; Evidence 06 est NON OUVERTE.
+`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04` est GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif. Correction 03 est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. La candidate R5 doit descendre de R4 et contenir exactement la correction certifiée. R1–R4 restent immuables ; Evidence 07 est IDENTIFIÉE — NON OUVERTE.
 
 ## HISTORICAL_ONLY — Transition normative 5.9 — Candidate Baseline Materialization
 

@@ -1,9 +1,30 @@
 # Phase 5.0B — Amendment Register
 
-## PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-03
+## PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04
+
+- nature : Workspace Qualification / Candidate R5 Materialization ;
+- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- source ancestrale : R4 immuable ;
+- Evidence 07 : IDENTIFIÉE — NON OUVERTE.
+
+## HISTORICAL_ONLY — PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-03
+
+- nature : amendement borné de source identity R4 → future R5 ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- gates : identité ciblée, Unit, Feature, Architecture, Foundation, PostgreSQL, PHPStan, Pint, Frontend, scan ciblé de secrets et `git diff --check` PASS ;
+- Materialization 04 : OUVERTE ; Evidence 07 : NON OUVERTE.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-06
+
+- nature : campagne complète Reproducible Build & CI depuis R4 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- aucune preuve Evidence 04/05 recyclée.
+- première divergence : identité candidate R4 refusée par les contrôles encore fixés à R3.
+
+## HISTORICAL_ONLY — PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-03
 
 - nature : matérialisation de la candidate incluant le correctif Packaging certifié ;
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - Evidence 06 : NON OUVERTE.
 
 ## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-05
