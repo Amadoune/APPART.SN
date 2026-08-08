@@ -1,0 +1,10 @@
+<?php
+
+namespace Appart\Modules\ReservationLifecycle\Application\ReservationAvailabilityOwnerSourceRuntime\Contract;
+
+use Appart\Modules\ReservationLifecycle\Application\ReservationAvailabilityOwnerSourceRuntime\ReservationAvailabilityOwnerSourceRuntimeAvailability;
+
+interface ReservationAvailabilityOwnerSourceRuntimeAvailabilityPolicy
+{
+    public function inspect(): ReservationAvailabilityOwnerSourceRuntimeAvailability;
+}

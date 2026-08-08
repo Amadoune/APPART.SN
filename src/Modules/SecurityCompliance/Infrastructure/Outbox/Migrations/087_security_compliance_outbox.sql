@@ -1,0 +1,34 @@
+CREATE SCHEMA IF NOT EXISTS security_compliance;
+
+CREATE TABLE IF NOT EXISTS security_compliance.outbox_message_journal (
+    message_id char(64) PRIMARY KEY CHECK (message_id ~ '^[0-9a-f]{64}$'),
+    event_id char(64) NOT NULL UNIQUE CHECK (event_id ~ '^[0-9a-f]{64}$'),
+    owner_name varchar(64) NOT NULL CHECK (owner_name = 'SecurityCompliance'),
+    schema_version smallint NOT NULL CHECK (schema_version = 1),
+    message_type varchar(96) NOT NULL CHECK (message_type IN (
+        'security-compliance.secret-inventory.observed.v1',
+        'security-compliance.security-audit.observed.v1',
+        'security-compliance.incident.observed.v1',
+        'security-compliance.privacy-policy.observed.v1',
+        'security-compliance.compliance-control.observed.v1'
+    )),
+    delivery_status varchar(32) NOT NULL CHECK (delivery_status IN ('available', 'missing', 'corrupted', 'dependency_unavailable')),
+    observed_at timestamptz NOT NULL,
+    payload jsonb NOT NULL,
+    message_checksum char(64) NOT NULL CHECK (message_checksum ~ '^[0-9a-f]{64}$'),
+    created_at timestamptz NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS security_compliance.outbox_message_state (
+    message_id char(64) PRIMARY KEY REFERENCES security_compliance.outbox_message_journal(message_id),
+    technical_status varchar(32) NOT NULL CHECK (technical_status IN ('pending', 'claimed', 'retry_scheduled', 'completed', 'attempts_exhausted')),
+    attempts smallint NOT NULL DEFAULT 0 CHECK (attempts BETWEEN 0 AND 10),
+    available_at timestamptz NOT NULL,
+    claimed_at timestamptz NULL,
+    completed_at timestamptz NULL
+);
+
+CREATE INDEX IF NOT EXISTS security_compliance_outbox_eligible
+    ON security_compliance.outbox_message_state (technical_status, available_at, message_id);
+
+REVOKE UPDATE, DELETE, TRUNCATE ON security_compliance.outbox_message_journal FROM PUBLIC;

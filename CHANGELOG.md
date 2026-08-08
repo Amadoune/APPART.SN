@@ -1,5 +1,1222 @@
 # Changelog
 
+## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01] — 2026-08-08
+
+- statut : OUVERTE, unique jalon 5.9 actif ;
+- nature : qualification du workspace, matérialisation de la baseline source et versionnement candidat ;
+- staging explicitement borné, commit unique et tag annoté autorisés seulement après qualification exhaustive ;
+- aucun autre chantier ni aucune Foundation 5.9 ouverts.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-01] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- constat : aucun commit candidat propre ; pipeline CI, clean-room et artefact release absents ;
+- sept autres chantiers 5.9 : IDENTIFIÉS — NON OUVERTS ;
+- aucune migration ni capacité gelée modifiée.
+
+## HISTORICAL_ONLY — [PHASE-5.9-PRODUCTION-READINESS-REVIEW-EVIDENCE-CONSOLIDATION-01] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- preuves techniques internes nombreuses mais non rattachées à un artefact Release Candidate immuable ;
+- blocages : release/rollback global, backup/restore/DR, observabilité, sécurité opérationnelle, environnement externe, runbooks/incidents et capacité ;
+- aucune correction ni Foundation ouverte ; risques non acceptés.
+
+## HISTORICAL_ONLY — [PHASE-5.9-PRODUCTION-READINESS-REVIEW-DISCOVERY-01] — 2026-08-08
+
+- statut : DISCOVERY / BLUEPRINT — GO CERTIFIÉ — FERMÉ — GELÉ ;
+- owner candidat `ProductionReadinessReview` et frontière documentaire qualifiés ;
+- responsabilités, dépendances, risques et matrice des preuves finales établis ;
+- aucune Foundation 5.9 ouverte ; Phase 5.8C maintenue gelée et migrations inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-08
+
+- statut : GO FINAL CERTIFIÉ — FERMÉ — GELÉ ;
+- Phase 5.8C : GO FINAL CERTIFIÉE — FERMÉE — GELÉE ;
+- douze jalons consolidés en GO CERTIFIÉS — FERMÉS — HISTORICAL_ONLY ;
+- migrations 090–091 et rollbacks gelés ; aucun jalon actif ; Phase 5.9 NON OUVERTE.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-CONSUMER-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Consumer déterministe dépendant exclusivement des résultats Routing V1 ;
+- validation des sept destinations avant consommation et conservation stricte des métadonnées ;
+- aucun effet, aucune mutation ni persistance ; migrations 090–091 inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-ROUTING-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Routing déterministe alimenté exclusivement par les enveloppes Transport V1 ;
+- catalogue fermé de sept destinations et conservation stricte des métadonnées ;
+- aucun Consumer ouvert ; migrations 090–091 inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-TRANSPORT-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Transport déterministe alimenté exclusivement par les messages Outbox ExperienceAcceptance ;
+- messageId, eventId, EventType, status, observedAt et checksum conservés strictement ;
+- aucun Routing ni Consumer ouvert ; migrations 090–091 inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-OUTBOX-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Outbox owner-scoped alimentée exclusivement par les sept Deliveries V1 ;
+- identité et checksum SHA-256 canoniques, idempotence, claim exclusif et retry borné ;
+- migration additive 091 créée ; migration 090 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-DELIVERY-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept familles Delivery V1, soit 35 composants, dérivées exclusivement des Events V1 ;
+- EventType, status et observedAt propagés strictement sans transformation ;
+- aucune Outbox ouverte ; migration 090 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-EVENT-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept familles Event V1, soit 35 composants, dérivées exclusivement des Readers V1 ;
+- 28 réductions exhaustives, mécaniques, bijectives et homonymes ;
+- aucune Delivery ni Outbox ouverte ; migration 090 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-HTTP-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept façades HTTP publiques consomment exclusivement les sept Readers V1 ;
+- mappings exhaustifs vers HTTP 200, 404 et 503 ;
+- aucun Event, Delivery ou Outbox ouvert ; migration 090 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-OWNER-READER-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Boundary Audit : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept Owner Readers et sept aliases publics nominatifs matérialisés ;
+- aucun Runtime Read, HTTP, Event, Delivery ou Outbox ouvert ; migration 090 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-OWNER-READER-BOUNDARY-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Runtime Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- source unique et sept chaînes Owner Reader qualifiées documentairement ;
+- aucune implémentation, Foundation suivante, migration ou test créé.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-RUNTIME-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Persistence Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Runtime technique, Availability, Diagnostics et Provider unique matérialisés ;
+- aucun Runtime Read, Owner Reader, HTTP, Event, Delivery ou Outbox ouvert ; migration 090 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-PERSISTENCE-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Contracts Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Owner Source, sept streams, mapper, repository PostgreSQL et migration additive 090 matérialisés ;
+- aucun Runtime, Provider, HTTP, Event, Delivery, Outbox, Transport, Routing ou Consumer ouvert.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-CONTRACTS-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Discovery 5.8C : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept Readers V1 read-only, Results, Status et Value Object temporel matérialisés ;
+- aucune Persistence, migration, Runtime, HTTP, Event, Delivery ou Outbox ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.8C-EXPERIENCE-AND-ACCEPTANCE-DISCOVERY-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- owner candidat unique : `ExperienceAcceptance` ;
+- frontières UX, UI, responsive, accessibilité, i18n éventuelle, E2E, performance utilisateur, UAT, Release Candidate et Production Readiness qualifiées ;
+- aucune Foundation, implémentation, migration, contrat ou test ouvert ; Phase 5.8B maintenue gelée.
+
+## [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-08
+
+- statut : GO FINAL CERTIFIÉ — FERMÉ — GELÉ ;
+- Outbox Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Unit, Architecture, PostgreSQL, Feature, PHPStan, Pint et git diff --check : PASS terminal ;
+- Phase 5.8B : GO FINAL CERTIFIÉE — FERMÉE — GELÉE ; aucun jalon actif et aucune phase suivante ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-OUTBOX-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Delivery Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Outbox owner-scoped matérialisée exclusivement depuis les sept Deliveries V1 ;
+- migration additive 089 et rollback créés ; aucun Transport, Routing ou Consumer ouvert.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-DELIVERY-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Event Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept familles Delivery V1 et trente-cinq composants matérialisés exclusivement depuis les Events V1 ;
+- aucun Outbox, Transport, Routing ou Consumer ouvert ; migration 088 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-EVENT-FOUNDATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- HTTP Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept familles Event V1 et trente-cinq composants matérialisés depuis les Readers V1 ;
+- aucune Delivery, Outbox, Transport, Routing ou Consumer ouvert ; migration 088 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-HTTP-FOUNDATION-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Owner Reader Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept Controllers, sept Requests, ResponseFactory, HttpRuntime, Provider et routes GET matérialisés ;
+- aucune Foundation Event, Delivery ou Outbox ouverte ; migration 088 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-OWNER-READER-FOUNDATION-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Contracts Alignment : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept Owner Readers et sept aliases publics nominatifs matérialisés ;
+- aucune Foundation HTTP, Event, Delivery ou Outbox ouverte ; migration 088 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-CONTRACTS-ALIGNMENT-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Boundary Audit : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- statuts publics Missing et Corrupted alignés sur les sept Readers V1 ;
+- aucune implémentation, Foundation Owner Reader ou surface aval ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-OWNER-READER-BOUNDARY-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Runtime Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- source unique et sept chaînes Owner Reader qualifiées documentairement ;
+- incompatibilité exhaustive Missing/Corrupted consignée, Owner Reader Foundation NON AUTORISÉE ;
+- aucun composant technique, test ou migration créé ou modifié.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-RUNTIME-FOUNDATION-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Persistence Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ; migration 088 gelée ;
+- Runtime technique, Availability, Diagnostics et Provider unique matérialisés ;
+- aucun Runtime Read, Owner Reader, HTTP, Event, Delivery ou Outbox ouvert.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-PERSISTENCE-FOUNDATION-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Contracts Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Owner Source, sept streams, mapper, repository PostgreSQL et migration additive 088 matérialisés ;
+- aucun Runtime, Provider, HTTP, Event, Delivery, Outbox ou composant aval ouvert ;
+- migrations 084–087 et capacités certifiées inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-CONTRACTS-FOUNDATION-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Discovery 5.8B : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- sept Readers publics V1 read-only, Results, Status et Value Object temporel matérialisés ;
+- aucune Persistence, Runtime, Provider, HTTP, Event, Delivery, Outbox, migration ou composant Infrastructure ;
+- aucune Foundation ultérieure ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.8B-RELIABILITY-AND-OPERATIONS-DISCOVERY-01] — 2026-08-07
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- owner candidat unique : `ReliabilityOperations`, sans autorité métier transverse ;
+- frontières, responsabilités, dépendances, risques et critères de certification futurs qualifiés ;
+- aucune Foundation 5.8B, aucun code, contrat, Provider, Runtime, HTTP, Event, Delivery, Outbox, migration ou test ouvert ;
+- Phase 5.8A maintenue GO FINAL CERTIFIÉE — FERMÉE — GELÉE.
+
+## [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-07
+
+- statut : GO FINAL CERTIFIÉ — FERMÉ — GELÉ ;
+- Phase 5.8A : GO FINAL CERTIFIÉE — FERMÉE — GELÉE ; aucun jalon 5.8A actif ;
+- campagnes Unit, Architecture, PostgreSQL, PHPStan, Pint global, Feature HTTP ciblée et `git diff --check` : PASS terminal ;
+- migrations 086 et 087 avec leurs rollbacks : certifiées, empreintes inchangées et gelées ;
+- à la clôture de 5.8A, Transport, Routing, Consumer et Phase 5.8B étaient NON OUVERTS.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-OUTBOX-FOUNDATION-01] — clôture — 2026-08-06
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- migrations 086 et 087 avec rollbacks intégrées à la baseline de gel.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-OUTBOX-FOUNDATION-01] — ouverture — 2026-08-06
+
+- statut historique d'ouverture, désormais remplacé par GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- périmètre : Outbox owner-scoped `SecurityCompliance` alimentée exclusivement par cinq Deliveries V1 ;
+- migration additive unique 087 ; Transport, Routing et Consumer restent NON OUVERTS ;
+- Delivery Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-DELIVERY-FOUNDATION-01] — 2026-08-06
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- périmètre : cinq familles Delivery V1 issues exclusivement des cinq Events V1 certifiés ;
+- Outbox, Transport, Routing et Consumer restent NON OUVERTS ;
+- Event Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-EVENT-FOUNDATION-01] — 2026-08-06
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- cinq familles Event V1 complètes, soit 25 composants ;
+- vingt réductions mécaniques depuis les cinq Readers publics V1 disponibles ;
+- Payloads limités à `status` et `observedAt`, sans donnée sensible ;
+- trois familles sans source exclues ; HTTP Foundation fermée et `HISTORICAL_ONLY`.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-HTTP-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- cinq Controllers, cinq Requests strictes, ResponseFactory et HttpRuntime V1 ;
+- cinq routes GET et vingt mappings mécaniques vers HTTP 200, 404 ou 503 ;
+- réponses limitées à status/observedAt avec `no-store` et `nosniff` ;
+- trois Readers sans source exclus ; Owner Reader Foundation fermée et `HISTORICAL_ONLY`.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-OWNER-READER-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- cinq Owner Readers mécaniques alimentés exclusivement par `SecurityComplianceOwnerSource` ;
+- Policy, Result, Status et contrat owner V1 communs ;
+- cinq aliases publics et un alias Policy, singletons lazy nominatifs ;
+- trois Readers sans source maintenus absents ; Boundary Audit fermé et `HISTORICAL_ONLY`.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-OWNER-READER-BOUNDARY-01] — 2026-08-04
+
+- statut : BOUNDARY AUDIT — GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- owner `SecurityCompliance`, source candidate unique `SecurityComplianceOwnerSource` ;
+- cinq chaînes Owner Reader → Reader V1 qualifiées par réduction homonyme ;
+- `CryptographyPolicyReaderV1`, `DataRetentionReaderV1` et `DataExportReaderV1` constatés sans source owner-scoped ;
+- Runtime Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ; aucune Foundation 5.8A ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-RUNTIME-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- Runtime de disponibilité technique alimenté exclusivement par `SecurityComplianceOwnerSource` ;
+- catalogue fermé `Available`, `Corrupted`, `DependencyUnavailable` et diagnostics minimaux ;
+- Provider singleton lazy nominatif enregistré une seule fois ;
+- Persistence Foundation : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ; migration 086 gelée.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-PERSISTENCE-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- `SecurityComplianceOwnerSource` et cinq streams owner-scoped indépendants.
+- Mapper, repository PostgreSQL append-only et migration additive 086 avec rollback.
+- Temporalité, checksum SHA-256, optimistic locking, idempotence et savepoints.
+- Discovery et Contracts : GO CERTIFIÉS — FERMÉS — HISTORICAL_ONLY ; aucune Runtime Foundation ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-CONTRACTS-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- huit Readers publics V1 read-only, deux Value Objects et seize types Result/Status ;
+- 32 états contextuels fermés, Results limités à `status` et `observedAt` UTC ;
+- aucun secret, clé, PII, contenu, configuration ou identifiant interne exposé ;
+- Discovery 5.8A : GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ; la Persistence Foundation lui succède comme unique jalon actif.
+
+## HISTORICAL_ONLY — [PHASE-5.8A-SECURITY-PRIVACY-COMPLIANCE-DISCOVERY-01] — 2026-08-04
+
+- statut : DISCOVERY / BLUEPRINT — GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ;
+- owner recommandé : `SecurityCompliance`, sans autorité métier des autres domaines ;
+- frontières Security, Privacy et Compliance, politiques candidates et risques qualifiés ;
+- aucune Foundation 5.8A ouverte, aucun code, contrat, test ou migration créé ;
+- Phase 5.7 demeure GO FINAL CERTIFIÉE — FERMÉE — GELÉE, migrations 084/085 gelées.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-04
+
+- statut final : Phase 5.7 GO FINAL CERTIFIÉE — FERMÉE — GELÉE ;
+- dix jalons consolidés GO CERTIFIÉS — FERMÉS ; aucune Foundation 5.7 ouverte et aucun jalon actif ;
+- surfaces Contracts, Persistence, Runtime, Owner Reader, HTTP, Event, Delivery et Outbox gelées ;
+- migrations 084 et 085, ainsi que leurs rollbacks, GO CERTIFIÉES — GELÉES ;
+- Transport, Routing, Consumer et Phase 5.8 restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-OUTBOX-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- Outbox owner-scoped des cinq Deliveries avec identité et checksum SHA-256 canoniques ;
+- idempotence, divergence, lecture ordonnée, retry à dix et concurrence déterministe ;
+- repository PostgreSQL, migration additive 085 et rollback ; savepoints et rollback externe préservés ;
+- Delivery Foundation devient GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-DELIVERY-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- cinq familles Delivery V1 complètes, soit 25 composants ;
+- 27 propagations mécaniques depuis les cinq Events V1 ;
+- conservation stricte du type Event, du statut et de `observedAt`, Payloads minimaux ;
+- Event Foundation devient GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-EVENT-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- cinq catalogues Event V1 complets, soit 25 composants ;
+- 27 réductions mécaniques depuis les cinq Readers publics V1 ;
+- Payloads limités à `status` et `observedAt` recopié, sans donnée Legacy ou PII ;
+- HTTP Foundation devient GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-HTTP-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- cinq Controllers, cinq Requests strictes, ResponseFactory et HttpRuntime V1 ;
+- cinq routes GET publiques et 27 mappings vers HTTP 200, 404 ou 503 ;
+- dépendances exclusives aux cinq Readers publics V1, sans logique métier ni Infrastructure ;
+- Owner Reader Foundation devient GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-OWNER-READER-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- cinq Owner Readers mécaniques alimentés exclusivement par `LegacyMigrationOwnerSource` ;
+- Policy, Result, Status et contrat owner V1 communs couvrant 27 états contextuels ;
+- cinq aliases publics uniques, singletons lazy et Provider enregistré une fois ;
+- Boundary Audit devient GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ; aucune surface ultérieure ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-OWNER-READER-BOUNDARY-01] — 2026-08-04
+
+- statut : BOUNDARY AUDIT — GO CERTIFIÉ — OUVERTE, unique jalon 5.7 actif ;
+- owner de coordination `LegacyMigration` et source unique `LegacyMigrationOwnerSource` ;
+- cinq chaînes Owner Reader → Reader V1 et 27 réductions homonymes qualifiées ;
+- aucun code, Reader concret, Provider, binding, test ou composant technique créé ;
+- Runtime Foundation devient GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ; aucune Foundation 5.7 ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-RUNTIME-FOUNDATION-01] — 2026-08-04
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- Runtime technique déterministe adossé exclusivement à `LegacyMigrationOwnerSource` ;
+- cinq streams réduits vers `Available`, `Corrupted` ou `DependencyUnavailable`, sans décision métier ;
+- diagnostics fermés à Runtime ID, version et disponibilité ; Provider singleton lazy enregistré une fois ;
+- migration 084 protégée par deux empreintes SHA-256 ; Persistence devient fermée et HISTORICAL_ONLY.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-PERSISTENCE-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- source owner-scoped `LegacyMigrationOwnerSource`, cinq streams indépendants et lectures temporelles ;
+- mapper canonique, repository PostgreSQL append-only et migration additive 084 avec rollback ;
+- optimistic locking, idempotence, divergence, advisory locks et savepoints locaux matérialisés ;
+- Contracts Foundation devient GO CERTIFIÉ — FERMÉ — HISTORICAL_ONLY ; capacités 5.1 à 5.6 gelées inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-CONTRACTS-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — OUVERTE, unique Foundation et unique jalon 5.7 actifs ;
+- cinq Readers publics V1 strictement read-only ;
+- deux Value Objects canoniques et cinq Results limités à `status`/`observedAt` ;
+- cinq catalogues fermés totalisant 27 états ;
+- aucune PII, donnée Legacy, décision, volumétrie ou règle de transformation ; capacités gelées inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.7-LEGACY-MIGRATION-DISCOVERY-01] — 2026-08-03
+
+- statut : DISCOVERY / BLUEPRINT — GO CERTIFIÉ — FERMÉ ; à cette étape historique, unique jalon actif ;
+- owner recommandé : `LegacyMigration`, coordinateur temporaire sans autorité métier cible ;
+- inventaire Legacy, cartographie vers les nouveaux owners et huit vagues candidates ;
+- stratégies de migration, réconciliation, quarantaine, reprise, rollback et cutover qualifiées ;
+- volumétrie à mesurer, questions bloquantes explicites ; aucune Foundation 5.7 ouverte ;
+- Phase 5.6 demeure GO FINAL CERTIFIÉE — FERMÉE — GELÉE ; aucune capacité gelée modifiée.
+
+## [PHASE-5.6-ADMINISTRATION-CONSOLE-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-03
+
+- statut final : GO FINAL CERTIFIÉE — FERMÉE — GELÉE ;
+- toutes les Foundations AdministrationConsole sont GO CERTIFIÉES — FERMÉES ;
+- aucune Foundation 5.6 ouverte et aucun jalon 5.6 actif ;
+- surfaces Contracts, Persistence, Runtime, Owner Reader, HTTP, Event, Delivery et Outbox certifiées ;
+- migrations 082 et 083 GO CERTIFIÉES — GELÉES ; aucune migration ouverte ;
+- Transport, Routing et Consumer restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-OUTBOX-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — FERMÉE ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- Outbox owner-scoped alimentée exclusivement par les trois Deliveries V1 ;
+- identité déterministe, checksum SHA-256, idempotence et divergence explicite ;
+- lecture ordonnée, retry borné à dix, savepoints et rollback externe préservé ;
+- Repository PostgreSQL unique et migration additive 083 avec rollback ; migration 082 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-DELIVERY-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — FERMÉE ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- trois catalogues Delivery V1 Operator, Queue et Audit, quinze composants au total ;
+- sources exclusives : les trois Events V1 certifiés ;
+- propagation exhaustive et homonyme du type Event, du statut et de `observedAt` ;
+- payloads limités à `status` et `observedAt` ; migration 082 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-EVENT-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — FERMÉE ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- trois catalogues Event V1 Operator, Queue et Audit, quinze composants au total ;
+- sources exclusives : les trois Readers publics V1 ;
+- quatorze réductions exhaustives, mécaniques, bijectives et homonymes ;
+- payloads limités à `status` et `observedAt` UTC canonique ; migration 082 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-HTTP-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — FERMÉE ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- trois Controllers et trois Form Requests consommant exclusivement les Readers publics V1 ;
+- ResponseFactory exhaustive vers HTTP 200, 404 et 503 ;
+- HttpRuntime HTTP, Provider unique et quatre singletons lazy ;
+- aucune dépendance directe à l'OwnerSource, au Runtime interne ou à Infrastructure ; migration 082 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-OWNER-READER-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — FERMÉE ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- trois Readers owner-scoped Operator, Queue et Audit sur la source unique `AdministrationConsoleOwnerSource` ;
+- Policy, Result, Status et contrat owner V1 communs ;
+- quatre singletons lazy, trois alias publics uniques et un alias de Policy ;
+- réductions exhaustives, mécaniques, bijectives et homonymes ; migration 082 inchangée.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-OWNER-READER-BOUNDARY-01] — 2026-08-03
+
+- statut : BOUNDARY AUDIT — GO CERTIFIÉ — FERMÉ ; à cette étape historique, unique jalon 5.6 actif ;
+- owner retenu : `AdministrationConsole` ; source candidate unique : `AdministrationConsoleOwnerSource` ;
+- chaîne cible vers trois futurs Owner Readers puis les Readers V1 Operator, Queue et Audit ;
+- réductions exhaustives, mécaniques, bijectives, sans fallback, agrégation ou décision métier ;
+- jalon exclusivement documentaire ; Foundations antérieures et migration 082 inchangées.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-RUNTIME-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — FERMÉE ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- Runtime owner-scoped dépendant exclusivement de `AdministrationConsoleOwnerSource` ;
+- disponibilité technique fermée Available, Corrupted, DependencyUnavailable ;
+- diagnostics limités au Runtime ID, à la version et à la disponibilité ;
+- Provider singleton lazy et migration 082 protégée par empreintes SHA-256.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-PERSISTENCE-FOUNDATION-01] — 2026-08-03
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- Persistence owner-scoped `AdministrationConsole`, trois streams indépendants Operator, Queue et Audit ;
+- journal append-only, index courant dérivé, lecture temporelle et checksum SHA-256 canonique ;
+- optimistic locking, idempotence, savepoints et rollback externe préservé ;
+- migration additive 082 et rollback associé.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-CONTRACTS-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, unique Foundation et unique jalon 5.6 actifs ;
+- trois Readers publics V1 read-only Operator, Queue et Audit ;
+- catalogues fermés et résultats limités au statut ;
+- subject key canonique et observation UTC explicite à la microseconde ;
+- aucune implémentation, Infrastructure, Runtime, HTTP, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [PHASE-5.6-ADMINISTRATION-CONSOLE-DISCOVERY-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, unique jalon 5.6 actif
+  et aucune Foundation 5.6 ouverte ;
+- owner recommandé : `AdministrationConsole` ;
+- frontières IAM, Moderation, Notifications, ContentSeo et AdministrationAudit qualifiées ;
+- aucune implémentation, contrat, Persistence, Runtime ou test.
+
+## [PHASE-5.5C-NOTIFICATIONS-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-02
+
+- statut final : GO FINAL CERTIFIÉ — FERMÉ — GELÉ ;
+- toutes les Foundations Notifications sont GO CERTIFIÉES — FERMÉES ;
+- aucune Foundation 5.5C n'est ouverte ;
+- aucun jalon 5.5C n'est actif ;
+- migrations 079 et 080 GO CERTIFIÉES — GELÉES, aucune migration ouverte ;
+- Runtime, HTTP, Event, Delivery et Outbox certifiés ;
+- Transport, Routing et Consumer restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-FINAL-CERTIFICATION-AND-FREEZE-01] — ouverture — 2026-08-02
+
+- à cette étape historique, le jalon était GO CERTIFIÉ — OUVERTE et constituait
+  l'unique jalon 5.5C actif ;
+- aucune Foundation 5.5C n'était ouverte.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-OUTBOX-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, elle constituait
+  l'unique Foundation et l'unique jalon 5.5C actifs ;
+- Outbox owner-scoped issue exclusivement de `NotificationDeliveryV1` ;
+- journal append-only, identité et checksum SHA-256 déterministes ;
+- idempotence, DivergentMessage, retry borné, savepoints et rollback externe ;
+- migration additive 080 et rollback associé.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-DELIVERY-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- Delivery V1 issue exclusivement de `NotificationEventV1` ;
+- propagation mécanique type, statut et observedAt ;
+- catalogue fermé des 14 combinaisons Event certifiées ;
+- aucun Provider, Transport, Routing, Consumer ou Outbox.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-EVENT-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- catalogue Event V1 Preference, Template et Channel ;
+- sources uniques : Readers publics V1 Notifications ;
+- réduction exhaustive et mécanique des 14 résultats publics ;
+- aucun Provider, Transport, Routing, Delivery, Outbox ou Consumer.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-HTTP-FOUNDATION-01] — représentation après Owner Reader — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- composition HTTP désormais complète via les trois Readers publics V1 ;
+- bindings résolus par la Owner Reader Foundation certifiée ;
+- mapping HTTP inchangé et exhaustif ;
+- aucun accès direct à Owner Source, Runtime, PostgreSQL ou Infrastructure.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-OWNER-READER-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- trois Readers owner-scoped Preference, Template et Channel ;
+- dépendance source unique : `NotificationsOwnerSource` ;
+- réduction exhaustive et mécanique vers les contrats publics V1 ;
+- aucun Runtime, HTTP, PostgreSQL, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-OWNER-READER-BOUNDARY-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- owner unique : `Notifications` ;
+- dépendance unique candidate des futurs Readers : `NotificationsOwnerSource` ;
+- réduction mécanique des trois résultats owner-locaux vers les contrats V1 ;
+- aucun code, contrat, Provider, binding, Reader concret ou test.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-HTTP-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- façade HTTP publique Preference, Template et Channel ;
+- dépendances exclusives aux trois Readers publics V1 ;
+- mapping HTTP fermé 200, 404 et 503 ;
+- aucun Event, Delivery, Outbox, Consumer, Transport ou Routing.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-RUNTIME-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- Runtime owner-scoped `Notifications`, disponibilité technique fermée ;
+- source unique : `NotificationsOwnerSource` ;
+- Provider singleton, lazy et alias uniques ;
+- aucun Runtime Read, Reader, HTTP, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-PERSISTENCE-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- Persistence owner-scoped `Notifications`, journal append-only et index dérivé ;
+- streams indépendants Preference, Template et Channel ;
+- migration additive 079 et rollback associé ;
+- aucun Runtime, HTTP, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-CONTRACTS-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- owner unique : `Notifications` ;
+- trois interfaces publiques V1 read-only pour Preference, Template et Channel ;
+- catalogues fermés, clé sujet opaque et observation UTC explicite à la microseconde ;
+- aucune implémentation, Persistence, Runtime, HTTP, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [PHASE-5.5C-NOTIFICATIONS-DISCOVERY-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- owner unique recommandé : `Notifications` ;
+- préférences notificationnelles, modèles, canaux, émission, retry et suppression
+  qualifiés comme autorités owner-locales ;
+- frontières Identity, Moderation, Reservations, ContentSeo et Search qualifiées ;
+- aucun code, contrat, Runtime, Persistence, HTTP, Event, Delivery ou Outbox.
+
+## [A-5.5B-EDITORIAL-CONTENT-AND-SEO-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-02
+
+- statut final : GO FINAL CERTIFIÉ — FERMÉ — GELÉ ;
+- toutes les Foundations ContentSeo sont GO CERTIFIÉES — FERMÉES ;
+- aucune Foundation 5.5B n'est ouverte ;
+- aucun jalon 5.5B n'est actif ;
+- migrations 078 et 081 GO CERTIFIÉES — GELÉES, aucune migration ouverte ;
+- Runtime, HTTP, Event, Delivery et Outbox certifiés ;
+- Transport, Routing et Consumer restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-FINAL-CERTIFICATION-AND-FREEZE-01] — ouverture — 2026-08-02
+
+- à cette étape historique, le jalon était GO CERTIFIÉ — OUVERTE et constituait
+  l'unique jalon 5.5B actif ;
+- aucune Foundation 5.5B n'était ouverte.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-OUTBOX-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, elle constituait
+  l'unique Foundation et l'unique jalon 5.5B actifs ;
+- Outbox owner-scoped issue exclusivement des deux Delivery V1 ContentSeo ;
+- journal append-only, messageId et checksum SHA-256 déterministes ;
+- idempotence, DivergentMessage, retry borné, savepoints et rollback externe ;
+- migration additive 081 et rollback associé.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-DELIVERY-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, elle constituait
+  l'unique Foundation et l'unique jalon 5.5B actifs ;
+- Delivery V1 Editorial Content et Operational SEO ;
+- sources uniques : Events V1 ContentSeo ;
+- propagation mécanique du type, statut et observedAt ;
+- aucun Provider, Transport, Routing, Outbox ou Consumer.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-EVENT-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, elle constituait
+  l'unique Foundation et l'unique jalon 5.5B actifs ;
+- catalogues Event V1 Editorial Content et Operational SEO ;
+- sources uniques : Readers publics V1 ContentSeo ;
+- réduction exhaustive et mécanique des dix résultats publics ;
+- payload limité au statut et à `observedAt` UTC canonique ;
+- aucun Provider, Transport, Routing, Delivery, Outbox ou Consumer.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-HTTP-FOUNDATION-01] — représentation après Owner Reader — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, elle constituait
+  l'unique Foundation et l'unique jalon 5.5B actifs ;
+- composition HTTP complète via les deux Readers publics V1 ;
+- bindings résolus vers `EditorialContentOwnerReader` et `OperationalSeoOwnerReader` ;
+- mapping HTTP inchangé et exhaustif ;
+- Event, Delivery et Outbox restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-OWNER-READER-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, elle constituait
+  l'unique Foundation et l'unique jalon 5.5B actifs ;
+- deux Owner Readers ContentSeo, source unique `ContentSeoOwnerSource` ;
+- réduction exhaustive et mécanique vers les contrats publics V1 ;
+- bindings singleton et alias uniques ;
+- aucun Runtime, HTTP, PostgreSQL, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-OWNER-READER-BOUNDARY-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, unique jalon 5.5B actif ;
+- aucune Foundation 5.5B ouverte ;
+- qualification de la frontière owner-scoped des deux Readers publics ContentSeo ;
+- source candidate unique : `ContentSeoOwnerSource` ;
+- réduction exhaustive et mécanique, sans fallback ni exposition des révisions ;
+- Event, Delivery et Outbox restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-HTTP-FOUNDATION-01] — 2026-08-02
+
+- statut : NO GO TECHNIQUE — FERMÉ ;
+- façade HTTP publique Editorial Content et Operational SEO ;
+- dépendances exclusives aux Readers publics V1 certifiés ;
+- mappings fermés 200, 404 et 503 ;
+- aucun accès Owner Source, Runtime, PostgreSQL, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-RUNTIME-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, elle constituait
+  l'unique Foundation et l'unique jalon 5.5B actifs ;
+- Runtime owner-scoped `ContentSeo` et disponibilité technique fermée ;
+- source unique : `ContentSeoOwnerSource` ;
+- Provider singleton, lazy et alias uniques ;
+- aucun Runtime Read, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-PERSISTENCE-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- Persistence owner-scoped `ContentSeo`, journal append-only et index dérivé ;
+- migration additive 078 et rollback associé ;
+- lectures temporelles, checksum SHA-256, optimistic locking et savepoints ;
+- aucun Runtime, HTTP, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-CONTRACTS-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- contrats publics V1 Editorial Content et Operational SEO matérialisés ;
+- catalogues fermés et observation UTC explicite ;
+- owner unique : `ContentSeo` ;
+- aucune implémentation, Persistence, Runtime, HTTP, Event, Delivery ou Outbox.
+
+## HISTORICAL_ONLY — [A-5.5B-EDITORIAL-CONTENT-AND-SEO-DISCOVERY-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- capacité officielle : Editorial Content & Operational SEO ;
+- owner unique recommandé : `ContentSeo` ;
+- séparation Editorial Content, Operational SEO et Rendering qualifiée ;
+- aucune implémentation, contrat, Persistence, migration ou campagne technique.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-FINAL-CERTIFICATION-AND-FREEZE-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- toutes les Foundations Search Query Resolution sont GO CERTIFIÉES — FERMÉES ;
+- Runtime Read Query Resolution : NO GO TECHNIQUE CERTIFIÉ — FERMÉ ;
+- migrations 076 et 077 gelées ;
+- aucune Foundation 5.5A ouverte, aucune migration ouverte et aucune surface
+  HTTP, Event, Delivery ou Outbox non certifiée.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-OUTBOX-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, cette Foundation
+  constituait l'unique Foundation et l'unique jalon 5.5A actifs ;
+- Outbox append-only owner-scoped et migration additive 077 matérialisées ;
+- source unique : `SearchQueryResolutionDeliveryV1` ;
+- Delivery Foundation : GO CERTIFIÉ — FERMÉ ;
+- Transport, Routing et Consumer restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-DELIVERY-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, cette Foundation constituait l'unique Foundation et l'unique jalon 5.5A actifs ;
+- Delivery V1 Application et mapping bijectif matérialisés ;
+- source unique : `SearchQueryResolutionEventV1` ;
+- Event Foundation : GO CERTIFIÉ — FERMÉ ;
+- Transport, Routing et Outbox restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-EVENT-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, cette Foundation constituait l'unique Foundation et l'unique jalon 5.5A actifs ;
+- catalogue Event V1 fermé matérialisé sans Transport, Routing, Delivery ou Outbox ;
+- source unique : `PublicSearchQueryResolutionReaderV1` ;
+- HTTP Foundation : GO CERTIFIÉ — FERMÉ ;
+- Runtime Read Query Resolution : NO GO TECHNIQUE CERTIFIÉ — FERMÉ.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-HTTP-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, cette Foundation constituait l'unique Foundation et l'unique jalon 5.5A actifs ;
+- endpoint public `GET /api/search/query-resolution` matérialisé ;
+- dépendance métier HTTP unique : `PublicSearchQueryResolutionReaderV1` ;
+- Owner Reader Foundation : GO CERTIFIÉ — FERMÉ ;
+- Runtime Read Query Resolution : NO GO TECHNIQUE CERTIFIÉ — FERMÉ ;
+- Event, Delivery et Outbox restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-OWNER-READER-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ; à cette étape historique, cette Foundation constituait l'unique Foundation et l'unique jalon 5.5A actifs ;
+- Reader public owner-scoped et réduction bijective matérialisés ;
+- Provider singleton et binding public unique enregistrés ;
+- dépendance de lecture unique : `SearchQueryResolutionOwnerReader` ;
+- Runtime Read Query Resolution maintenue NO GO TECHNIQUE CERTIFIÉ — FERMÉ ;
+- HTTP, Event, Delivery et Outbox restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-OWNER-SOURCE-IMPLEMENTATION-FOUNDATION-01] — 2026-08-02
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- frontière Application owner-scoped matérialisée sans Infrastructure ni Provider ;
+- dépendance unique : `SearchQueryResolutionOwnerSource` ;
+- catalogue fermé : Found, Empty, Corrupted, DependencyUnavailable ;
+- Runtime Read Query Resolution maintenue NO GO TECHNIQUE CERTIFIÉ — FERMÉ ;
+- À cette étape historique, la Query Resolution Owner Reader Foundation n'était
+  pas encore ouverte ;
+- aucune Foundation 5.5A ouverte ;
+- aucun jalon 5.5A actif ;
+- HTTP, Event, Delivery et Outbox restent NON OUVERTS.
+
+## HISTORICAL_ONLY — [A-5.5A-SEARCH-QUERY-RESOLUTION-OWNER-SOURCE-BOUNDARY-01] — 2026-08-01
+
+- nature : Boundary Audit documentaire owner-scoped `SearchDiscovery` ;
+- statut : GO CERTIFIÉ — FERMÉ ;
+- Semantic Alignment : GO CERTIFIÉ — FERMÉ ;
+- Runtime Read Query Resolution : NO GO TECHNIQUE CERTIFIÉ — FERMÉ ;
+- seule dépendance autorisée : `SearchQueryResolutionOwnerSource` ;
+- Query Resolution Owner Source Implementation Foundation : GO CERTIFIÉ — FERMÉ ;
+- aucune Foundation 5.5A ouverte ;
+- aucun jalon 5.5A actif ;
+- aucun contrat, code, test, Runtime, Provider ou Persistence créé.
+
+<!-- HISTORICAL_ONLY: les entrées ci-dessous conservent l'état au moment de leur publication. -->
+
+## [A-5.5A-SEARCH-QUERY-RESOLUTION-CONTRACTS-FOUNDATION-01] — 2026-08-01
+
+- statut : GO CERTIFIÉE — FERMÉE ;
+- Reader V1, résultat, catalogue fermé et observation UTC matérialisés ;
+- `SearchQuery` réutilisée, aucune identité interne exposée ;
+- Owner Reader maintenu NO GO CERTIFIÉ — FERMÉ ;
+- Semantic Alignment : GO CERTIFIÉ — FERMÉ ; aucun jalon 5.5A actif ;
+- aucune autre Foundation 5.5A ouverte ;
+- Search Query Resolution Persistence Foundation : GO CERTIFIÉE — FERMÉE ;
+- Search Query Resolution Runtime Foundation : GO CERTIFIÉE — FERMÉE ;
+- Search Query Resolution Runtime Read Foundation : NO GO TECHNIQUE CERTIFIÉ — FERMÉ ;
+- aucune implémentation, Runtime, Persistence, Provider ou binding.
+
+## [A-5.5A-SEARCH-QUERY-RESOLUTION-BOUNDARY-01] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- owner de la résolution : `SearchDiscovery` ;
+- `SearchQuery` publique, `SearchDocumentId` et Search Index internes ;
+- nouvelle frontière owner-scoped Query Resolution recommandée ;
+- `A-5.5A-SEARCH-EXPERIENCE-OWNER-READER-FOUNDATION-01` : NO GO CERTIFIÉ — FERMÉ ;
+- Semantic Alignment : GO CERTIFIÉ — FERMÉ ; aucun jalon 5.5A actif ;
+- aucune autre Foundation 5.5A ouverte ;
+- Search Query Resolution Contracts Foundation : GO CERTIFIÉE — FERMÉE ;
+- aucun contrat, code, Runtime, Reader, Persistence ou test créé.
+
+## [A-5.5A-SEARCH-EXPERIENCE-RUNTIME-READ-FOUNDATION-01] — 2026-08-01
+
+- statut : GO CERTIFIÉE — FERMÉE ;
+- façade Runtime Read spécialisée et réduction mécanique vers un catalogue fermé ;
+- diagnostics minimaux et Provider singleton/lazy owner-scoped ;
+- Runtime et Persistence Foundations GO CERTIFIÉES — FERMÉES, inchangées ;
+- Semantic Alignment : GO CERTIFIÉ — FERMÉ ; aucun jalon 5.5A actif ;
+- aucune autre Foundation 5.5A ouverte ;
+- Search Experience Owner Reader Foundation : NO GO CERTIFIÉ — FERMÉ ; HTTP,
+  Event, Delivery et Outbox restent IDENTIFIÉS — NON OUVERTS.
+
+## [A-5.5A-SEARCH-EXPERIENCE-RUNTIME-FOUNDATION-01] — 2026-08-01
+
+- statut : GO CERTIFIÉE — FERMÉE ;
+- façade de disponibilité, politique fail-closed et diagnostics minimaux ;
+- Provider owner-scoped, bindings singleton, lazy et uniques ;
+- Persistence Foundation GO CERTIFIÉE — FERMÉE et inchangée ;
+- Semantic Alignment : GO CERTIFIÉ — FERMÉ ; aucun jalon 5.5A actif ;
+- aucune autre Foundation 5.5A ouverte ;
+- Search Experience Runtime Read Foundation : GO CERTIFIÉE — FERMÉE ;
+- Search Experience Owner Reader Foundation : NO GO CERTIFIÉ — FERMÉ ; HTTP,
+  Event, Delivery et Outbox restent IDENTIFIÉS — NON OUVERTS.
+
+## [A-5.5A-SEARCH-EXPERIENCE-PERSISTENCE-FOUNDATION-01] — 2026-08-01
+
+- statut : GO CERTIFIÉE — FERMÉE ;
+- owner `SearchDiscovery`, journal append-only autoritatif et index courant dérivé ;
+- ports Application, mapper, adapter PostgreSQL et migration additive `075` ;
+- transaction owner-locale, savepoints, rollback, révisions monotones, checksum
+  SHA-256, idempotence et lecture temporelle fail-closed ;
+- Semantic Alignment : GO CERTIFIÉ — FERMÉ ; aucun jalon 5.5A actif ;
+- aucune autre Foundation 5.5A ouverte ;
+- Search Experience Runtime Foundation : GO CERTIFIÉE — FERMÉE ;
+- Search Experience Runtime Read Foundation : GO CERTIFIÉE — FERMÉE ;
+- Search Experience Owner Reader Foundation : NO GO CERTIFIÉ — FERMÉ ; HTTP,
+  Event, Delivery et Outbox restent IDENTIFIÉS — NON OUVERTS.
+
+## [A-5.5A Search Experience First Foundation Discovery] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- première Foundation exécutable qualifiée comme Persistence hybride owner
+  `SearchDiscovery` ;
+- journal append-only autoritatif et index courant dérivé/reconstruisible ;
+- identités et états historiques conservés, migration 008 gelée ;
+- aucun contrat, code, Persistence, migration, Runtime ou test créé ;
+- prochaine étape autorisable : première Persistence Foundation Search
+  Experience, IDENTIFIÉE — NON OUVERTE ;
+- aucun jalon 5.5A actif.
+
+## [A-5.5A Search Experience Contracts] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- contrats V1 owner-scoped `SearchDiscovery` matérialisés ;
+- query déclarative opaque, observation UTC canonique et catalogue fermé ;
+- aucun résultat Listing, ranking, score, facette ou pagination exposé ;
+- aucune implémentation, Persistence, Runtime, Provider ou HTTP ;
+- Semantic Alignment : GO CERTIFIÉ — FERMÉ ; aucun jalon 5.5A actif ;
+- aucune autre Foundation 5.5A ouverte ;
+- HISTORICAL_ONLY — à la clôture des Contracts, la première Foundation 5.5A et
+  les surfaces ultérieures étaient IDENTIFIÉES — NON OUVERTES ; le Discovery
+  courant est enregistré ci-dessus.
+
+## [A-5.5A Search Experience Boundary Audit] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- capacité officielle : Phase 5.5A — Search Experience ; `SearchDiscovery` en
+  est l'owner unique et ne constitue pas une capacité distincte ;
+- owner unique recommandé : `SearchDiscovery` ;
+- `ListingLifecycle` limité à une future décision publique minimale
+  d'indexabilité ;
+- Public Projection limitée au rendu et `ContentSeo` maintenu indépendant ;
+- aucun code, contrat, Runtime, Persistence, HTTP, Event ou test créé.
+
+## [A-5.4C Account Closure Data Lifecycle Boundary Audit] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- `IdentityAccess / Account Closure` confirmé comme autorité de `Closed` et
+  `Reopened` ;
+- rétention avec accès bloqué retenue comme politique Favorites owner-locale ;
+- aucune purge sur la seule fermeture, aucune suppression cross-domain et
+  aucune anticipation de Privacy/Erasure ;
+- aucun code, contrat, Runtime, Persistence, Event ou test créé ;
+- aucune Foundation 5.4C ouverte et aucun jalon 5.4C actif ;
+- Foundations Favorites, HTTP, Event, Delivery et Outbox : IDENTIFIÉS — NON
+  OUVERTS.
+
+## [A-5.4C Public Listing Eligibility Contracts] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- contrat public V1 owner-scoped `ListingLifecycle` matérialisé ;
+- catalogue fermé, instant UTC canonique et résultat réduit au seul statut ;
+- aucun Reader concret, Runtime, Provider, Persistence, HTTP, Event ou Outbox ;
+- HISTORICAL_ONLY — à la clôture du Contracts Amendment, le prochain jalon
+  autorisable était `A-5.4C-ACCOUNT-CLOSURE-DATA-LIFECYCLE-01`, alors
+  IDENTIFIÉ — NON OUVERT ; son état courant est enregistré ci-dessus.
+
+## [A-5.4C Public Listing Eligibility Read Boundary Audit] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- autorité unique retenue : `ListingLifecycle` ;
+- future frontière publique owner-scoped recommandée avec `ListingId`, instant
+  UTC explicite et catalogue fermé fail-closed ;
+- projections, Search, Runtime Health, Aggregate et Persistence rejetés comme
+  frontières de décision ;
+- aucun code, contrat PHP, test ou composant exécutable créé ;
+- HISTORICAL_ONLY — à la clôture du Boundary Audit, le prochain jalon
+  autorisable était `A-5.4C-PUBLIC-LISTING-ELIGIBILITY-CONTRACTS-01`, alors
+  IDENTIFIÉ — NON OUVERT ; son statut final est enregistré ci-dessus.
+
+## [A-5.4C Favorites Ownership Alignment Boundary Audit] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- owner unique recommandé : `Favorites`, autonome de `IdentityAccess` et de
+  `ListingLifecycle` ;
+- identité logique d'un favori : couple déterministe `AccountId` + `ListingId` ;
+- frontière Listing minimale et politique de fermeture Account qualifiées sans
+  créer de contrat ni de composant exécutable ;
+- aucune Foundation 5.4C ouverte, aucun jalon 5.4C actif et aucun changement de
+  code ;
+- HISTORICAL_ONLY — à la clôture de l'Ownership Alignment, le prochain jalon
+  autorisable était `A-5.4C-PUBLIC-LISTING-ELIGIBILITY-READ-01`, alors
+  IDENTIFIÉ — NON OUVERT ; son état courant est enregistré ci-dessus.
+
+## [A-5.4B Reservation Availability Architecture Gate Alignment] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- assertion prospective globale remplacée par une admission nominative ;
+- interdictions Persistence, Infrastructure et surfaces ultérieures conservées ;
+- aucun composant applicatif modifié.
+
+## [A-5.4B Reservation Availability Owner Reader] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- adaptation mécanique Runtime Read vers contrat public Availability ;
+- Provider singleton, lazy, unique et owner-scoped ;
+- aucun accès Persistence, HTTP, Event, Delivery ou Outbox.
+
+## [A-5.4B Reservation Availability Runtime Read Foundation] — 2026-08-01
+
+- statut : GO CERTIFIÉE — FERMÉE ;
+- façade Runtime Read spécialisée, catalogue fermé et réduction mécanique ;
+- diagnostics minimaux et Provider singleton/lazy owner-scoped ;
+- aucun Owner Reader, HTTP, Event, Delivery, Outbox ou changement de migration.
+
+## [A-5.4B Reservation Availability Runtime Read Boundary Audit] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- façade Runtime Read spécialisée et additive retenue ;
+- catalogue candidat fermé et responsabilités Runtime/Persistence/Reader séparées ;
+- aucun code, contrat, Provider, binding, test ou composant exécutable créé.
+
+## [A-5.4B Reservation Availability Owner-local Source Runtime] — 2026-08-01
+
+- statut : GO CERTIFIÉE — FERMÉE ;
+- Runtime de disponibilité technique owner `ReservationLifecycle` ;
+- politique déterministe et diagnostics fermés ;
+- Provider singleton, lazy et owner-scoped ;
+- aucun Runtime Read, Reader, HTTP, Event, Delivery ou Outbox.
+
+## [A-5.4B Reservation Availability Owner-local Source Persistence] — 2026-08-01
+
+- statut : GO CERTIFIÉE — FERMÉE ;
+- journal append-only owner `ReservationLifecycle` et migration additive 074 ;
+- lecture temporelle, checksum, idempotence, conflits et concurrence ;
+- rollback et savepoints owner-locaux ;
+- aucune identité cross-domain, PII, Runtime ou surface HTTP.
+
+## [A-5.4B Reservation Availability Owner-local Source Discovery] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- Blueprint documentaire de la source temporelle owner `ReservationLifecycle` ;
+- intent canonique, journal append-only et index courant dérivé recommandés ;
+- modèle temporel, idempotence, concurrence et confidentialité qualifiés ;
+- aucun code, contrat, Runtime, SQL, migration ou test créé.
+
+## [A-5.4B Reservation Availability Public Read — Contracts] — 2026-08-01
+
+- statut : GO CERTIFIÉ — FERMÉ ;
+- correction de la frontière Reservation Availability pour une lecture pré-intake ;
+- ajout d'une intention, d'un sujet owner-local et d'une fenêtre UTC bornée ;
+- trois Readers V1 owner-scoped et leurs catalogues fermés préservés ;
+- observations explicites UTC pour Listing, Property et Reservation ;
+- aucune implémentation, persistence, Runtime, migration ou surface HTTP ;
+- correction représentée pour certification.
+
+## [A-5.4B Listing/Property Availability Read — Boundary Audit] — 2026-08-01
+
+- Boundary Audit documentaire : GO CERTIFIÉ — FERMÉ ;
+- autorités séparées : réservabilité Listing, éligibilité Property et conflits Reservation ;
+- disponibilité temporelle attribuée à `ReservationLifecycle` ;
+- aucun contrat, code, Runtime, persistence, migration ou test créé.
+
+## [A-5.4B Reservation Intake Handoff — Boundary Audit] — 2026-07-31
+
+- Boundary Audit documentaire : GO CERTIFIÉ — FERMÉ ;
+- `ReservationLifecycle` identifié comme owner unique de l'intake et du handoff ;
+- absence confirmée de frontières publiques certifiées de handoff et de disponibilité ;
+- aucun code, contrat, Runtime, persistence, migration, Event ou test créé.
+
+## [A-5.4A Anti-abuse Owner Reader] — 2026-07-31
+
+- Runtime Read Foundation : GO CERTIFIÉ — FERMÉ ;
+- Owner Reader Foundation : GO CERTIFIÉ — FERMÉ ;
+- adaptation mécanique des cinq résultats et Provider dédié ;
+- aucun HTTP, Event, Delivery, Outbox ou accès Persistence.
+
+## [A-5.4A Anti-abuse Runtime Read Foundation] — 2026-07-31
+
+- Boundary Audit Runtime Read : GO CERTIFIÉ — FERMÉ ;
+- Runtime Read Foundation : GO CERTIFIÉ — OUVERTE, GO PROPOSÉ ;
+- façade spécialisée, résultat fermé, politique déterministe et Provider dédié créés ;
+- aucun Owner Reader, HTTP, Event, Delivery, Outbox ou changement de Persistence.
+
+## [A-5.4A Anti-abuse Runtime Read Boundary Audit] — 2026-07-31
+
+- Runtime Foundation Anti-abuse : GO CERTIFIÉ — FERMÉ ;
+- Boundary Audit Runtime Read : GO CERTIFIÉ — OUVERT ;
+- façade Runtime Read spécialisée recommandée, distincte du Runtime de disponibilité ;
+- aucun code, contrat, Runtime, Provider, binding, Reader ou test créé.
+
+## [A-5.4A Anti-abuse Owner-local Source Runtime] — 2026-07-31
+
+- Persistence Foundation : GO CERTIFIÉ — FERMÉ ;
+- Runtime Foundation : GO CERTIFIÉ — OUVERTE, GO PROPOSÉ ;
+- façade de disponibilité, politique fail-closed, diagnostics minimaux et Provider owner-scoped créés ;
+- bindings singleton, lazy et uniques ;
+- aucun Reader public, Runtime Read métier, HTTP, Event, Delivery ou Outbox.
+
+## [A-5.4A Anti-abuse Owner-local Source Persistence] — 2026-07-31
+
+- Discovery / Blueprint : GO CERTIFIÉ — FERMÉ ;
+- Persistence Foundation : OUVERTE, GO PROPOSÉ ;
+- port owner-local, état immutable, mapper bijectif et adapter PostgreSQL append-only créés ;
+- migration additive 073 et rollback créés, sans PII ni dépendance cross-domain ;
+- aucun Runtime, Provider, binding, Reader public, HTTP, Event, Delivery ou Outbox.
+
+## [A-5.4A Anti-abuse Owner-local Source Discovery] — 2026-07-31
+
+- Contracts Amendment Anti-abuse : GO CERTIFIÉ — FERMÉ ;
+- journal append-only owner `ContactsLeads` retenu ;
+- identité `LeadIngressIntentId`, états `Allowed`/`Blocked`, temporalité et
+  idempotence définis documentairement ;
+- aucune Persistence, migration ou implémentation créée.
+
+## [A-5.4A Anti-abuse Public Read Contracts] — 2026-07-31
+
+- Boundary Audit Anti-abuse : GO CERTIFIÉ — FERMÉ ;
+- contrat public V1, instant UTC et catalogue fermé matérialisés ;
+- aucune implémentation, source, Persistence, Runtime ou migration.
+
+## [A-5.4A Anti-abuse Public Read Boundary Audit] — 2026-07-31
+
+- Owner Reader et Architecture Gate Alignment : GO CERTIFIÉS — FERMÉS ;
+- ownership anti-abus préalable confirmé à `ContactsLeads` ;
+- aucune source durable préalable résoluble par `LeadIngressIntentId` ;
+- future source owner-locale additive requise ; aucun code créé.
+
+## [A-5.4A Consent Architecture Gate Alignment] — 2026-07-31
+
+- Owner Reader : GO technique acquis, certification suspendue ;
+- remplacement d'une interdiction globale historique par une allow-list
+  nominative et bornée ;
+- aucun composant applicatif modifié.
+
+## [A-5.4A Consent Owner Reader Foundation] — 2026-07-31
+
+- Runtime Read Foundation : GO CERTIFIÉE — FERMÉE ;
+- `OwnerLeadContactConsentReaderV1` et Provider dédiés ;
+- mapping strictement identique des cinq résultats Runtime vers le contrat ;
+- aucun changement de contrat, Runtime, Persistence ou migration.
+
+## [A-5.4A Consent Runtime Read Foundation] — 2026-07-31
+
+- Contracts Materialization Foundation : GO CERTIFIÉE — FERMÉE ;
+- façade Runtime Read spécialisée owner `ContactsLeads` ;
+- réduction temporelle fermée et fail-closed ;
+- Provider et bindings singleton, lazy et uniques ;
+- aucune nouvelle Persistence, migration ou surface publique.
+
+## [A-5.4A Consent Contracts Materialization] — 2026-07-31
+
+- preuve d'absence des contrats exécutables certifiée ;
+- Contracts Materialization Foundation GO CERTIFIÉE — FERMÉE ;
+- matérialisation de l'interface, du résultat fermé et de l'instant Consent ;
+- aucune implémentation, Runtime, Persistence, Provider ou binding.
+
+## [A-5.4A Consent Runtime Read Boundary Audit] — 2026-07-31
+
+- Runtime Foundation Consent : GO CERTIFIÉE — FERMÉE.
+- Boundary Audit Runtime Read : GO CERTIFIÉ — OUVERT.
+- Comparaison de quatre architectures ; recommandation d'une façade Runtime
+  Read spécialisée et additive.
+- Aucun code, contrat PHP, Runtime, Provider, binding ou test créé.
+
+## [A-5.4A Consent owner-local source — Runtime Foundation] — 2026-07-31
+
+**HISTORICAL_ONLY — l'ouverture est remplacée par le GO CERTIFIÉ — FERMÉ.**
+
+- Persistence Foundation : GO CERTIFIÉE — FERMÉE.
+- Runtime Foundation : GO CERTIFIÉE — OUVERTE.
+- Ajout de la façade Runtime V1, de la politique Availability, des diagnostics
+  fermés et du Provider owner-scoped.
+- Aucun Reader concret, HTTP, Event, Delivery ou Outbox.
+
+## [A-5.4A Consent owner-local source — Persistence Foundation] — 2026-07-31
+
+**HISTORICAL_ONLY — l'état d'ouverture est remplacé par le GO CERTIFIÉ — FERMÉ.**
+
+- Discovery / Blueprint : GO CERTIFIÉ — FERMÉ.
+- Persistence Foundation : GO CERTIFIÉE — OUVERTE.
+- Ajout du journal append-only owner `ContactsLeads`, de la migration additive
+  072 et de son rollback.
+- Ajout des preuves Unit, Architecture et PostgreSQL ciblées.
+- Aucun Reader concret, Runtime, Provider, HTTP, Event, Delivery ou Outbox.
+
+## [A-5.4A-CONSENT-OWNER-LOCAL-SOURCE-DISCOVERY-01 — Discovery / Blueprint] — 2026-07-31
+
+**HISTORICAL_ONLY — l'état d'ouverture est remplacé par le GO CERTIFIÉ — FERMÉ.**
+
+- Boundary Audit de source Consent enregistré GO CERTIFIÉ — FERMÉ.
+- Discovery / Blueprint ouvert comme seul jalon autorisé.
+- `LeadIngressIntentId` retenu comme identité canonique.
+- Journal append-only de décisions recommandé comme autorité candidate.
+- Version monotone, observation temporelle explicite, idempotence, concurrence,
+  confidentialité et rétention qualifiées documentairement.
+- Aucun code, contrat PHP, schéma, migration, Runtime ou test créé.
+
+## [A-5.4A-CONSENT-OWNER-LOCAL-SOURCE-BY-LEADINGRESSINTENTID-01 — Boundary Audit] — 2026-07-31
+
+- Contracts Amendment Consent enregistré GO CERTIFIÉ — FERMÉ.
+- Boundary Audit de source owner-locale GO CERTIFIÉ — FERMÉ.
+- Aucune source par `LeadIngressIntentId` trouvée dans les modèles ou
+  persistences owner `ContactsLeads`.
+- Absence conforme au séquencement Contracts, mais lacune future avant toute
+  implémentation du Reader.
+- Faisabilité d'une source additive owner-locale, sans modification historique.
+- Aucun code, contrat, test, migration, Runtime ou Persistence créé.
+
+## [A-5.4A-CONSENT-PUBLIC-READ-01 — Contracts Amendment] — 2026-07-31
+
+- Boundary Audit Consent/anti-abus enregistré GO CERTIFIÉ — FERMÉ.
+- Contracts Amendment Consent GO CERTIFIÉ — FERMÉ.
+- Reader V1 documentaire fondé sur `LeadIngressIntentId` et un instant
+  d'observation UTC explicite.
+- Catalogue fermé `Granted`, `Denied`, `Missing`, `Corrupted`,
+  `DependencyUnavailable`.
+- Aucun code, contrat PHP, implémentation, Persistence, Runtime ou HTTP créé.
+
+## [A-5.4A-CONSENT-AND-ABUSE-BOUNDARY-01 — Boundary Audit] — 2026-07-31
+
+- Boundary Audit GO CERTIFIÉ — FERMÉ.
+- `ContactsLeads` identifié comme owner du consentement spécifique au Lead et
+  de l'anti-abus préalable à son ingress.
+- Consentement Lead durable existant ; décision anti-abus préalable unifiée
+  absente.
+- Aucun contrat public certifié existant pour ces deux décisions.
+- Aucun code, contrat, test, Runtime, Persistence ou Foundation créé.
+
+## [Phase 5.4A — Contracts Foundation Corrective] — 2026-07-31
+
+- GO CERTIFIÉ — FERMÉ ; le NO GO correctif est conservé comme historique.
+- Owner unique Lead Ingress établi : `ContactsLeads`.
+- Contrats déplacés dans l'enclave Application owner-scoped sans consommer
+  Aggregate, lifecycle, Store ou persistence historiques.
+- Retrait des champs, résultats et erreurs anticipant Consent et Anti-abus.
+- À ce stade historique, `A-5.4A-CONSENT-AND-ABUSE-BOUNDARY-01` était maintenu
+  IDENTIFIÉ — NON OUVERT ; son Boundary Audit est désormais ouvert par une
+  décision d'autorité ultérieure.
+- Aucune implémentation, persistence, Runtime ou Foundation suivante ouverte.
+
+## [Phase 5.4A — Contracts Foundation] — 2026-07-31
+
+- Les trois frontières publiques préalables sont GO CERTIFIÉES — FERMÉES.
+- Contracts Foundation ouverte comme seul jalon autorisé.
+- Port de soumission, Query d'accusé propre, résultats et erreurs fermés,
+  identités et instants contractuels V1.
+- Aucune implémentation, orchestration, persistence, Runtime, HTTP, Event,
+  Delivery, Outbox ou consommation ContactsLeads.
+
+## [A-5.4A-PROFESSIONAL-LEAD-RECIPIENT-PUBLIC-READ-01 — Contracts Amendment] — 2026-07-31
+
+- Boundary Audit Professional Lead Recipient enregistré GO CERTIFIÉ — FERMÉ.
+- Contracts Amendment ouvert comme seul jalon autorisé.
+- Contrat limité à une décision owner `Professional`, cinq résultats fermés et
+  un instant d'observation explicite.
+- Aucune implémentation, Runtime, Provider, binding, persistence, migration ou
+  consommation ContactsLeads.
+
+## [5.4A — Listing Contactability Owner Implementation Foundation] — 2026-07-31
+
+- Contracts Amendment `A-5.4A-LISTING-CONTACTABILITY-READ-BOUNDARY-01`
+  enregistré GO CERTIFIÉ — FERMÉ.
+- Owner Implementation Foundation du reader owner ListingLifecycle :
+  GO CERTIFIÉE — FERMÉE.
+- Source retenue : `ListingPublicationWorkflowStore::read(ListingId)`.
+- Aucune migration, nouvelle persistence, projection ou consommation
+  ContactsLeads.
+- Aucun changement supplémentaire de cette Foundation n'est autorisé sans
+  amendement versionné.
+
+## [A-5.4A-LISTING-CONTACTABILITY-READ-BOUNDARY-01 — Contracts Amendment] — 2026-07-31
+
+- Boundary Audit enregistré NO GO CERTIFIÉ — FRONTIÈRE PUBLIQUE ABSENTE —
+  FERMÉ.
+- Contracts Amendment ouvert pour une frontière publique V1 owner
+  ListingLifecycle.
+- Contrat limité à `ListingContactabilityReaderV1`,
+  `ContactabilityObservedAt` et cinq décisions fermées.
+- Aucune implémentation, persistence, migration, Runtime, HTTP, Event, Outbox
+  ou modification de ContactsLeads.
+- Statut du Contracts Amendment : GO CERTIFIÉ — FERMÉ.
+
 ## [Phase 5.3L — Post-Candidate Documentation Alignment] — 2026-07-31
 
 - `A-5.3-BASELINE-IMPORT-WHITESPACE-QUALIFICATION-01` enregistré
@@ -1610,6 +2827,8 @@ Toutes les évolutions documentaires du projet APPART.SN REBUILD sont consignée
 - Aucune reprise de l'architecture technique Legacy.
 ## [Phase 5.3L — Final Certification & Freeze] — 2026-07-30
 
+**ÉTAT HISTORIQUE — REMPLACÉ PAR LE VERDICT FINAL**
+
 - 5.3A à 5.3K enregistrés GO CERTIFIÉS et FERMÉS.
 - 5.3J HTTP & Security et 5.3K Operational & Audit ont levé leurs NO GO
   historiques après certification des frontières owner et Audit requises.
@@ -1622,3 +2841,43 @@ Toutes les évolutions documentaires du projet APPART.SN REBUILD sont consignée
 - 5.3L est GO CERTIFIÉE et OUVERTE pour consolidation, campagnes terminales et
   préparation du gel. Aucun freeze final n'est encore prononcé.
 - Les anciennes mentions NO GO restent des preuves historiques.
+
+L'état normatif courant est :
+
+- Phase 5.3 : GO CERTIFIÉE — FERMÉE — GELÉE ;
+- 5.3L : GO CERTIFIÉ — FERMÉ.
+
+# A-5.4A — Listing Contact Principal Read Boundary
+
+- ouverture du Contracts Amendment owner `ListingLifecycle` ;
+- ajout du contrat public V1, de son instant d'observation et de son catalogue
+  fermé ;
+- aucune implémentation, persistence, migration, Runtime ou consommation
+  ContactsLeads.
+# A-5.5A Search Query Resolution Persistence Foundation
+
+`A-5.5A-SEARCH-QUERY-RESOLUTION-PERSISTENCE-FOUNDATION-01` est GO CERTIFIÉE —
+FERMÉE. Le journal append-only et l'index courant dérivé sont matérialisés par
+la migration additive 076. Aucune autre Foundation 5.5A n'est ouverte. Le
+Semantic Alignment est GO CERTIFIÉ — FERMÉ. Aucun jalon 5.5A n'est actif.
+Search Query Resolution Runtime Foundation est GO CERTIFIÉE —
+FERMÉE. Search Query Resolution Runtime Read Foundation est NO GO TECHNIQUE
+CERTIFIÉ — FERMÉ. Owner Reader, HTTP, Event, Delivery et Outbox restent IDENTIFIÉS — NON
+OUVERTS.
+# A-5.5A Search Query Resolution Runtime Foundation
+
+`A-5.5A-SEARCH-QUERY-RESOLUTION-RUNTIME-FOUNDATION-01` est GO CERTIFIÉE —
+FERMÉE. Aucune autre Foundation 5.5A n'est ouverte. Le Semantic Alignment est
+GO CERTIFIÉ — FERMÉ. Aucun jalon 5.5A n'est actif. La
+Persistence Foundation reste GO CERTIFIÉE — FERMÉE. Search Query Resolution
+Runtime Read Foundation est NO GO TECHNIQUE CERTIFIÉ — FERMÉ. Owner Reader, HTTP, Event,
+Delivery et Outbox restent IDENTIFIÉS — NON OUVERTS.
+# A-5.5A Search Query Resolution Runtime Read Foundation
+
+`A-5.5A-SEARCH-QUERY-RESOLUTION-RUNTIME-READ-FOUNDATION-01` est NO GO TECHNIQUE
+CERTIFIÉ — FERMÉ : `Available` ne prouve ni `Found` ni l'absence de `Empty`.
+`A-5.5A-SEARCH-QUERY-RESOLUTION-RUNTIME-READ-SEMANTIC-ALIGNMENT-01` est GO
+CERTIFIÉ — FERMÉ. Aucun jalon 5.5A n'est actif. Aucune Foundation 5.5A n'est
+ouverte. Query Resolution Owner Source Implementation Foundation est GO CERTIFIÉ —
+FERMÉ. Owner Reader, HTTP, Event, Delivery et Outbox restent
+NON OUVERTS.

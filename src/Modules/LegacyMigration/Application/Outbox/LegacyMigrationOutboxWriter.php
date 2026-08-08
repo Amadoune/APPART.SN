@@ -1,0 +1,14 @@
+<?php
+
+namespace Appart\Modules\LegacyMigration\Application\Outbox;
+
+use Appart\Modules\LegacyMigration\Application\Delivery\LegacyMigrationCutoverDeliveryV1;
+use Appart\Modules\LegacyMigration\Application\Delivery\LegacyMigrationInventoryDeliveryV1;
+use Appart\Modules\LegacyMigration\Application\Delivery\LegacyMigrationQuarantineDeliveryV1;
+use Appart\Modules\LegacyMigration\Application\Delivery\LegacyMigrationReconciliationDeliveryV1;
+use Appart\Modules\LegacyMigration\Application\Delivery\LegacyMigrationWaveDeliveryV1;
+
+interface LegacyMigrationOutboxWriter
+{
+    public function append(LegacyMigrationInventoryDeliveryV1|LegacyMigrationWaveDeliveryV1|LegacyMigrationReconciliationDeliveryV1|LegacyMigrationQuarantineDeliveryV1|LegacyMigrationCutoverDeliveryV1 $delivery): LegacyMigrationOutboxResult;
+}

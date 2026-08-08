@@ -12,8 +12,10 @@ final class FoundationArchitectureTest extends TestCase
 {
     private const MODULES = [
         'AdministrationAudit',
+        'AdministrationConsole',
         'ContactsLeads',
         'ContentSeo',
+        'ExperienceAcceptance',
         'Geography',
         'IdentityAccess',
         'LegacyMigration',
@@ -21,13 +23,16 @@ final class FoundationArchitectureTest extends TestCase
         'Media',
         'ModerationReports',
         'MonetizationPayments',
+        'Notifications',
         'Professionals',
         'RealEstateCatalog',
+        'ReliabilityOperations',
         'ReservationLifecycle',
         'SearchDiscovery',
+        'SecurityCompliance',
     ];
 
-    public function test_the_fourteen_module_envelopes_exist(): void
+    public function test_the_module_envelopes_exist(): void
     {
         $modulesPath = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'Modules';
         $directories = [];

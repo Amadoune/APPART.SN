@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS reservation_lifecycle.availability_intent_revisions;

@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS notifications.notification_outbox (
+    message_id char(64) PRIMARY KEY CHECK (message_id ~ '^[0-9a-f]{64}$'),
+    event_type varchar(64) NOT NULL CHECK (event_type IN ('notifications.preference.observed.v1','notifications.template.observed.v1','notifications.channel.observed.v1')),
+    delivery_status varchar(32) NOT NULL CHECK (delivery_status IN ('enabled','disabled','available','allowed','blocked','missing','corrupted','dependency_unavailable')),
+    observed_at timestamptz(6) NOT NULL,
+    payload jsonb NOT NULL CHECK (jsonb_typeof(payload) = 'object'),
+    message_checksum char(64) NOT NULL CHECK (message_checksum ~ '^[0-9a-f]{64}$'),
+    retry_count smallint NOT NULL DEFAULT 0 CHECK (retry_count >= 0 AND retry_count <= 10),
+    created_at timestamptz(6) NOT NULL DEFAULT clock_timestamp(),
+    delivered_at timestamptz(6) NULL
+);
+CREATE INDEX IF NOT EXISTS notifications_outbox_pending_idx ON notifications.notification_outbox(created_at,message_id) WHERE delivered_at IS NULL AND retry_count < 10;

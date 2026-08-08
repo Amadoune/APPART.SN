@@ -102,6 +102,7 @@ final class PostgreSqlTestEnvironment
             dirname(__DIR__, 3).'/src/Modules/ModerationReports/Infrastructure/Persistence/PostgreSql/Migrations/069_moderation_listing_handoff_results.sql',
             dirname(__DIR__, 3).'/src/Modules/ModerationReports/Infrastructure/Persistence/PostgreSql/Migrations/070_moderation_queue_owner_read_source.sql',
             dirname(__DIR__, 3).'/src/Modules/AdministrationAudit/Infrastructure/Persistence/PostgreSql/Migrations/071_administration_audit_public_append.sql',
+            dirname(__DIR__, 3).'/src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/Migrations/072_consent_owner_local_source.sql',
         ];
         foreach ($migrations as $migration) {
             $sql = file_get_contents($migration);
@@ -143,6 +144,7 @@ final class PostgreSqlTestEnvironment
         $connection->exec('TRUNCATE contacts_leads.lead_lifecycle_transition_contexts, contacts_leads.lead_lifecycle_transitions');
         $connection->exec('TRUNCATE contacts_leads.lead_lifecycle_event_inbox');
         $connection->exec('TRUNCATE contacts_leads.lead_eligibility_decisions');
+        $connection->exec('TRUNCATE contacts_leads.consent_decision_revisions');
         $connection->exec('TRUNCATE professionals.professional_status_transition_contexts, professionals.professional_status_transitions');
         $connection->exec('TRUNCATE professionals.professional_status_event_inbox');
         $connection->exec('TRUNCATE media.media_item_lifecycle_transition_contexts, media.media_item_lifecycle_transitions');

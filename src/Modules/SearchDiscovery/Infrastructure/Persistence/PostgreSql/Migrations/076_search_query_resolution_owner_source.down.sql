@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS search_discovery.search_query_resolution_current_index;
+DROP TABLE IF EXISTS search_discovery.search_query_resolution_revision_journal;

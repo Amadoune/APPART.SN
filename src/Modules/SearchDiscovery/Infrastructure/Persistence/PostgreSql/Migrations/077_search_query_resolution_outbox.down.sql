@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS search_discovery.search_query_resolution_outbox;

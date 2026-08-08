@@ -210,6 +210,8 @@ use Appart\Modules\IdentityAccess\Infrastructure\Persistence\HistoricalAccount\A
 use Appart\Modules\IdentityAccess\Infrastructure\Persistence\PostgreSql\PostgreSqlAccountRepository;
 use Appart\Modules\IdentityAccess\Infrastructure\Persistence\PostgreSql\PostgreSqlAccountStatusOrchestrationTransaction;
 use Appart\Modules\IdentityAccess\Infrastructure\Persistence\PostgreSql\PostgreSqlAccountStatusWorkflowStore;
+use Appart\Modules\ListingLifecycle\Application\ContactabilityBoundary\Contract\ListingContactabilityReaderV1;
+use Appart\Modules\ListingLifecycle\Application\ContactabilityBoundary\OwnerListingContactabilityReaderV1;
 use Appart\Modules\ListingLifecycle\Application\Contract\ListingRegistry;
 use Appart\Modules\ListingLifecycle\Application\ModerationBoundary\Contract\ListingModerationCommandGatewayV1;
 use Appart\Modules\ListingLifecycle\Application\ModerationBoundary\Contract\ListingModerationReaderV1;
@@ -344,6 +346,8 @@ final class PublicProjectionRuntimeServiceProvider extends ServiceProvider
         $this->app->alias(PostgreSqlListingModerationIntentTransaction::class, ListingModerationIntentTransaction::class);
         $this->app->singleton(OwnerListingModerationReaderV1::class);
         $this->app->alias(OwnerListingModerationReaderV1::class, ListingModerationReaderV1::class);
+        $this->app->singleton(OwnerListingContactabilityReaderV1::class);
+        $this->app->alias(OwnerListingContactabilityReaderV1::class, ListingContactabilityReaderV1::class);
         $this->app->singleton(OwnerListingModerationCommandGatewayV1::class);
         $this->app->alias(OwnerListingModerationCommandGatewayV1::class, ListingModerationCommandGatewayV1::class);
         $this->app->singleton(PropertyLifecycleWorkflow::class);

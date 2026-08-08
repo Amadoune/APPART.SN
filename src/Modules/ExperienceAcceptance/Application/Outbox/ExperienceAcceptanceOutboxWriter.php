@@ -1,0 +1,17 @@
+<?php
+
+namespace Appart\Modules\ExperienceAcceptance\Application\Outbox;
+
+use Appart\Modules\ExperienceAcceptance\Application\Delivery\AccessibilityComplianceDeliveryV1;
+use Appart\Modules\ExperienceAcceptance\Application\Delivery\EndToEndReadinessDeliveryV1;
+use Appart\Modules\ExperienceAcceptance\Application\Delivery\PerformanceReadinessDeliveryV1;
+use Appart\Modules\ExperienceAcceptance\Application\Delivery\ReleaseCandidateDeliveryV1;
+use Appart\Modules\ExperienceAcceptance\Application\Delivery\ResponsiveComplianceDeliveryV1;
+use Appart\Modules\ExperienceAcceptance\Application\Delivery\UserAcceptanceDeliveryV1;
+use Appart\Modules\ExperienceAcceptance\Application\Delivery\UserExperienceDeliveryV1;
+use DateTimeImmutable;
+
+interface ExperienceAcceptanceOutboxWriter
+{
+    public function append(ResponsiveComplianceDeliveryV1|AccessibilityComplianceDeliveryV1|UserExperienceDeliveryV1|EndToEndReadinessDeliveryV1|PerformanceReadinessDeliveryV1|UserAcceptanceDeliveryV1|ReleaseCandidateDeliveryV1 $delivery, DateTimeImmutable $createdAt): ExperienceAcceptanceOutboxAppendResult;
+}

@@ -1,0 +1,13 @@
+<?php
+
+namespace Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntime\Contract;
+
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntime\SearchQueryResolutionOwnerSourceRuntimeAvailability;
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntime\SearchQueryResolutionOwnerSourceRuntimeDiagnostics;
+
+interface SearchQueryResolutionOwnerSourceRuntimeV1
+{
+    public function availability(): SearchQueryResolutionOwnerSourceRuntimeAvailability;
+
+    public function diagnostics(): SearchQueryResolutionOwnerSourceRuntimeDiagnostics;
+}

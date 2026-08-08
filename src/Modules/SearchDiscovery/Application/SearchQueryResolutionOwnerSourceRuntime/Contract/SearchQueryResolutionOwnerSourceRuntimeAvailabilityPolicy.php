@@ -1,0 +1,10 @@
+<?php
+
+namespace Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntime\Contract;
+
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntime\SearchQueryResolutionOwnerSourceRuntimeAvailability;
+
+interface SearchQueryResolutionOwnerSourceRuntimeAvailabilityPolicy
+{
+    public function inspect(): SearchQueryResolutionOwnerSourceRuntimeAvailability;
+}

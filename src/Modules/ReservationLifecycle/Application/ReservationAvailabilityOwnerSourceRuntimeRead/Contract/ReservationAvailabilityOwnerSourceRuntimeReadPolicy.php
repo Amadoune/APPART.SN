@@ -1,0 +1,11 @@
+<?php
+
+namespace Appart\Modules\ReservationLifecycle\Application\ReservationAvailabilityOwnerSourceRuntimeRead\Contract;
+
+use Appart\Modules\ReservationLifecycle\Application\ReservationAvailabilityOwnerSource\ReservationAvailabilityReadResult;
+use Appart\Modules\ReservationLifecycle\Application\ReservationAvailabilityOwnerSourceRuntimeRead\ReservationAvailabilityOwnerSourceRuntimeReadResult;
+
+interface ReservationAvailabilityOwnerSourceRuntimeReadPolicy
+{
+    public function reduce(ReservationAvailabilityReadResult $sourceResult): ReservationAvailabilityOwnerSourceRuntimeReadResult;
+}

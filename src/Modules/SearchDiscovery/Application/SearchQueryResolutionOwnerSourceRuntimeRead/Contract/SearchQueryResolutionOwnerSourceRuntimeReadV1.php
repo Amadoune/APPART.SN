@@ -1,0 +1,13 @@
+<?php
+
+namespace Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntimeRead\Contract;
+
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntimeRead\SearchQueryResolutionOwnerSourceRuntimeReadDiagnostics;
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntimeRead\SearchQueryResolutionOwnerSourceRuntimeReadResult;
+
+interface SearchQueryResolutionOwnerSourceRuntimeReadV1
+{
+    public function read(): SearchQueryResolutionOwnerSourceRuntimeReadResult;
+
+    public function diagnostics(): SearchQueryResolutionOwnerSourceRuntimeReadDiagnostics;
+}

@@ -1,0 +1,11 @@
+<?php
+
+namespace Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntimeRead\Contract;
+
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntime\SearchQueryResolutionOwnerSourceRuntimeAvailability;
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionOwnerSourceRuntimeRead\SearchQueryResolutionOwnerSourceRuntimeReadResult;
+
+interface SearchQueryResolutionOwnerSourceRuntimeReadPolicy
+{
+    public function reduce(SearchQueryResolutionOwnerSourceRuntimeAvailability $availability): SearchQueryResolutionOwnerSourceRuntimeReadResult;
+}

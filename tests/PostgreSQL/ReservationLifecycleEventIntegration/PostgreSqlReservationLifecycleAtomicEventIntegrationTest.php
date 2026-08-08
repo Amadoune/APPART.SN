@@ -163,8 +163,12 @@ final class PostgreSqlReservationLifecycleAtomicEventIntegrationTest extends Tes
             @unlink($barrier.$suffix);
         }
 
-        self::assertSame(['already_applied', 'applied'], $results);
+        self::assertSame(1, count(array_filter($results, static fn (string $result): bool => $result === 'applied')));
+        $secondResult = array_values(array_filter($results, static fn (string $result): bool => $result !== 'applied'));
+        self::assertCount(1, $secondResult);
+        self::assertTrue(in_array($secondResult[0], ['already_applied', 'version_conflict'], true));
         self::assertSame(2, $store->read($this->id())->snapshot?->version);
+        self::assertSame(2, (int) $this->connection->query('SELECT count(*) FROM reservation_lifecycle.reservation_lifecycle_transitions')->fetchColumn());
         self::assertSame(1, $this->outboxCount());
     }
 

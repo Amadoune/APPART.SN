@@ -1,0 +1,7 @@
+<?php
+
+namespace Appart\Modules\SearchDiscovery\Application\SearchQueryResolutionPublicReader;
+
+use Appart\Modules\SearchDiscovery\Application\SearchQueryResolution\Contract\SearchQueryResolutionReaderV1;
+
+interface PublicSearchQueryResolutionReaderV1 extends SearchQueryResolutionReaderV1 {}

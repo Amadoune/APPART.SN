@@ -79,19 +79,26 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             'PostgreSqlAdministrativeActionContextualTransitionRepository' => 'src/Modules/AdministrationAudit/Infrastructure/Persistence/PostgreSql/PostgreSqlAdministrativeActionContextualTransitionRepository.php',
             'PostgreSqlAdministrativeActionLifecycleRepository' => 'src/Modules/AdministrationAudit/Infrastructure/Persistence/PostgreSql/PostgreSqlAdministrativeActionLifecycleRepository.php',
             'PostgreSqlAdministrativeActionRepository' => 'src/Modules/AdministrationAudit/Infrastructure/Persistence/PostgreSql/PostgreSqlAdministrativeActionRepository.php',
+            'PostgreSqlAdministrationConsoleOutboxRepository' => 'src/Modules/AdministrationConsole/Infrastructure/Outbox/PostgreSqlAdministrationConsoleOutboxRepository.php',
             'PostgreSqlLeadLifecycleContextualTransitionRepository' => 'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/PostgreSqlLeadLifecycleContextualTransitionRepository.php',
             'PostgreSqlLeadLifecycleWorkflowRepository' => 'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/PostgreSqlLeadLifecycleWorkflowRepository.php',
+            'PostgreSqlContentSeoOutboxRepository' => 'src/Modules/ContentSeo/Infrastructure/Outbox/PostgreSqlContentSeoOutboxRepository.php',
             'PostgreSqlAccountRepository' => 'src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/PostgreSqlAccountRepository.php',
+            'PostgreSqlLegacyMigrationOutboxRepository' => 'src/Modules/LegacyMigration/Infrastructure/Outbox/PostgreSqlLegacyMigrationOutboxRepository.php',
             'PostgreSqlListingPublicationWorkflowRepository' => 'src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/PostgreSqlListingPublicationWorkflowRepository.php',
             'PostgreSqlListingRepository' => 'src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/PostgreSqlListingRepository.php',
             'PostgreSqlMediaCollectionRepository' => 'src/Modules/Media/Infrastructure/Persistence/PostgreSql/PostgreSqlMediaCollectionRepository.php',
             'PostgreSqlMediaItemLifecycleContextualTransitionRepository' => 'src/Modules/Media/Infrastructure/Persistence/PostgreSql/PostgreSqlMediaItemLifecycleContextualTransitionRepository.php',
             'PostgreSqlMediaItemLifecycleWorkflowRepository' => 'src/Modules/Media/Infrastructure/Persistence/PostgreSql/PostgreSqlMediaItemLifecycleWorkflowRepository.php',
+            'PostgreSqlNotificationsOutboxRepository' => 'src/Modules/Notifications/Infrastructure/Outbox/PostgreSqlNotificationsOutboxRepository.php',
             'PostgreSqlProfessionalStatusContextualTransitionRepository' => 'src/Modules/Professionals/Infrastructure/Persistence/PostgreSql/PostgreSqlProfessionalStatusContextualTransitionRepository.php',
             'PostgreSqlProfessionalStatusWorkflowRepository' => 'src/Modules/Professionals/Infrastructure/Persistence/PostgreSql/PostgreSqlProfessionalStatusWorkflowRepository.php',
             'PostgreSqlPropertyLifecycleWorkflowRepository' => 'src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/PostgreSqlPropertyLifecycleWorkflowRepository.php',
             'PostgreSqlPropertyRepository' => 'src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/PostgreSqlPropertyRepository.php',
+            'PostgreSqlReliabilityOperationsOutboxRepository' => 'src/Modules/ReliabilityOperations/Infrastructure/Outbox/PostgreSqlReliabilityOperationsOutboxRepository.php',
             'PostgreSqlReservationLifecycleWorkflowRepository' => 'src/Modules/ReservationLifecycle/Infrastructure/Persistence/PostgreSql/PostgreSqlReservationLifecycleWorkflowRepository.php',
+            'SearchQueryResolutionOutboxRepository' => 'src/Modules/SearchDiscovery/Infrastructure/Persistence/PostgreSql/SearchQueryResolutionOutboxRepository.php',
+            'PostgreSqlSecurityComplianceOutboxRepository' => 'src/Modules/SecurityCompliance/Infrastructure/Outbox/PostgreSqlSecurityComplianceOutboxRepository.php',
             'PostgreSqlAdministrativeActionLifecycleInboxRepository' => 'app/Infrastructure/AdministrativeActionLifecycleEventRouting/PostgreSql/PostgreSqlAdministrativeActionLifecycleInboxRepository.php',
             'PostgreSqlLeadLifecycleInboxRepository' => 'app/Infrastructure/LeadLifecycleEventRouting/PostgreSql/PostgreSqlLeadLifecycleInboxRepository.php',
             'PostgreSqlMediaItemLifecycleInboxRepository' => 'app/Infrastructure/MediaItemLifecycleEventRouting/PostgreSql/PostgreSqlMediaItemLifecycleInboxRepository.php',
@@ -326,6 +333,11 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
 
                     continue;
                 }
+                if (preg_match('#^src/Modules/[^/]+/Infrastructure/Outbox/#', $relative) === 1) {
+                    self::assertStringContainsString('Outbox', $contents);
+
+                    continue;
+                }
                 self::assertStringContainsString('/Modules/', '/'.$relative, $relative.' declares shared persistence outside a module.');
                 self::assertStringContainsString('/Infrastructure/Persistence/', '/'.$relative, $relative.' places persistence outside module Infrastructure.');
             }
@@ -410,17 +422,29 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
     {
         $allowed = [
             'src/Modules/AdministrationAudit/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/AdministrationConsole/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/AdministrationConsole/Infrastructure/Outbox/Migrations/',
             'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/ExperienceAcceptance/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/Geography/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/LegacyMigration/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/LegacyMigration/Infrastructure/Outbox/Migrations/',
             'src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/ModerationReports/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/Notifications/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/Notifications/Infrastructure/Outbox/Migrations/',
             'src/Modules/Professionals/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/ReliabilityOperations/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/ReliabilityOperations/Infrastructure/Outbox/Migrations/',
             'src/Modules/ReservationLifecycle/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/Media/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/SearchDiscovery/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/ContentSeo/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/ContentSeo/Infrastructure/Outbox/Migrations/',
+            'src/Modules/SecurityCompliance/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/SecurityCompliance/Infrastructure/Outbox/Migrations/',
             'app/Infrastructure/PublicProjectionOutbox/PostgreSql/Migrations/',
             'app/Infrastructure/PublicProjectionStore/PostgreSql/Migrations/',
             'app/Infrastructure/PublicGeographySource/PostgreSql/Migrations/',
@@ -519,17 +543,29 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
         $relative = str_replace(DIRECTORY_SEPARATOR, '/', $this->relativePath($file));
 
         return str_starts_with($relative, 'src/Modules/AdministrationAudit/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/AdministrationConsole/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/AdministrationConsole/Infrastructure/Outbox/')
             || str_starts_with($relative, 'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/ContentSeo/Infrastructure/Outbox/')
+            || str_starts_with($relative, 'src/Modules/ExperienceAcceptance/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/Geography/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/LegacyMigration/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/LegacyMigration/Infrastructure/Outbox/')
             || str_starts_with($relative, 'src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/Media/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/ModerationReports/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/Notifications/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/Notifications/Infrastructure/Outbox/')
             || str_starts_with($relative, 'src/Modules/Professionals/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/ReliabilityOperations/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/ReliabilityOperations/Infrastructure/Outbox/')
             || str_starts_with($relative, 'src/Modules/ReservationLifecycle/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/SearchDiscovery/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/ContentSeo/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/SecurityCompliance/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/SecurityCompliance/Infrastructure/Outbox/')
             || str_starts_with($relative, 'app/Infrastructure/PublicProjectionOutbox/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/IdentityAccessEventOutbox/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/MediaIngestionEventOutbox/PostgreSql/')

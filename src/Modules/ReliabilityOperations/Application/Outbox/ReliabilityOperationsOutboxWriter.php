@@ -1,0 +1,17 @@
+<?php
+
+namespace Appart\Modules\ReliabilityOperations\Application\Outbox;
+
+use Appart\Modules\ReliabilityOperations\Application\Delivery\AlertingDeliveryV1;
+use Appart\Modules\ReliabilityOperations\Application\Delivery\CapacityPlanningDeliveryV1;
+use Appart\Modules\ReliabilityOperations\Application\Delivery\ContinuityDeliveryV1;
+use Appart\Modules\ReliabilityOperations\Application\Delivery\MaintenanceOperationsDeliveryV1;
+use Appart\Modules\ReliabilityOperations\Application\Delivery\ObservabilityDeliveryV1;
+use Appart\Modules\ReliabilityOperations\Application\Delivery\OperationalReadinessDeliveryV1;
+use Appart\Modules\ReliabilityOperations\Application\Delivery\ServiceHealthDeliveryV1;
+use DateTimeImmutable;
+
+interface ReliabilityOperationsOutboxWriter
+{
+    public function append(ObservabilityDeliveryV1|ServiceHealthDeliveryV1|AlertingDeliveryV1|MaintenanceOperationsDeliveryV1|ContinuityDeliveryV1|CapacityPlanningDeliveryV1|OperationalReadinessDeliveryV1 $delivery, DateTimeImmutable $createdAt): ReliabilityOperationsOutboxAppendResult;
+}
