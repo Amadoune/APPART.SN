@@ -1,8 +1,8 @@
 # Phase 5.4 — Roadmap
 
-## Transition normative courante 5.9 — Candidate Baseline Integrity Correction
+## Transition normative courante 5.9 — Candidate Baseline Materialization 02
 
-`PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` est GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif. La R2 `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988` est propre et Architecture/PostgreSQL ciblé sont PASS. Build & CI Evidence 02 reste NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Evidence 03 et les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS ; aucune Foundation 5.9 n'est ouverte.
+`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02` est OUVERTE, unique jalon 5.9 actif. Alignment Correction 02 est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Les corrections précédentes et Evidence 03 restent HISTORICAL_ONLY. R1/R2 restent immuables ; Evidence 04 est IDENTIFIÉ — NON OUVERT.
 
 ## HISTORICAL_ONLY — Transition normative 5.9 — Candidate Baseline Materialization
 

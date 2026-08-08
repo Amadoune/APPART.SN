@@ -25,6 +25,8 @@ final class PostgreSqlExperienceAcceptanceOwnerSourceTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = PostgreSqlTestEnvironment::connection();
+        $outboxRoot = dirname(__DIR__, 3).'/src/Modules/ExperienceAcceptance/Infrastructure/Outbox/Migrations/';
+        $this->connection->exec((string) file_get_contents($outboxRoot.'091_experience_acceptance_outbox.down.sql'));
         $root = dirname(__DIR__, 3).'/src/Modules/ExperienceAcceptance/Infrastructure/Persistence/PostgreSql/Migrations/';
         $this->connection->exec((string) file_get_contents($root.'090_experience_acceptance_owner_source.down.sql'));
         $this->connection->exec((string) file_get_contents($root.'090_experience_acceptance_owner_source.sql'));

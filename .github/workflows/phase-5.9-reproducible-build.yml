@@ -3,7 +3,7 @@ name: Phase 5.9 Reproducible Build
 on:
   push:
     tags:
-      - 'phase-5.9-build-ci-rc*'
+      - 'phase-5.9-baseline-candidate-r3'
   workflow_dispatch:
 
 permissions:
@@ -28,9 +28,9 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      BASELINE_SHA: 1337e225c63e6a3e25c5926f7c4fbddb4ba24da7
-      BASELINE_TAG: phase-5.9-baseline-candidate
-      RELEASE_CANDIDATE_ID: phase-5.9-build-ci-rc-01
+      SOURCE_BASE_SHA: 5b1d0e647d1f74629b5f7e99e6f9d7e31941e988
+      CANDIDATE_TAG: phase-5.9-baseline-candidate-r3
+      RELEASE_CANDIDATE_ID: phase-5.9-baseline-candidate-r3
       APPART_TEST_PG_DSN: pgsql:host=127.0.0.1;port=5432;dbname=appart_test
       APPART_TEST_PG_USER: appart_test
       APPART_TEST_PG_PASSWORD: appart_test_ci
@@ -43,8 +43,9 @@ jobs:
       - name: Verify source relation and clean checkout
         shell: bash
         run: |
-          test "$(git rev-parse "${BASELINE_TAG}^{commit}")" = "$BASELINE_SHA"
-          git merge-base --is-ancestor "$BASELINE_SHA" "$GITHUB_SHA"
+          test "$(git cat-file -t "refs/tags/${CANDIDATE_TAG}")" = "tag"
+          test "$(git rev-parse "${CANDIDATE_TAG}^{commit}")" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$SOURCE_BASE_SHA" "$GITHUB_SHA"
           test -z "$(git status --porcelain)"
 
       - name: Setup PHP and pinned Composer
@@ -94,6 +95,8 @@ jobs:
       - name: Build deterministic release artifact
         env:
           BUILD_SHA: ${{ github.sha }}
+          SOURCE_BASE_SHA: ${{ env.SOURCE_BASE_SHA }}
+          CANDIDATE_TAG: ${{ env.CANDIDATE_TAG }}
           BUILD_ENVIRONMENT_IDENTITY: ${{ runner.os }}-${{ runner.arch }}-${{ runner.name }}-${{ github.run_id }}-${{ github.run_attempt }}
         run: bash tools/release/build-release.sh
 

@@ -1,12 +1,17 @@
 # Phase 5.0 → Production — Roadmap directrice
 
-## État normatif courant 5.9 — Candidate Baseline Integrity Correction
+## État normatif courant 5.9 — Candidate Baseline Materialization 02
 
-- `PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01` : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
-- baseline R2 : `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988`, Architecture et PostgreSQL ciblé PASS ;
+- `PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02` : OUVERTE, unique jalon 5.9 actif ;
+- `PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-02` : GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ; toutes les gates globales PASS ;
+- `PHASE-5.9-POSTGRESQL-CLEANUP-DEPENDENCY-CORRECTION-01` : GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ; PostgreSQL global PASS — 763 tests, 3 623 assertions ;
+- `PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-01` : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- `PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-03` : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- source exclusive : baseline R2 `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988` ;
+- identité/propreté PASS ; Runtime pinning FAIL car verrou, workflow et packaging ciblent R1 ; portes suivantes BLOCKED ou MISSING ;
+- Candidate Baseline Integrity Correction : GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
 - Build & CI Evidence 02 : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
 - anomalie R1 découverte ultérieurement : `database/migrations` absent et baseline Architecture ExperienceAcceptance Outbox/091 incomplète ;
-- Build & CI Evidence 03 : IDENTIFIÉ — NON OUVERT ;
 - source candidate immuable : `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7` / `phase-5.9-baseline-candidate` ;
 - Candidate Baseline Materialization : GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
 - `PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-01` : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;

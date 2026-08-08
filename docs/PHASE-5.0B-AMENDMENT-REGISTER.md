@@ -1,11 +1,47 @@
 # Phase 5.0B — Amendment Register
 
-## PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01
+## PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02
+
+- nature : matérialisation de la baseline candidate R3 ;
+- statut : OUVERTE, unique jalon 5.9 actif ;
+- Evidence 04 : IDENTIFIÉ — NON OUVERT.
+
+## HISTORICAL_ONLY — PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-02
+
+- nature : achèvement borné de l'alignement source identity Build/CI ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- preuves : identité ciblée, Unit, Feature, Architecture, Foundation, PostgreSQL, PHPStan, Pint et frontend PASS ;
+- R3, tag R3 et Evidence 04 : NON OUVERTS.
+
+## HISTORICAL_ONLY — PHASE-5.9-POSTGRESQL-CLEANUP-DEPENDENCY-CORRECTION-01
+
+- nature : correction bornée du nettoyage PostgreSQL 090/091 ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- preuve terminale : PostgreSQL global PASS — 763/763 tests, 3 623 assertions ;
+- R3 et Evidence 04 : NON OUVERTS.
+
+## HISTORICAL_ONLY — PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-01
+
+- nature : amendement technique borné de source identity / Build & CI tooling ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- convention auditée : R2 est la source de base ancestrale ; le tag annoté R3 identifie exactement la candidate ;
+- Evidence 04 : IDENTIFIÉ — NON OUVERT ; aucune Foundation 5.9 ouverte.
+- gates : preuve ciblée, Unit, Feature, Architecture et Foundation PASS ; PostgreSQL global FAIL ; gates suivantes et R3 BLOCKED.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-03
+
+- nature : Reproducible Build & CI Evidence, campagne R2 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source exclusive : `phase-5.9-baseline-candidate-r2` → `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988` ;
+- premier blocage : Runtime pinning lié à R1 ; toutes les portes suivantes sont BLOCKED ou MISSING ;
+- aucune Foundation 5.9 ouverte.
+
+## HISTORICAL_ONLY — PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01
 
 - nature : correction d'intégrité de baseline candidate ;
-- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - périmètre : matérialisation Git de `database/migrations` et alignements Architecture nominatifs ExperienceAcceptance Outbox/091 ;
-- Build & CI Evidence 03 : IDENTIFIÉ — NON OUVERT ; aucune Foundation 5.9 ouverte.
+- aucune Foundation 5.9 ouverte.
 - baseline R2 : `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988`, tag annoté `phase-5.9-baseline-candidate-r2`.
 
 ## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02

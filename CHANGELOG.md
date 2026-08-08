@@ -1,8 +1,44 @@
 # Changelog
 
-## [PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01] — 2026-08-08
+## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-02] — 2026-08-08
 
-- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- statut : OUVERTE, unique jalon 5.9 actif ;
+- objectif : création exclusive du commit candidat R3 et de son tag annoté immuable ;
+- Evidence 04 : IDENTIFIÉ — NON OUVERT.
+
+## HISTORICAL_ONLY — [PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-02] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- objectif : achever la qualification Build/CI après stabilisation PostgreSQL ;
+- toutes les gates globales PASS ; convention R2 source ancestrale + tag annoté R3 candidate exacte qualifiée ;
+- R3, tag R3 et Evidence 04 : NON OUVERTS.
+
+## HISTORICAL_ONLY — [PHASE-5.9-POSTGRESQL-CLEANUP-DEPENDENCY-CORRECTION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- périmètre : correction exclusive des quatre erreurs de nettoyage entre OwnerSource 090 et Outbox 091 ;
+- PostgreSQL ciblé PASS ; PostgreSQL global terminal PASS — 763 tests, 3 623 assertions ;
+- Evidence 04 et R3 : NON OUVERTS / NON MATÉRIALISÉS.
+
+## HISTORICAL_ONLY — [PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-01] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- correction bornée aux trois contrôles Build/CI, aux preuves nécessaires et à la certification ;
+- convention : R2 source ancestrale immuable + tag annoté R3 comme identité candidate exacte ;
+- Evidence 04 : IDENTIFIÉ — NON OUVERT.
+- première divergence globale : PostgreSQL FAIL (759/763 PASS, 4 erreurs de nettoyage 090/091) ; R3 non matérialisée.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-03] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source obligatoire : `5b1d0e647d1f74629b5f7e99e6f9d7e31941e988`, tag `phase-5.9-baseline-candidate-r2` ;
+- campagne fail-fast arrêtée à la porte Runtime : verrou, workflow et packaging désignent encore R1 ;
+- identité R2 et propreté PASS ; portes ultérieures BLOCKED ou MISSING, sans recyclage des PASS Evidence 02 ;
+- aucune Foundation ni aucun autre chantier 5.9 ouvert.
+
+## HISTORICAL_ONLY — [PHASE-5.9-CANDIDATE-BASELINE-INTEGRITY-CORRECTION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - objectif : corriger exclusivement la matérialisation Git de `database/migrations` et les admissions Architecture nominatives ExperienceAcceptance Outbox/091 ;
 - `REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-03` : IDENTIFIÉ — NON OUVERT ;
 - aucune Foundation ni aucun autre chantier 5.9 ouvert.

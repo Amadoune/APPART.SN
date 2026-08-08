@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly EXPECTED_BASELINE="1337e225c63e6a3e25c5926f7c4fbddb4ba24da7"
-readonly EXPECTED_BASELINE_TAG="phase-5.9-baseline-candidate"
+readonly EXPECTED_SOURCE_BASE="5b1d0e647d1f74629b5f7e99e6f9d7e31941e988"
+readonly EXPECTED_CANDIDATE_TAG="phase-5.9-baseline-candidate-r3"
 readonly ROOT="$(git rev-parse --show-toplevel)"
 readonly BUILD_SHA="$(git rev-parse HEAD)"
 readonly OUTPUT_DIR="${1:-$ROOT/dist/release}"
 readonly RELEASE_ROOT="$OUTPUT_DIR/root"
 
-test "$(git rev-parse "${EXPECTED_BASELINE_TAG}^{commit}")" = "$EXPECTED_BASELINE"
-git merge-base --is-ancestor "$EXPECTED_BASELINE" "$BUILD_SHA"
+test "$(git cat-file -t "refs/tags/${EXPECTED_CANDIDATE_TAG}")" = "tag"
+test "$(git rev-parse "${EXPECTED_CANDIDATE_TAG}^{commit}")" = "$BUILD_SHA"
+git merge-base --is-ancestor "$EXPECTED_SOURCE_BASE" "$BUILD_SHA"
 test -z "$(git status --porcelain)"
 test "$(sha256sum composer.lock | cut -d' ' -f1)" = "f15dde645598d805143d9ec1d3fab666730ac58ada078b0a3448c498bbd02be5"
 test "$(sha256sum package-lock.json | cut -d' ' -f1)" = "1a717514aba144013fe85101e951f18cc74de01f311c9f9b5378b767d00ed26a"
+
+if [[ "${APPART_IDENTITY_CHECK_ONLY:-0}" == "1" ]]; then
+  echo "Candidate identity verified: ${EXPECTED_CANDIDATE_TAG} -> ${BUILD_SHA} (source base ${EXPECTED_SOURCE_BASE})"
+  exit 0
+fi
 
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$RELEASE_ROOT"
@@ -58,8 +64,9 @@ sort($migrations,SORT_STRING);
 $manifest=[
  "schema"=>"appart.release-manifest.v1",
  "releaseCandidateId"=>getenv("RELEASE_CANDIDATE_ID")?:"phase-5.9-build-ci-rc",
- "candidateCommitSha"=>getenv("BASELINE_SHA"),
- "candidateTag"=>getenv("BASELINE_TAG"),
+ "sourceBaseCommitSha"=>getenv("SOURCE_BASE_SHA"),
+ "candidateCommitSha"=>getenv("BUILD_SHA"),
+ "candidateTag"=>getenv("CANDIDATE_TAG"),
  "buildCommitSha"=>getenv("BUILD_SHA"),
  "buildDateUtc"=>gmdate("Y-m-d\\TH:i:s\\Z"),
  "phpVersion"=>PHP_VERSION,
