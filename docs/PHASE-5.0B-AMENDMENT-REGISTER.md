@@ -3,9 +3,10 @@
 ## PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02
 
 - nature : Reproducible Build & CI Evidence ;
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
 - source : `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7` via le tag annoté immuable `phase-5.9-baseline-candidate` ;
 - aucune Foundation 5.9 ouverte.
+- blocages : cinq échecs Architecture clean-room, aucune exécution CI externe, aucune reproduction indépendante.
 
 ## HISTORICAL_ONLY — PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01
 

@@ -2,10 +2,11 @@
 
 ## [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02] — 2026-08-08
 
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
 - source obligatoire : commit `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7`, tag annoté `phase-5.9-baseline-candidate` ;
 - objectif : chaîne probatoire runtime, dépendances, CI, clean-room, artefact, checksums, manifeste et reproduction indépendante ;
 - aucune Foundation 5.9 ni aucun autre chantier ouvert.
+- preuve clean-room : Unit PASS (2 872 tests), Feature PASS (339 tests), Architecture FAIL (5/908) ; CI externe et reproduction indépendante absentes.
 
 ## HISTORICAL_ONLY — [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01] — 2026-08-08
 

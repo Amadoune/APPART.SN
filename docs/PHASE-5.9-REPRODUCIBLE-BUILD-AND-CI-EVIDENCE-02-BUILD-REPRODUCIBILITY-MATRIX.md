@@ -4,13 +4,13 @@
 |---|---|---|
 | source immuable | baseline + tag annoté | PASS |
 | runtime pinning | runtime lock + SHAs/digest | PASS |
-| dépendances verrouillées | lockfiles + commandes CI | PARTIAL |
+| dépendances verrouillées | restore clean-room local PASS, CI externe absente | PARTIAL |
 | CI réelle | workflow versionné | PARTIAL |
-| clean-room | script/procédure | PARTIAL |
-| artefact complet | spécification + script | PARTIAL |
+| clean-room | Unit/Feature PASS, Architecture FAIL | FAIL |
+| artefact complet | spécification + script, exécution bloquée | BLOCKED |
 | packaging déterministe | writer USTAR canonique | PASS conception |
-| checksums | génération scriptée | PARTIAL |
-| manifeste | schéma/générateur | PARTIAL |
+| checksums | génération scriptée, exécution bloquée | BLOCKED |
+| manifeste | schéma/générateur, aucune instance PASS | BLOCKED |
 | reproduction indépendante | aucune exécution externe | MISSING |
 
 Les statuts ne deviennent PASS qu'après preuves terminales.

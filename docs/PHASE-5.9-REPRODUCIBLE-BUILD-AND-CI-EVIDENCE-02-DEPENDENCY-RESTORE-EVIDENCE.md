@@ -7,4 +7,6 @@ Empreintes de la baseline :
 
 La CI exécute `composer validate --strict`, `composer install` sans update, `composer check-platform-reqs`, `npm ci --ignore-scripts` et `npm ls --depth=0`. Le packaging restaure ensuite les dépendances PHP de production avec `--no-dev --classmap-authoritative` dans une racine release neuve.
 
-Preuve terminale distante : `PENDING_EXECUTION`.
+Preuve locale clean-room : PASS après activation explicite de l'extension ZIP du runtime 8.5.8 ; 112 paquets Composer et 58 paquets npm restaurés, `composer check-platform-reqs` et `npm ls --depth=0` PASS. npm signale une vulnérabilité haute dans l'arbre verrouillé ; aucune mise à jour opportuniste n'est appliquée.
+
+Preuve terminale distante : `MISSING`.

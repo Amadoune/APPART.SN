@@ -6,4 +6,4 @@ Champs : `releaseCandidateId`, `candidateCommitSha`, `candidateTag`, `buildCommi
 
 Le manifeste est produit hors archive afin que sa date et l'identité de reproduction ne rendent pas l'archive applicative divergente. Aucun secret n'y est écrit.
 
-Instance terminale : `PENDING_EXECUTION`.
+Instance terminale : `BLOCKED` par la gate Architecture ; aucun manifeste PASS n'est émis.

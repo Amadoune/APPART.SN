@@ -2,7 +2,7 @@
 
 ## État normatif courant 5.9 — Reproducible Build & CI Evidence 02
 
-`PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` est OUVERTE, unique jalon 5.9 actif, fondé sur le commit candidat `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7`. Candidate Baseline Materialization est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Reproducible Build & CI Evidence 01 et Evidence Consolidation restent NO GO CERTIFIÉS — FERMÉS — GELÉS — HISTORICAL_ONLY. Les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS. Aucune Foundation 5.9 n'est ouverte.
+`PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` est NO GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif : le clean-room révèle cinq échecs Architecture liés au répertoire `database/migrations` absent du commit et à la baseline Outbox ExperienceAcceptance 091 non synchronisée ; aucune CI externe ni reproduction indépendante n'est disponible. Candidate Baseline Materialization est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Les jalons historiques restent inchangés, les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS et aucune Foundation 5.9 n'est ouverte.
 
 ## HISTORICAL_ONLY — État normatif 5.9 — Candidate Baseline Materialization
 
