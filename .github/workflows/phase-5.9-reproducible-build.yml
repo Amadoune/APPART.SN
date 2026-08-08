@@ -1,0 +1,106 @@
+name: Phase 5.9 Reproducible Build
+
+on:
+  push:
+    tags:
+      - 'phase-5.9-build-ci-rc*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636
+        env:
+          POSTGRES_DB: appart_test
+          POSTGRES_USER: appart_test
+          POSTGRES_PASSWORD: appart_test_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U appart_test -d appart_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      BASELINE_SHA: 1337e225c63e6a3e25c5926f7c4fbddb4ba24da7
+      BASELINE_TAG: phase-5.9-baseline-candidate
+      RELEASE_CANDIDATE_ID: phase-5.9-build-ci-rc-01
+      APPART_TEST_PG_DSN: pgsql:host=127.0.0.1;port=5432;dbname=appart_test
+      APPART_TEST_PG_USER: appart_test
+      APPART_TEST_PG_PASSWORD: appart_test_ci
+    steps:
+      - name: Checkout immutable build candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Verify source relation and clean checkout
+        shell: bash
+        run: |
+          test "$(git rev-parse "${BASELINE_TAG}^{commit}")" = "$BASELINE_SHA"
+          git merge-base --is-ancestor "$BASELINE_SHA" "$GITHUB_SHA"
+          test -z "$(git status --porcelain)"
+
+      - name: Setup PHP and pinned Composer
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.5.8'
+          extensions: bcmath, curl, dom, fileinfo, intl, mbstring, openssl, pdo_pgsql, sodium, xml, xmlreader, xmlwriter
+          coverage: none
+          tools: composer:2.9.4@sha256:d3eb5c4cb2e708267dac5f9a76d2a57b07836c7ea68783a1a02bd6d94753ea80
+        env:
+          fail-fast: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24.17.0'
+          cache: npm
+
+      - name: Restore locked dependencies
+        run: |
+          composer validate --strict
+          composer install --prefer-dist --no-interaction --no-progress
+          composer check-platform-reqs
+          npm ci --ignore-scripts
+          npm ls --depth=0
+
+      - name: Unit, Feature, Architecture and Foundation gates
+        run: |
+          php artisan test --testsuite=Unit
+          php artisan test --testsuite=Feature
+          php artisan test --testsuite=Architecture
+          php artisan test --testsuite=Foundation
+
+      - name: PostgreSQL gate
+        run: php vendor/bin/phpunit --configuration phpunit.postgresql.xml
+
+      - name: Static analysis and formatting gates
+        run: |
+          php vendor/bin/phpstan analyse --no-progress
+          php vendor/bin/pint --test
+          git diff --check
+          test -z "$(git status --porcelain)"
+
+      - name: Frontend production build
+        run: npm run build
+
+      - name: Build deterministic release artifact
+        env:
+          BUILD_SHA: ${{ github.sha }}
+          BUILD_ENVIRONMENT_IDENTITY: ${{ runner.os }}-${{ runner.arch }}-${{ runner.name }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: bash tools/release/build-release.sh
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase-5.9-release-evidence-${{ github.sha }}
+          path: dist/release/
+          if-no-files-found: error
+          retention-days: 30

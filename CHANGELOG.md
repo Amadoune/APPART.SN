@@ -1,8 +1,15 @@
 # Changelog
 
-## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01] — 2026-08-08
+## [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02] — 2026-08-08
 
 - statut : OUVERTE, unique jalon 5.9 actif ;
+- source obligatoire : commit `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7`, tag annoté `phase-5.9-baseline-candidate` ;
+- objectif : chaîne probatoire runtime, dépendances, CI, clean-room, artefact, checksums, manifeste et reproduction indépendante ;
+- aucune Foundation 5.9 ni aucun autre chantier ouvert.
+
+## HISTORICAL_ONLY — [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - nature : qualification du workspace, matérialisation de la baseline source et versionnement candidat ;
 - staging explicitement borné, commit unique et tag annoté autorisés seulement après qualification exhaustive ;
 - aucun autre chantier ni aucune Foundation 5.9 ouverts.

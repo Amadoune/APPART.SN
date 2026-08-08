@@ -1,0 +1,20 @@
+{
+  "schema": "appart.runtime-lock.v1",
+  "php": "8.5.8",
+  "composer": {
+    "version": "2.9.4",
+    "pharSha256": "d3eb5c4cb2e708267dac5f9a76d2a57b07836c7ea68783a1a02bd6d94753ea80"
+  },
+  "node": {
+    "version": "24.17.0",
+    "linuxX64ArchiveSha256": "ab343a1b747c7cbf3630dfd7dbf818c5423fab2eb4f5ad1afc896f6bd121a917"
+  },
+  "npm": "11.13.0",
+  "postgresql": {
+    "version": "18.4",
+    "image": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636"
+  },
+  "githubRunner": "ubuntu-24.04",
+  "sourceCommit": "1337e225c63e6a3e25c5926f7c4fbddb4ba24da7",
+  "sourceTag": "phase-5.9-baseline-candidate"
+}

@@ -1,8 +1,12 @@
 # Phase 5.4 — Roadmap
 
-## Transition normative courante 5.9 — Candidate Baseline Materialization
+## Transition normative courante 5.9 — Reproducible Build & CI Evidence 02
 
-`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01` est OUVERTE, unique jalon 5.9 actif. Reproducible Build & CI Evidence est NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Evidence Consolidation est NO GO CERTIFIÉ — FERMÉ — GELÉ. Les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS. Aucune Foundation 5.9 n'est ouverte et les phases antérieures restent gelées.
+`PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` est OUVERTE, unique jalon 5.9 actif, sur la source immuable `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7`. Candidate Baseline Materialization est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Reproducible Build & CI Evidence 01 et Evidence Consolidation restent NO GO CERTIFIÉS — FERMÉS — GELÉS — HISTORICAL_ONLY. Les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS. Aucune Foundation 5.9 n'est ouverte.
+
+## HISTORICAL_ONLY — Transition normative 5.9 — Candidate Baseline Materialization
+
+`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01` est GO CERTIFIÉ — FERMÉ — GELÉ.
 
 ## HISTORICAL_ONLY — Transition normative 5.9 — Reproducible Build & CI Evidence
 

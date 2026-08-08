@@ -1,8 +1,12 @@
 # Roadmap APPART.SN REBUILD 2026
 
-## État normatif courant 5.9 — Candidate Baseline Materialization
+## État normatif courant 5.9 — Reproducible Build & CI Evidence 02
 
-`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01` est OUVERTE, unique jalon 5.9 actif. Reproducible Build & CI Evidence est NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Evidence Consolidation est NO GO CERTIFIÉ — FERMÉ — GELÉ. Les sept autres chantiers 5.9 sont IDENTIFIÉS — NON OUVERTS. Aucune Foundation 5.9 n'est ouverte et aucun risque n'est accepté.
+`PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` est OUVERTE, unique jalon 5.9 actif, fondé sur le commit candidat `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7`. Candidate Baseline Materialization est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. Reproducible Build & CI Evidence 01 et Evidence Consolidation restent NO GO CERTIFIÉS — FERMÉS — GELÉS — HISTORICAL_ONLY. Les sept autres chantiers sont IDENTIFIÉS — NON OUVERTS. Aucune Foundation 5.9 n'est ouverte.
+
+## HISTORICAL_ONLY — État normatif 5.9 — Candidate Baseline Materialization
+
+`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01` est GO CERTIFIÉ — FERMÉ — GELÉ. Son tag `phase-5.9-baseline-candidate` reste immuable.
 
 ## HISTORICAL_ONLY — État normatif 5.9 — Reproducible Build & CI Evidence
 

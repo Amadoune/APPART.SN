@@ -1,8 +1,10 @@
 # Phase 5.0 → Production — Roadmap directrice
 
-## État normatif courant 5.9 — Candidate Baseline Materialization
+## État normatif courant 5.9 — Reproducible Build & CI Evidence 02
 
-- `PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01` : OUVERTE, unique jalon 5.9 actif ;
+- `PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02` : OUVERTE, unique jalon 5.9 actif ;
+- source candidate immuable : `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7` / `phase-5.9-baseline-candidate` ;
+- Candidate Baseline Materialization : GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
 - `PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-01` : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
 - Evidence Consolidation : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
 - sept autres chantiers : IDENTIFIÉS — NON OUVERTS ; aucune Foundation 5.9 ouverte.

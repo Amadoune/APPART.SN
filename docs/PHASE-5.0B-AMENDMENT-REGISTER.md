@@ -1,9 +1,16 @@
 # Phase 5.0B — Amendment Register
 
-## PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01
+## PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-02
+
+- nature : Reproducible Build & CI Evidence ;
+- statut : OUVERTE, unique jalon 5.9 actif ;
+- source : `1337e225c63e6a3e25c5926f7c4fbddb4ba24da7` via le tag annoté immuable `phase-5.9-baseline-candidate` ;
+- aucune Foundation 5.9 ouverte.
+
+## HISTORICAL_ONLY — PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-01
 
 - nature : Workspace Qualification, Source Baseline Materialization & Candidate Versioning ;
-- statut : OUVERTE, unique jalon 5.9 actif ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - autorisation Git : staging borné, commit unique et tag annoté après qualification exhaustive ;
 - aucune Foundation 5.9 ouverte.
 
