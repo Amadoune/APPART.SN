@@ -1,6 +1,6 @@
 # Candidate Baseline Materialization 04
 
-Statut : `GO PROPOSÉ — OUVERTE`.
+Statut : `GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY`.
 
 Nature : Workspace Qualification / Candidate R5 Materialization.
 
@@ -29,4 +29,6 @@ La future candidate est identifiée exclusivement par le tag annoté exact `phas
 
 ## Verdict
 
-GO PROPOSÉ — PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04
+GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY
+
+Cette clôture documentaire est postérieure au commit R5 et n'appartient pas à la baseline immuable.

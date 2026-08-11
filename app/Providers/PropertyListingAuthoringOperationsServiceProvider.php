@@ -4,12 +4,15 @@ namespace App\Providers;
 
 use App\Application\PropertyListingAuthoringOperations\Contract\PropertyListingAuthoringOperations;
 use App\Application\PropertyListingAuthoringOperations\DeterministicPropertyListingAuthoringOperations;
+use App\Application\PropertyListingAuthoringRuntime\Contract\PropertyListingAuthoringRuntimeV1;
 use App\Infrastructure\Authoring\PropertyAuthoringCatalogAdapter;
 use Appart\Modules\ListingLifecycle\Application\Contract\ListingRegistry;
 use Appart\Modules\ListingLifecycle\Application\Creation\Contract\CreateListingDraftV1;
 use Appart\Modules\ListingLifecycle\Application\Creation\Contract\ListingCreationIntentStore;
 use Appart\Modules\ListingLifecycle\Application\Creation\Contract\ListingCreationTransaction;
 use Appart\Modules\ListingLifecycle\Application\Creation\DeterministicCreateListingDraftV1;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Contract\ListingPublicationOrchestrator;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\Contract\AuthoringPublicFactHandoffV1;
 use Appart\Modules\ListingLifecycle\Application\UseCase\CreateDraft;
 use Appart\Modules\ListingLifecycle\Domain\Policy\ListingTransitionPolicy;
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\PostgreSql\PostgreSqlListingCreationIntentStore;
@@ -39,7 +42,16 @@ final class PropertyListingAuthoringOperationsServiceProvider extends ServicePro
             ),
         );
         $this->app->alias(DeterministicCreateListingDraftV1::class, CreateListingDraftV1::class);
-        $this->app->singleton(DeterministicPropertyListingAuthoringOperations::class);
+        $this->app->singleton(
+            DeterministicPropertyListingAuthoringOperations::class,
+            static fn (Application $app): DeterministicPropertyListingAuthoringOperations => new DeterministicPropertyListingAuthoringOperations(
+                $app->make(PropertyListingAuthoringRuntimeV1::class),
+                $app->make(CreateListingDraftV1::class),
+                $app->make(ListingCreationTransaction::class),
+                $app->make(ListingPublicationOrchestrator::class),
+                $app->make(AuthoringPublicFactHandoffV1::class),
+            ),
+        );
         $this->app->alias(DeterministicPropertyListingAuthoringOperations::class, PropertyListingAuthoringOperations::class);
     }
 }

@@ -129,6 +129,38 @@ final class PostgreSqlListingRepositoryIntegrationTest extends TestCase
         self::assertSame(1, $this->countRows('listing_lifecycle.listings'));
     }
 
+    public function test_reasonless_submit_is_persisted_without_rewriting_historical_reason(): void
+    {
+        $listing = $this->fixtures->minimalListing();
+        $historicalReason = $listing->revisions()[0]->reason?->value;
+        self::assertNotNull($historicalReason);
+        $this->repository->add($listing);
+
+        $loaded = $this->repository->find($listing->id());
+        self::assertNotNull($loaded);
+        $loaded->submit(
+            $this->revision(90),
+            new TransitionEvidence(
+                ActorId::fromString('actor:integration'),
+                TransitionTrigger::SubmissionConfirmed,
+                null,
+                TransitionOrigin::Advertiser,
+                new \DateTimeImmutable('2026-07-17T10:06:00+00:00'),
+            ),
+            new ListingTransitionPolicy,
+            PropertyAvailability::Eligible,
+        );
+        $this->repository->save($loaded, 0);
+
+        $reloaded = $this->repository->find($listing->id());
+        self::assertNotNull($reloaded);
+        self::assertSame($historicalReason, $reloaded->revisions()[0]->reason?->value);
+        self::assertNull($reloaded->revisions()[1]->reason);
+        $row = $this->connection->query('SELECT reason FROM listing_lifecycle.listing_revisions WHERE sequence = 2')->fetch(PDO::FETCH_ASSOC);
+        self::assertIsArray($row);
+        self::assertNull($row['reason']);
+    }
+
     public function test_expired_and_withdrawn_are_persisted_without_becoming_terminal(): void
     {
         $expired = $this->fixtures->expiredListing();

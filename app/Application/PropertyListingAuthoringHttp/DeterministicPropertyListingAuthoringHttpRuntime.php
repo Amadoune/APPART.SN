@@ -56,6 +56,9 @@ final readonly class DeterministicPropertyListingAuthoringHttpRuntime implements
             $expected + 1,
             $intentId,
             $this->checksum($input),
+            isset($input['propertyType']) ? (string) $input['propertyType'] : $current?->propertyType,
+            isset($input['city']) ? (string) $input['city'] : $current?->city,
+            isset($input['neighborhood']) ? (string) $input['neighborhood'] : $current?->neighborhood,
         ), $expected);
 
         return $this->propertyResult($result, $expected + 1);
@@ -70,6 +73,9 @@ final readonly class DeterministicPropertyListingAuthoringHttpRuntime implements
 
         return new PropertyListingAuthoringHttpResult(PropertyListingAuthoringHttpStatus::Succeeded, [
             'propertyId' => $state->propertyId,
+            'propertyType' => $state->propertyType,
+            'city' => $state->city,
+            'neighborhood' => $state->neighborhood,
             'version' => $state->version,
         ]);
     }

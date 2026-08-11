@@ -31,6 +31,9 @@ final readonly class PostgreSqlPublicListingProjectionMapper
             'gv' => $record->watermark->publicGeographyVersion,
             'uv' => $record->watermark->publicMediaVersion,
             'checksum' => hash('sha256', serialize($record)),
+            'transaction' => $record->readModel?->transactionKind,
+            'city' => $record->readModel?->city,
+            'property_type' => $record->readModel?->propertyType,
         ];
     }
 

@@ -20,9 +20,10 @@ final class PropertyListingAuthoringHttpRequest extends FormRequest
         $common = ['_intentId' => $this->operation()->isRead() ? ['nullable'] : ['bail', 'required', 'uuid']];
 
         return $common + match ($this->operation()) {
-            PropertyListingAuthoringHttpOperation::InitiateProperty => [],
+            PropertyListingAuthoringHttpOperation::InitiateProperty => $this->propertyFields(),
             PropertyListingAuthoringHttpOperation::PatchProperty => [
                 'expectedVersion' => ['bail', 'required', 'integer', 'min:1'],
+                ...$this->propertyFields(),
             ],
             PropertyListingAuthoringHttpOperation::CreateListing => [
                 'listingId' => ['bail', 'required', 'uuid'],
@@ -75,5 +76,15 @@ final class PropertyListingAuthoringHttpRequest extends FormRequest
     public function operation(): PropertyListingAuthoringHttpOperation
     {
         return PropertyListingAuthoringHttpOperation::from((string) $this->route('authoring_operation'));
+    }
+
+    /** @return array<string, list<mixed>> */
+    private function propertyFields(): array
+    {
+        return [
+            'propertyType' => ['sometimes', Rule::in(['apartment', 'house', 'villa', 'land', 'office', 'commercial'])],
+            'city' => ['sometimes', 'string', 'min:2', 'max:120'],
+            'neighborhood' => ['sometimes', 'string', 'min:2', 'max:120'],
+        ];
     }
 }

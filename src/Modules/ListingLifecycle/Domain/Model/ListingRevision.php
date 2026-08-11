@@ -18,7 +18,7 @@ final readonly class ListingRevision
         public ListingStatus $status,
         public ActorId $actorId,
         public TransitionTrigger $trigger,
-        public TransitionReason $reason,
+        public ?TransitionReason $reason,
         public TransitionOrigin $origin,
         public DateTimeImmutable $occurredAt,
     ) {}

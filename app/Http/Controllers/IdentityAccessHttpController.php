@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Application\IdentityAccessHttp\AuthenticatedSessionContext;
 use App\Application\IdentityAccessHttp\Contract\IdentityAccessHttpRuntime;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpCommand;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpOperation;
@@ -25,6 +26,7 @@ final class IdentityAccessHttpController extends Controller
             /** @var array<string, bool|int|string|null> $input */
             $input = $request->safe()->except(['_intentId']);
             $account = $request->attributes->get('iam_account_id');
+            $session = $request->attributes->get('iam_session_context');
             $result = $this->runtime->execute(new IdentityAccessHttpCommand(
                 $operation,
                 $request->isRead()
@@ -35,6 +37,7 @@ final class IdentityAccessHttpController extends Controller
                 isset($input['requestedAt']) && is_string($input['requestedAt'])
                     ? new DateTimeImmutable($input['requestedAt'])
                     : new DateTimeImmutable,
+                $session instanceof AuthenticatedSessionContext ? $session : null,
             ));
         } catch (Throwable) {
             $result = new IdentityAccessHttpResult(IdentityAccessHttpStatus::Unavailable);

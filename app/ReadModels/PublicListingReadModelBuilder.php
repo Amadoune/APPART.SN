@@ -40,7 +40,22 @@ final readonly class PublicListingReadModelBuilder
             publicJsonLd: $seo->publicJsonLd,
             decidedAt: $seo->decidedAt,
             expiredListingTreatment: $seo->expiredListingTreatment,
+            transactionKind: $search->transactionKind,
+            city: $this->city($seo->breadcrumb),
         );
+    }
+
+    /** @param list<array{label:string, url:string}> $breadcrumb */
+    private function city(array $breadcrumb): ?string
+    {
+        if ($breadcrumb === []) {
+            return null;
+        }
+
+        $cityIndex = count($breadcrumb) > 1 ? array_key_last($breadcrumb) - 1 : array_key_last($breadcrumb);
+        $last = $breadcrumb[$cityIndex];
+
+        return $last['label'] === '' ? null : $last['label'];
     }
 
     private function assertConsistent(SearchListingProjection $search, SeoListingProjection $seo): void

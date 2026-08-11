@@ -39,4 +39,21 @@ final class PropertyListingAuthoringPersistenceArchitectureTest extends TestCase
         self::assertStringNotContainsString('REFERENCES', $migration);
         self::assertStringNotContainsString('CASCADE', $migration);
     }
+
+    #[Test]
+    public function public_property_fields_are_added_without_changing_the_frozen_foundation(): void
+    {
+        $root = dirname(__DIR__, 2).'/src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/Migrations/';
+        $up = (string) file_get_contents($root.'094_property_authoring_public_surface.sql');
+        $down = (string) file_get_contents($root.'094_property_authoring_public_surface.down.sql');
+
+        foreach (['property_type', 'city', 'neighborhood'] as $field) {
+            self::assertStringContainsString($field, $up);
+            self::assertStringContainsString($field, $down);
+        }
+        self::assertStringNotContainsString('REFERENCES', $up);
+        self::assertStringNotContainsString('real_estate_catalog.properties', $up);
+        self::assertStringNotContainsString('listing_', $up);
+        self::assertStringNotContainsString('media', $up);
+    }
 }

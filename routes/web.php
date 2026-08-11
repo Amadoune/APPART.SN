@@ -1,28 +1,72 @@
 <?php
 
 use App\Application\IdentityAccessHttp\IdentityAccessHttpOperation;
+use App\Application\MediaAuthoringHttp\MediaAuthoringHttpOperation;
 use App\Application\ModerationHttp\ModerationHttpOperation;
 use App\Application\PropertyListingAuthoringHttp\PropertyListingAuthoringHttpOperation;
+use App\Application\PublicSearchResults\Contract\PublicSearchResultsReaderV1;
+use App\Application\PublicSearchResults\PublicSearchResultsQuery;
 use App\Http\Controllers\AccountStatusHttpController;
 use App\Http\Controllers\AdministrativeActionLifecycleHttpController;
 use App\Http\Controllers\AuthoringWorkspaceController;
 use App\Http\Controllers\IdentityAccessHttpController;
 use App\Http\Controllers\LeadLifecycleHttpController;
 use App\Http\Controllers\ListingPublicationTransitionController;
+use App\Http\Controllers\MediaAuthoringHttpController;
 use App\Http\Controllers\MediaItemLifecycleHttpController;
 use App\Http\Controllers\ModerationHttpController;
+use App\Http\Controllers\OwnerDashboardController;
 use App\Http\Controllers\PlaceLifecycleHttpController;
 use App\Http\Controllers\ProfessionalProfileHttpController;
 use App\Http\Controllers\ProfessionalStatusHttpController;
 use App\Http\Controllers\PropertyLifecycleTransitionController;
 use App\Http\Controllers\PropertyListingAuthoringHttpController;
+use App\Http\Controllers\PublicationReviewExperienceController;
 use App\Http\Controllers\PublicAuthoringJourneyController;
 use App\Http\Controllers\PublicListingController;
+use App\Http\Controllers\PublicSearchExperienceController;
+use App\Http\Controllers\PublicSitemapController;
 use App\Http\Controllers\ReservationLifecycleHttpController;
 use App\Http\Middleware\RequireAccountStatusLifecycleAuthority;
 use App\Http\Middleware\RequireIdentityAccessSession;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/', function (PublicSearchResultsReaderV1 $results) {
+    return view('home', ['publicListings' => $results->read(new PublicSearchResultsQuery(3))->items]);
+})->name('home');
+
+Route::view('/connexion', 'iam-login')->name('iam-web-entry.login');
+
+Route::get('/recherche', PublicSearchExperienceController::class)
+    ->name('public-search.experience');
+
+Route::get('/espace-proprietaire', OwnerDashboardController::class)
+    ->name('owner-dashboard');
+
+Route::get('/sitemap.xml', PublicSitemapController::class)
+    ->name('public-sitemap');
+
+Route::get('/_local/bootstrap', function () {
+    abort_unless(app()->environment('local'), 404);
+
+    $postgresql = 'unavailable';
+
+    try {
+        DB::select('SELECT 1');
+        $postgresql = 'connected';
+    } catch (Throwable) {
+        // The bootstrap page reports availability without exposing diagnostics.
+    }
+
+    return view('local-bootstrap', [
+        'environment' => app()->environment(),
+        'laravelVersion' => app()->version(),
+        'phpVersion' => PHP_VERSION,
+        'postgresql' => $postgresql,
+    ]);
+})->name('local-bootstrap');
 
 Route::post('/api/listing-publications/{listingId}/transitions', ListingPublicationTransitionController::class)
     ->whereUuid('listingId')
@@ -145,6 +189,17 @@ Route::prefix('/api/authoring')
             ->defaults('authoring_operation', PropertyListingAuthoringHttpOperation::Portfolio->value);
     });
 
+Route::prefix('/api/authoring/properties/{propertyId}/media')
+    ->where(['propertyId' => '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}'])
+    ->middleware([RequireIdentityAccessSession::class, 'throttle:property-listing-authoring'])
+    ->group(function (): void {
+        Route::post('/', MediaAuthoringHttpController::class)->defaults('media_authoring_operation', MediaAuthoringHttpOperation::Upload->value);
+        Route::get('/', MediaAuthoringHttpController::class)->defaults('media_authoring_operation', MediaAuthoringHttpOperation::Collection->value);
+        Route::delete('/{mediaId}', MediaAuthoringHttpController::class)
+            ->where('mediaId', '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}')
+            ->defaults('media_authoring_operation', MediaAuthoringHttpOperation::Archive->value);
+    });
+
 Route::post('/api/public-authoring/v1/{journeyOperation}', PublicAuthoringJourneyController::class)
     ->middleware([RequireIdentityAccessSession::class, 'throttle:public-authoring-v1'])
     ->where('journeyOperation', 'initiate-property|update-property|create-listing|update-draft|grant-delegation|revoke-delegation|submit-listing')
@@ -153,6 +208,17 @@ Route::post('/api/public-authoring/v1/{journeyOperation}', PublicAuthoringJourne
 Route::get('/authoring/workspace', AuthoringWorkspaceController::class)
     ->middleware(RequireIdentityAccessSession::class)
     ->name('public-authoring.workspace');
+
+Route::prefix('/publication-review')
+    ->middleware([RequireIdentityAccessSession::class, 'throttle:iam-authenticated'])
+    ->group(function (): void {
+        $queueItem = '[A-Za-z0-9._:-]{1,96}';
+        Route::get('/', [PublicationReviewExperienceController::class, 'index'])->name('publication-review.index');
+        Route::get('/{queueItemId}', [PublicationReviewExperienceController::class, 'show'])->where('queueItemId', $queueItem)->name('publication-review.show');
+        Route::post('/{queueItemId}/claim', [PublicationReviewExperienceController::class, 'claim'])->where('queueItemId', $queueItem)->defaults('review_operation', 'claim')->name('publication-review.claim');
+        Route::post('/{queueItemId}/begin', [PublicationReviewExperienceController::class, 'begin'])->where('queueItemId', $queueItem)->defaults('review_operation', 'begin')->name('publication-review.begin');
+        Route::post('/{queueItemId}/approve', [PublicationReviewExperienceController::class, 'approve'])->where('queueItemId', $queueItem)->defaults('review_operation', 'approve')->name('publication-review.approve');
+    });
 
 Route::middleware([RequireIdentityAccessSession::class, 'throttle:iam-authenticated'])
     ->group(function (): void {

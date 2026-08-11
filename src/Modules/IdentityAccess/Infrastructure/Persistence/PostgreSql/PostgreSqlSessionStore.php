@@ -2,17 +2,20 @@
 
 namespace Appart\Modules\IdentityAccess\Infrastructure\Persistence\PostgreSql;
 
+use App\Application\IdentityAccessHttp\Contract\IdentityAccessSessionStore;
+use Appart\Modules\IdentityAccess\Application\AuthenticationAuthority\SessionConcurrencyCandidate;
 use Appart\Modules\IdentityAccess\Application\IdentityAccessCompletionPersistence\OwnerPersistenceState;
 use Appart\Modules\IdentityAccess\Application\IdentityAccessCompletionPersistence\PersistenceWriteResult;
 use Appart\Modules\IdentityAccess\Infrastructure\Persistence\IdentityAccessCompletionPersistenceMapper;
 use PDO;
 
-final readonly class PostgreSqlSessionStore extends AbstractPostgreSqlOwnerPersistenceStore
+final readonly class PostgreSqlSessionStore extends AbstractPostgreSqlOwnerPersistenceStore implements IdentityAccessSessionStore
 {
     public function __construct(PDO $connection, IdentityAccessCompletionPersistenceMapper $mapper)
     {
         parent::__construct($connection, $mapper, 'sessions', 'session_id', [
-            'account_id', 'secret_hash', 'state', 'issued_at', 'expires_at', 'last_seen_at',
+            'account_id', 'secret_hash', 'state', 'policy_version', 'original_issued_at',
+            'idle_expires_at', 'absolute_expires_at', 'issued_at', 'expires_at', 'last_seen_at',
             'rotated_to', 'device_reference', 'issued_checkpoint',
         ]);
     }
@@ -28,6 +31,25 @@ final readonly class PostgreSqlSessionStore extends AbstractPostgreSqlOwnerPersi
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
         return $row === false ? null : $this->mapper->snapshot($row, 'account_id', ['checkpoint', 'updated_at']);
+    }
+
+    public function activeSessions(string $accountId): array
+    {
+        $statement = $this->connection->prepare(
+            "SELECT session_id::text,original_issued_at::text
+             FROM identity_access_completion.sessions
+             WHERE account_id=CAST(:account_id AS uuid) AND state='Active'
+             ORDER BY original_issued_at,session_id",
+        );
+        $statement->execute(['account_id' => $accountId]);
+
+        return array_map(
+            static fn (array $row): SessionConcurrencyCandidate => new SessionConcurrencyCandidate(
+                (string) $row['session_id'],
+                new \DateTimeImmutable((string) $row['original_issued_at']),
+            ),
+            $statement->fetchAll(PDO::FETCH_ASSOC),
+        );
     }
 
     public function advanceInvalidationCheckpoint(OwnerPersistenceState $state, int $expectedVersion): PersistenceWriteResult

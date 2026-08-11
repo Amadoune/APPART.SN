@@ -23,7 +23,7 @@ interface ListingEvent
 
     public function trigger(): TransitionTrigger;
 
-    public function reason(): TransitionReason;
+    public function reason(): ?TransitionReason;
 
     public function origin(): TransitionOrigin;
 

@@ -3,11 +3,21 @@
 namespace Tests\PostgreSQL\MediaIngestionPersistence;
 
 use Appart\Modules\Media\Application\Attachment\MediaAttachmentIntent;
+use Appart\Modules\Media\Application\BinaryStorage\Contract\MediaBinaryObjectStore;
+use Appart\Modules\Media\Application\BinaryStorage\DeterministicMediaBinaryStorageAuthority;
+use Appart\Modules\Media\Application\BinaryStorage\MediaBinaryObject;
+use Appart\Modules\Media\Application\BinaryStorage\MediaBinaryObjectStoreResult;
+use Appart\Modules\Media\Application\BinaryStorage\MediaBinaryObjectStoreStatus;
+use Appart\Modules\Media\Application\BinaryStorage\MediaBinaryStorageStatus;
+use Appart\Modules\Media\Application\BinaryStorage\MediaBinaryWriteRequest;
 use Appart\Modules\Media\Application\IngestionPersistence\MediaAssetState;
 use Appart\Modules\Media\Application\IngestionPersistence\MediaIngestionPersistenceWriteResult;
 use Appart\Modules\Media\Application\IngestionPersistence\MediaProcessingState;
 use Appart\Modules\Media\Application\IngestionPersistence\MediaQuotaState;
 use Appart\Modules\Media\Application\IngestionPersistence\MediaUploadState;
+use Appart\Modules\Media\Application\ReadyAsset\DeterministicMediaAssetReadiness;
+use Appart\Modules\Media\Application\ReadyAsset\MediaAssetReadinessRequest;
+use Appart\Modules\Media\Application\ReadyAsset\MediaAssetReadinessStatus;
 use Appart\Modules\Media\Infrastructure\Persistence\MediaIngestionStateMapper;
 use Appart\Modules\Media\Infrastructure\Persistence\PostgreSql\PostgreSqlMediaAssetStore;
 use Appart\Modules\Media\Infrastructure\Persistence\PostgreSql\PostgreSqlMediaAttachmentIntentStore;
@@ -83,6 +93,117 @@ final class PostgreSqlMediaIngestionPersistenceTest extends TestCase
         self::assertNull($store->find($intent->intentId)?->aggregateVersion);
         $store->markApplied($intent->intentId, 1);
         self::assertSame(1, $store->find($intent->intentId)?->aggregateVersion);
+    }
+
+    #[Test]
+    public function binary_authority_materializes_a_durable_asset_without_attachment(): void
+    {
+        $objects = new class implements MediaBinaryObjectStore
+        {
+            public function store(MediaBinaryWriteRequest $request, mixed $stream): MediaBinaryObjectStoreResult
+            {
+                $bytes = is_resource($stream) ? stream_get_contents($stream) : false;
+                if (! is_string($bytes)) {
+                    return new MediaBinaryObjectStoreResult(MediaBinaryObjectStoreStatus::DependencyUnavailable);
+                }
+                $object = new MediaBinaryObject(
+                    $request->ownerId,
+                    $request->assetId,
+                    'owners/'.$request->ownerId.'/assets/'.$request->assetId,
+                    hash('sha256', $bytes),
+                    strlen($bytes),
+                );
+
+                return new MediaBinaryObjectStoreResult(MediaBinaryObjectStoreStatus::Applied, $object);
+            }
+
+            public function delete(string $ownerId, string $assetId): void {}
+
+            public function inspect(string $ownerId, string $assetId): MediaBinaryObjectStoreResult
+            {
+                return new MediaBinaryObjectStoreResult(MediaBinaryObjectStoreStatus::Missing);
+            }
+        };
+        $assets = new PostgreSqlMediaAssetStore($this->connection, new MediaIngestionStateMapper);
+        $authority = new DeterministicMediaBinaryStorageAuthority($objects, $assets);
+        $stream = fopen('php://temp', 'w+b');
+        self::assertIsResource($stream);
+        fwrite($stream, 'photo1-real-binary');
+        rewind($stream);
+        $request = new MediaBinaryWriteRequest($this->id(20), $this->id(21), $this->intent(20), 'photo1.jpg', 'image/jpeg');
+
+        $result = $authority->store($request, $stream);
+        $reloaded = $assets->read($this->id(21));
+
+        self::assertSame(MediaBinaryStorageStatus::Applied, $result->status);
+        self::assertSame('quarantined', $reloaded?->state);
+        self::assertSame(hash('sha256', 'photo1-real-binary'), $reloaded->payload['contentChecksum']);
+        self::assertSame($this->id(20), $reloaded->payload['ownerId']);
+        self::assertSame(0, (int) $this->connection->query('SELECT count(*) FROM media.media_attachment_intents')->fetchColumn());
+    }
+
+    #[Test]
+    public function readiness_promotes_the_durable_quarantined_asset_without_mutating_its_payload(): void
+    {
+        $objects = new class implements MediaBinaryObjectStore
+        {
+            public ?MediaBinaryObject $object = null;
+
+            public ?string $contents = null;
+
+            public function store(MediaBinaryWriteRequest $request, mixed $stream): MediaBinaryObjectStoreResult
+            {
+                $contents = is_resource($stream) ? stream_get_contents($stream) : false;
+                if (! is_string($contents)) {
+                    return new MediaBinaryObjectStoreResult(MediaBinaryObjectStoreStatus::DependencyUnavailable);
+                }
+                $this->contents = $contents;
+                $this->object = new MediaBinaryObject(
+                    $request->ownerId,
+                    $request->assetId,
+                    'owners/'.$request->ownerId.'/assets/'.$request->assetId,
+                    hash('sha256', $contents),
+                    strlen($contents),
+                );
+
+                return new MediaBinaryObjectStoreResult(MediaBinaryObjectStoreStatus::Applied, $this->object);
+            }
+
+            public function inspect(string $ownerId, string $assetId): MediaBinaryObjectStoreResult
+            {
+                return $this->object === null || $this->contents === null
+                    ? new MediaBinaryObjectStoreResult(MediaBinaryObjectStoreStatus::Missing)
+                    : new MediaBinaryObjectStoreResult(MediaBinaryObjectStoreStatus::AlreadyApplied, $this->object);
+            }
+
+            public function delete(string $ownerId, string $assetId): void {}
+        };
+        $assets = new PostgreSqlMediaAssetStore($this->connection, new MediaIngestionStateMapper);
+        $stream = fopen('php://temp', 'w+b');
+        self::assertIsResource($stream);
+        fwrite($stream, 'ready-postgresql-binary');
+        rewind($stream);
+        $assetId = $this->id(31);
+        $binary = new DeterministicMediaBinaryStorageAuthority($objects, $assets);
+        $binary->store(new MediaBinaryWriteRequest($this->id(30), $assetId, $this->intent(30), 'ready.jpg', 'image/jpeg'), $stream);
+        $before = $assets->read($assetId);
+        self::assertNotNull($before);
+
+        $readiness = new DeterministicMediaAssetReadiness($objects, $assets);
+        $applied = $readiness->makeReady(new MediaAssetReadinessRequest($assetId, $this->intent(31)));
+        $after = $assets->read($assetId);
+
+        self::assertSame(MediaAssetReadinessStatus::Applied, $applied->status);
+        self::assertSame('ready', $after->state);
+        self::assertSame(2, $after->version);
+        self::assertSame($before->payload, $after->payload);
+        self::assertSame('ready-postgresql-binary', $objects->contents);
+        self::assertSame(0, (int) $this->connection->query('SELECT count(*) FROM media.media_attachment_intents')->fetchColumn());
+        self::assertSame(
+            MediaAssetReadinessStatus::AlreadyApplied,
+            $readiness->makeReady(new MediaAssetReadinessRequest($assetId, $this->intent(32)))->status,
+        );
+        self::assertSame(2, $assets->read($assetId)?->version);
     }
 
     private function id(int $suffix): string

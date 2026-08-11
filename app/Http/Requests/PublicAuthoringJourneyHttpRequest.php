@@ -34,6 +34,9 @@ final class PublicAuthoringJourneyHttpRequest extends FormRequest
             'chargesMinor' => $this->contentRule(['integer', 'min:0']),
             'availabilityDate' => $this->contentRule(['date_format:Y-m-d']),
             'contactPreference' => $this->contentRule([Rule::in(['platform', 'phone', 'email'])]),
+            'propertyType' => $this->propertyContentRule([Rule::in(['apartment', 'house', 'villa', 'land', 'office', 'commercial'])]),
+            'city' => $this->propertyContentRule(['string', 'min:2', 'max:120']),
+            'neighborhood' => $this->propertyContentRule(['string', 'min:2', 'max:120']),
             'delegateAccountId' => in_array($this->operation(), [
                 PublicAuthoringJourneyOperation::GrantDelegation,
                 PublicAuthoringJourneyOperation::RevokeDelegation,
@@ -100,5 +103,16 @@ final class PublicAuthoringJourneyHttpRequest extends FormRequest
             PublicAuthoringJourneyOperation::UpdateDraft => ['sometimes', ...$rules],
             default => ['prohibited'],
         };
+    }
+
+    /** @param list<mixed> $rules
+     * @return list<mixed>
+     */
+    private function propertyContentRule(array $rules): array
+    {
+        return in_array($this->operation(), [
+            PublicAuthoringJourneyOperation::InitiateProperty,
+            PublicAuthoringJourneyOperation::UpdateProperty,
+        ], true) ? ['sometimes', ...$rules] : ['prohibited'];
     }
 }

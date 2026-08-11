@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\IdentityAccessHttp\AuthenticatedSessionContext;
 use App\Application\IdentityAccessHttp\Contract\IdentityAccessHttpRuntime;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpCommand;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpResult;
@@ -40,7 +41,10 @@ final class PublicAuthoringIntegrationSecurityTest extends TestCase
             public function inspectSession(string $secret, DateTimeImmutable $at): IdentityAccessSessionInspection
             {
                 return $secret === 'public-authoring-session'
-                    ? IdentityAccessSessionInspection::valid(AccountId::fromString(PublicAuthoringIntegrationSecurityTest::ACCOUNT))
+                    ? IdentityAccessSessionInspection::valid(new AuthenticatedSessionContext(
+                        AccountId::fromString(PublicAuthoringIntegrationSecurityTest::ACCOUNT),
+                        '92000000-0000-4000-8000-000000000002',
+                    ))
                     : IdentityAccessSessionInspection::invalid();
             }
         });
@@ -66,6 +70,11 @@ final class PublicAuthoringIntegrationSecurityTest extends TestCase
 
         self::assertSame(self::ACCOUNT, $this->journey->last->accountId);
         self::assertSame(self::PROPERTY, $this->journey->last->propertyId);
+        self::assertSame([
+            'propertyType' => 'apartment',
+            'city' => 'Dakar',
+            'neighborhood' => 'Almadies',
+        ], $this->journey->last->data);
 
         $this->withCredentials()->withUnencryptedCookie('__Host-appart_session', 'public-authoring-session')
             ->withHeader('Idempotency-Key', self::INTENT)
@@ -92,6 +101,9 @@ final class PublicAuthoringIntegrationSecurityTest extends TestCase
             'propertyId' => self::PROPERTY,
             'expectedVersion' => 0,
             'requestedAt' => '2026-07-27T20:00:00.000000Z',
+            'propertyType' => 'apartment',
+            'city' => 'Dakar',
+            'neighborhood' => 'Almadies',
         ];
     }
 }

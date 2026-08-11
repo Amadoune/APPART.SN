@@ -34,6 +34,7 @@ final readonly class PublicListingProjectionSources
         public ?int $publicGeographyVersion,
         public ?int $publicMediaVersion,
         public PublicProjectionGenerationId $generationId,
+        public ?string $transactionKind = null,
     ) {
         if ($searchVersion < 1 || $contentSeoVersion < 1 || ($publicGeographyVersion !== null && $publicGeographyVersion < 1) || ($publicMediaVersion !== null && $publicMediaVersion < 1)) {
             throw new InvalidArgumentException('Public reconstruction source versions are invalid.');

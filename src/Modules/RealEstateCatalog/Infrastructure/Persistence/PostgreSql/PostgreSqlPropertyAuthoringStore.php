@@ -16,7 +16,7 @@ final readonly class PostgreSqlPropertyAuthoringStore implements PropertyAuthori
 
     public function read(string $propertyId): ?PropertyAuthoringState
     {
-        $statement = $this->connection->prepare('SELECT property_id, owner_account_id, version, last_intent_id, last_intent_checksum FROM real_estate_catalog_authoring.property_authoring WHERE property_id=:id');
+        $statement = $this->connection->prepare('SELECT property_id, owner_account_id, version, last_intent_id, last_intent_checksum, property_type, city, neighborhood FROM real_estate_catalog_authoring.property_authoring WHERE property_id=:id');
         $statement->execute(['id' => $propertyId]);
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
@@ -80,10 +80,19 @@ final readonly class PostgreSqlPropertyAuthoringStore implements PropertyAuthori
     private function write(PropertyAuthoringState $state, bool $insert): void
     {
         $sql = $insert
-            ? 'INSERT INTO real_estate_catalog_authoring.property_authoring(property_id,owner_account_id,version,last_intent_id,last_intent_checksum) VALUES(:property_id,:owner_account_id,:version,:intent_id,:checksum)'
-            : 'UPDATE real_estate_catalog_authoring.property_authoring SET version=:version,last_intent_id=:intent_id,last_intent_checksum=:checksum,updated_at=CURRENT_TIMESTAMP WHERE property_id=:property_id AND owner_account_id=:owner_account_id';
+            ? 'INSERT INTO real_estate_catalog_authoring.property_authoring(property_id,owner_account_id,version,last_intent_id,last_intent_checksum,property_type,city,neighborhood) VALUES(:property_id,:owner_account_id,:version,:intent_id,:checksum,:property_type,:city,:neighborhood)'
+            : 'UPDATE real_estate_catalog_authoring.property_authoring SET version=:version,last_intent_id=:intent_id,last_intent_checksum=:checksum,property_type=:property_type,city=:city,neighborhood=:neighborhood,updated_at=CURRENT_TIMESTAMP WHERE property_id=:property_id AND owner_account_id=:owner_account_id';
         $statement = $this->connection->prepare($sql);
-        $statement->execute(['property_id' => $state->propertyId, 'owner_account_id' => $state->ownerAccountId, 'version' => $state->version, 'intent_id' => $state->intentId, 'checksum' => $state->intentChecksum]);
+        $statement->execute([
+            'property_id' => $state->propertyId,
+            'owner_account_id' => $state->ownerAccountId,
+            'version' => $state->version,
+            'intent_id' => $state->intentId,
+            'checksum' => $state->intentChecksum,
+            'property_type' => $state->propertyType,
+            'city' => $state->city,
+            'neighborhood' => $state->neighborhood,
+        ]);
     }
 
     private function rollback(bool $owner): void

@@ -31,7 +31,7 @@ final class ListingMapper
                 $revision->status->value,
                 $revision->actorId->value,
                 $revision->trigger->value,
-                $revision->reason->value,
+                $revision->reason?->value,
                 $revision->origin->value,
                 $this->date($revision->occurredAt),
             ),
@@ -100,7 +100,7 @@ final class ListingMapper
                 ListingStatus::tryFrom($snapshot->status) ?? throw PersistentListingIntegrity::invalid('revision status'),
                 ActorId::fromString($snapshot->actorId),
                 TransitionTrigger::tryFrom($snapshot->trigger) ?? throw PersistentListingIntegrity::invalid('trigger'),
-                TransitionReason::fromString($snapshot->reason),
+                $snapshot->reason === null ? null : TransitionReason::fromString($snapshot->reason),
                 TransitionOrigin::tryFrom($snapshot->origin) ?? throw PersistentListingIntegrity::invalid('origin'),
                 $this->parseDate($snapshot->occurredAt),
             );

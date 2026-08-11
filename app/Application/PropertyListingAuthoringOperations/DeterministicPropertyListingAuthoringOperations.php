@@ -16,7 +16,12 @@ use Appart\Modules\ListingLifecycle\Application\Creation\CreateListingDraftStatu
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Contract\ListingPublicationOrchestrator;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationAction;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationRequest;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationResult;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationStatus;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\AuthoringPublicFactSnapshot;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\Contract\AuthoringPublicFactHandoffV1;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\PublicFactHandoffResult;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\PublicTransactionKind;
 use Appart\Modules\ListingLifecycle\Domain\ValueObject\ListingId;
 use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringPersistenceWriteResult;
 use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringState;
@@ -29,6 +34,7 @@ final readonly class DeterministicPropertyListingAuthoringOperations implements 
         private CreateListingDraftV1 $createListing,
         private ListingCreationTransaction $listingTransaction,
         private ListingPublicationOrchestrator $publication,
+        private ?AuthoringPublicFactHandoffV1 $publicFacts = null,
     ) {}
 
     public function execute(AuthoringOperationCommand $command): AuthoringOperationResult
@@ -57,12 +63,17 @@ final readonly class DeterministicPropertyListingAuthoringOperations implements 
         if ($command->propertyId === null) {
             return new AuthoringOperationResult(AuthoringOperationStatus::Invalid);
         }
-        $result = $this->runtime->propertyAuthoring()->save(new PropertyAuthoringState(
+        $store = $this->runtime->propertyAuthoring();
+        $current = $store->read($command->propertyId);
+        $result = $store->save(new PropertyAuthoringState(
             $command->propertyId,
             $command->actorAccountId,
             $command->expectedVersion + 1,
             $command->intentId,
             $command->checksum(),
+            isset($command->data['propertyType']) ? (string) $command->data['propertyType'] : $current?->propertyType,
+            isset($command->data['city']) ? (string) $command->data['city'] : $current?->city,
+            isset($command->data['neighborhood']) ? (string) $command->data['neighborhood'] : $current?->neighborhood,
         ), $command->expectedVersion);
 
         return match ($result) {
@@ -228,11 +239,30 @@ final readonly class DeterministicPropertyListingAuthoringOperations implements 
         if ($this->completenessCode($draft) !== 'COMPLETE') {
             return new AuthoringOperationResult(AuthoringOperationStatus::Incomplete);
         }
-        $handoff = $this->publication->transition(new ListingPublicationOrchestrationRequest(
-            ListingId::fromString($command->listingId),
-            ListingPublicationAction::Submit,
-            $command->expectedVersion,
-        ));
+        $handoff = $this->listingTransaction->run(function () use ($command, $draft): ListingPublicationOrchestrationResult {
+            if ($this->publicFacts !== null) {
+                $prepared = $this->publicFacts->prepare(new AuthoringPublicFactSnapshot(
+                    $draft->listingId,
+                    $draft->version,
+                    PublicTransactionKind::from($draft->transactionKind),
+                    $command->intentId,
+                    $command->checksum(),
+                    $command->occurredAt,
+                ));
+                if (! in_array($prepared, [PublicFactHandoffResult::Applied, PublicFactHandoffResult::AlreadyApplied], true)) {
+                    throw new AuthoringOperationRollback;
+                }
+            }
+
+            return $this->publication->transition(new ListingPublicationOrchestrationRequest(
+                ListingId::fromString($command->listingId),
+                ListingPublicationAction::Submit,
+                $command->expectedVersion,
+            ));
+        });
+        if (! $handoff instanceof ListingPublicationOrchestrationResult) {
+            throw new AuthoringOperationRollback;
+        }
 
         return match ($handoff->status) {
             ListingPublicationOrchestrationStatus::Applied => $this->success(AuthoringOperationStatus::Applied, $command->expectedVersion + 1),

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /authoring/
+Disallow: /espace-proprietaire
+Disallow: /professional/
+Disallow: /_local/
+
+Sitemap: https://appart.sn/sitemap.xml

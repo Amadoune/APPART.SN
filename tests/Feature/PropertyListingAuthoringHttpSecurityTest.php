@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\IdentityAccessHttp\AuthenticatedSessionContext;
 use App\Application\IdentityAccessHttp\Contract\IdentityAccessHttpRuntime;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpCommand;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpResult;
@@ -40,7 +41,10 @@ final class PropertyListingAuthoringHttpSecurityTest extends TestCase
             public function inspectSession(string $secret, DateTimeImmutable $at): IdentityAccessSessionInspection
             {
                 return $secret === 'valid-session'
-                    ? IdentityAccessSessionInspection::valid(AccountId::fromString(PropertyListingAuthoringHttpSecurityTest::ACCOUNT))
+                    ? IdentityAccessSessionInspection::valid(new AuthenticatedSessionContext(
+                        AccountId::fromString(PropertyListingAuthoringHttpSecurityTest::ACCOUNT),
+                        '91000000-0000-4000-8000-000000000002',
+                    ))
                     : IdentityAccessSessionInspection::invalid();
             }
         });
@@ -81,14 +85,31 @@ final class PropertyListingAuthoringHttpSecurityTest extends TestCase
 
     public function test_valid_mutation_forwards_only_validated_input_and_intent(): void
     {
+        $property = [
+            'propertyType' => 'apartment',
+            'city' => 'Dakar',
+            'neighborhood' => 'Almadies',
+        ];
         $this->withCredentials()->withUnencryptedCookie('__Host-appart_session', 'valid-session')
             ->withHeader('Idempotency-Key', self::INTENT)
-            ->postJson('/api/authoring/properties/'.self::PROPERTY, [])
+            ->postJson('/api/authoring/properties/'.self::PROPERTY, $property)
             ->assertOk()
             ->assertHeader('X-Content-Type-Options', 'nosniff');
 
         self::assertSame(self::INTENT, $this->runtime->last[3]);
-        self::assertSame([], $this->runtime->last[4]);
+        self::assertSame($property, $this->runtime->last[4]);
+    }
+
+    public function test_property_surface_rejects_unknown_types_and_blank_locations(): void
+    {
+        $this->withCredentials()->withUnencryptedCookie('__Host-appart_session', 'valid-session')
+            ->withHeader('Idempotency-Key', self::INTENT)
+            ->postJson('/api/authoring/properties/'.self::PROPERTY, [
+                'propertyType' => 'castle',
+                'city' => ' ',
+                'neighborhood' => 'A',
+            ])
+            ->assertUnprocessable();
     }
 }
 

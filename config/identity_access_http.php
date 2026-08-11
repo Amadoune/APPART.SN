@@ -13,4 +13,6 @@ return [
         'authenticated_per_minute' => 60,
     ],
     'risk_hmac_key' => env('IAM_HTTP_RISK_HMAC_KEY', env('APP_KEY')),
+    'session_hmac_key_id' => env('IAM_SESSION_HMAC_KEY_ID', 'app-v1'),
+    'session_hmac_key' => env('IAM_SESSION_HMAC_KEY', env('APP_KEY')),
 ];

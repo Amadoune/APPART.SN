@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\IdentityAccessHttp\AuthenticatedSessionContext;
 use App\Application\IdentityAccessHttp\Contract\IdentityAccessHttpRuntime;
 use App\Application\IdentityAccessHttp\IdentityAccessSessionInspection;
 use App\Application\ModerationHttp\Contract\ModerationHttpRuntimeV1;
@@ -26,7 +27,10 @@ final class ModerationHttpMutationAdaptationTest extends TestCase
         $session = $this->createStub(IdentityAccessHttpRuntime::class);
         $session->method('inspectSession')->willReturn(
             IdentityAccessSessionInspection::valid(
-                AccountId::fromString('71000000-0000-4000-8000-000000000001'),
+                new AuthenticatedSessionContext(
+                    AccountId::fromString('71000000-0000-4000-8000-000000000001'),
+                    '71000000-0000-4000-8000-000000000002',
+                ),
             ),
         );
         $this->app->instance(IdentityAccessHttpRuntime::class, $session);

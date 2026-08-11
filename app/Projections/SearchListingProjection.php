@@ -18,5 +18,6 @@ final readonly class SearchListingProjection
         public string $primaryMediaId,
         public DateTimeImmutable $publishedAt,
         public DateTimeImmutable $expiresAt,
+        public ?string $transactionKind = null,
     ) {}
 }

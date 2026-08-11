@@ -23,7 +23,7 @@ final readonly class ListingTransitionPolicy
 
     public function assertDraftCreation(TransitionEvidence $evidence, PropertyAvailability $property): void
     {
-        if ($evidence->trigger !== TransitionTrigger::DraftStarted || $evidence->origin !== TransitionOrigin::Advertiser || $property !== PropertyAvailability::Eligible) {
+        if ($evidence->trigger !== TransitionTrigger::DraftStarted || $evidence->origin !== TransitionOrigin::Advertiser || $evidence->reason === null || $property !== PropertyAvailability::Eligible) {
             throw new TransitionConditionNotSatisfied('Draft creation conditions are not satisfied.');
         }
     }
@@ -36,6 +36,13 @@ final readonly class ListingTransitionPolicy
         }
         if (! in_array($evidence->trigger, $triggers, true) || ! in_array($evidence->origin, self::allowedOrigins($evidence->trigger), true)) {
             throw new TransitionConditionNotSatisfied('Transition evidence does not satisfy the business policy.');
+        }
+        if ($evidence->reason === null && ! in_array($evidence->trigger, [
+            TransitionTrigger::SubmissionConfirmed,
+            TransitionTrigger::ReviewStarted,
+            TransitionTrigger::FavorableReview,
+        ], true)) {
+            throw new TransitionConditionNotSatisfied('Transition reason is required for this transition.');
         }
         if (in_array($to, [ListingStatus::Submitted, ListingStatus::UnderReview, ListingStatus::Published], true) && $property !== PropertyAvailability::Eligible) {
             throw new TransitionConditionNotSatisfied("Property is {$property->value}.");

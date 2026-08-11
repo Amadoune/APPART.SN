@@ -6,13 +6,14 @@ use App\Application\ActiveGenerationReader\ActiveGenerationReadStatus;
 use App\Application\ActiveGenerationReader\Contract\ActiveGenerationReader;
 use App\Application\DecisionTimeSource\Contract\DecisionTimeReader;
 use App\Application\DecisionTimeSource\DecisionTimeReadStatus;
-use App\Application\ProjectionRuntimeSource\Contract\InspectablePublicListingProjectionSource;
+use App\Application\ProjectionRuntimeSource\Contract\CandidatePublicListingProjectionSource;
 use App\Application\ProjectionRuntimeSource\ProjectionSourceAssemblyResult;
 use App\Application\ProjectionRuntimeSource\ProjectionSourceAssemblyStatus;
 use App\Application\PublicGeographySource\Contract\PublicGeographyDecisionReader;
 use App\Application\PublicGeographySource\PublicGeographyReadStatus;
 use App\Application\PublicMediaSource\Contract\PublicMediaDecisionReader;
 use App\Application\PublicMediaSource\PublicMediaReadStatus;
+use App\Application\PublicProjectionStore\PublicProjectionGenerationId;
 use App\Application\PublicProjectionUpdater\PublicListingProjectionSources;
 use Appart\Modules\ContentSeo\Application\Contract\ContentSeoSourceSnapshotReader;
 use Appart\Modules\ContentSeo\Application\Snapshot\ContentSeoSnapshotReadStatus;
@@ -23,6 +24,7 @@ use Appart\Modules\ContentSeo\Domain\ValueObject\CanonicalUrl;
 use Appart\Modules\ContentSeo\Domain\ValueObject\ListingId as SeoListingId;
 use Appart\Modules\ContentSeo\Domain\ValueObject\PublicMediaUrl;
 use Appart\Modules\ListingLifecycle\Application\Contract\ListingRegistry;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\Contract\AuthoringPublicFactHandoffV1;
 use Appart\Modules\ListingLifecycle\Domain\ValueObject\ListingId;
 use Appart\Modules\Media\Application\Contract\MediaCollectionOwnershipLookup;
 use Appart\Modules\Media\Application\Contract\MediaCollectionRegistry;
@@ -35,7 +37,7 @@ use Appart\Modules\SearchDiscovery\Application\Decision\SearchDecisionReadStatus
 use Appart\Modules\SearchDiscovery\Domain\ValueObject\ListingId as SearchListingId;
 use Throwable;
 
-final readonly class CertifiedPublicListingProjectionSource implements InspectablePublicListingProjectionSource
+final readonly class CertifiedPublicListingProjectionSource implements CandidatePublicListingProjectionSource
 {
     public function __construct(
         private ListingRegistry $listings,
@@ -48,6 +50,7 @@ final readonly class CertifiedPublicListingProjectionSource implements Inspectab
         private PublicMediaDecisionReader $publicMedia,
         private ActiveGenerationReader $activeGeneration,
         private DecisionTimeReader $decisionTimes,
+        private ?AuthoringPublicFactHandoffV1 $publicFacts = null,
     ) {}
 
     public function findByListingId(string $listingId): ?PublicListingProjectionSources
@@ -60,7 +63,12 @@ final readonly class CertifiedPublicListingProjectionSource implements Inspectab
         return $this->assemble($listingId);
     }
 
-    private function assemble(string $listingId): ProjectionSourceAssemblyResult
+    public function inspectForGeneration(string $listingId, PublicProjectionGenerationId $generationId): ProjectionSourceAssemblyResult
+    {
+        return $this->assemble($listingId, $generationId);
+    }
+
+    private function assemble(string $listingId, ?PublicProjectionGenerationId $candidateGeneration = null): ProjectionSourceAssemblyResult
     {
         try {
             $listingIdentity = ListingId::fromString($listingId);
@@ -112,9 +120,13 @@ final readonly class CertifiedPublicListingProjectionSource implements Inspectab
             return ProjectionSourceAssemblyResult::blocked($listingId, $snapshot->status === ContentSeoSnapshotReadStatus::Missing ? ProjectionSourceAssemblyStatus::ContentSeoMissing : ProjectionSourceAssemblyStatus::ContentSeoCorrupted);
         }
 
-        $generation = $this->activeGeneration->read();
-        if ($generation->status !== ActiveGenerationReadStatus::Found || $generation->generation === null) {
-            return ProjectionSourceAssemblyResult::blocked($listingId, $generation->status === ActiveGenerationReadStatus::Missing ? ProjectionSourceAssemblyStatus::ActiveGenerationMissing : ProjectionSourceAssemblyStatus::ActiveGenerationCorrupted);
+        $generationId = $candidateGeneration;
+        if ($generationId === null) {
+            $generation = $this->activeGeneration->read();
+            if ($generation->status !== ActiveGenerationReadStatus::Found || $generation->generation === null) {
+                return ProjectionSourceAssemblyResult::blocked($listingId, $generation->status === ActiveGenerationReadStatus::Missing ? ProjectionSourceAssemblyStatus::ActiveGenerationMissing : ProjectionSourceAssemblyStatus::ActiveGenerationCorrupted);
+            }
+            $generationId = $generation->generation->id;
         }
         $decisionTime = $this->decisionTimes->readByListing($listingId);
         if ($decisionTime->listingId !== $listingId) {
@@ -151,7 +163,8 @@ final readonly class CertifiedPublicListingProjectionSource implements Inspectab
             $snapshot->snapshot->version,
             $geographyVersion,
             $mediaVersion,
-            $generation->generation->id,
+            $generationId,
+            $this->publicFacts?->published($listingId)?->transactionKind->value,
         );
 
         return ProjectionSourceAssemblyResult::found($listingId, $sources);

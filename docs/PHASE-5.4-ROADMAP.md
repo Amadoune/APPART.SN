@@ -1,8 +1,8 @@
 # Phase 5.4 — Roadmap
 
-## Transition normative courante 5.9 — Candidate Baseline Materialization 04
+## Transition normative courante 5.9 — STOP PHASE 5.9 EXECUTION
 
-`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04` est GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif. Correction 03 est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. La candidate R5 doit descendre de R4 et contenir exactement la correction certifiée. R1–R4 restent immuables ; Evidence 07 est IDENTIFIÉE — NON OUVERTE.
+`PHASE-5.9-OFFICIAL-REMOTE-AND-EXTERNAL-CI-AUTHORITY-RESOLUTION-01` est `NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY`. Aucun jalon 5.9 n'est actif. Toute reprise exige une décision humaine explicite résolvant l'autorité et l'infrastructure externes. Evidence 11, R6 et Phase 5.10 demeurent non ouvertes.
 
 ## HISTORICAL_ONLY — Transition normative 5.9 — Candidate Baseline Materialization
 

@@ -2,6 +2,7 @@
 
 namespace Appart\Modules\ListingLifecycle\Domain\Model;
 
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\PublicTransactionKind;
 use Appart\Modules\ListingLifecycle\Domain\Event\AbstractListingEvent;
 use Appart\Modules\ListingLifecycle\Domain\Event\ListingArchived;
 use Appart\Modules\ListingLifecycle\Domain\Event\ListingChangesRequested;
@@ -78,13 +79,13 @@ final class Listing
         $this->apply(ListingStatus::ChangesRequested, $id, $evidence, $policy, $property, ListingChangesRequested::class);
     }
 
-    public function publish(ListingRevisionId $id, ExpirationDate $expirationDate, TransitionEvidence $evidence, ListingTransitionPolicy $policy, PropertyAvailability $property, PublicationMediaAvailability $media = PublicationMediaAvailability::Eligible): void
+    public function publish(ListingRevisionId $id, ExpirationDate $expirationDate, TransitionEvidence $evidence, ListingTransitionPolicy $policy, PropertyAvailability $property, PublicationMediaAvailability $media = PublicationMediaAvailability::Eligible, ?PublicTransactionKind $transactionKind = null): void
     {
         $expirationDate->ensureAfter($evidence->occurredAt);
         $policy->assertPublicationMedia($media);
         $previous = $this->transitionTo(ListingStatus::Published, $id, $evidence, $policy, $property);
         $this->expirationDate = $expirationDate;
-        $this->recordEvent(new ListingPublished($this->id, $id, $previous, $expirationDate, $evidence));
+        $this->recordEvent(new ListingPublished($this->id, $id, $previous, $expirationDate, $evidence, $transactionKind));
     }
 
     public function suspend(ListingRevisionId $id, TransitionEvidence $evidence, ListingTransitionPolicy $policy, PropertyAvailability $property): void

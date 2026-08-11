@@ -103,6 +103,12 @@ final class PostgreSqlTestEnvironment
             dirname(__DIR__, 3).'/src/Modules/ModerationReports/Infrastructure/Persistence/PostgreSql/Migrations/070_moderation_queue_owner_read_source.sql',
             dirname(__DIR__, 3).'/src/Modules/AdministrationAudit/Infrastructure/Persistence/PostgreSql/Migrations/071_administration_audit_public_append.sql',
             dirname(__DIR__, 3).'/src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/Migrations/072_consent_owner_local_source.sql',
+            dirname(__DIR__, 3).'/src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/Migrations/092_listing_transition_reason_optional.sql',
+            dirname(__DIR__, 3).'/src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/Migrations/093_authoring_public_fact_handoff.sql',
+            dirname(__DIR__, 3).'/src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/Migrations/094_property_authoring_public_surface.sql',
+            dirname(__DIR__, 3).'/src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/Migrations/095_iam_session_policy_authority.sql',
+            dirname(__DIR__, 3).'/src/Modules/PublicationReview/Infrastructure/Persistence/PostgreSql/Migrations/096_publication_review_queue.sql',
+            dirname(__DIR__, 3).'/src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/Migrations/097_listing_publication_command_gateway.sql',
         ];
         foreach ($migrations as $migration) {
             $sql = file_get_contents($migration);
@@ -115,6 +121,8 @@ final class PostgreSqlTestEnvironment
 
     public static function reset(PDO $connection): void
     {
+        $connection->exec('TRUNCATE publication_review.command_ledger, publication_review.queue_items');
+        $connection->exec('TRUNCATE listing_lifecycle.publication_command_gateway_ledger');
         $connection->exec('TRUNCATE administration_audit.public_append_records');
         $connection->exec('TRUNCATE moderation_reports.listing_handoff_results, moderation_reports.outbox_deliveries, moderation_reports.outbox_messages, moderation_reports.atomic_outbox_appends, moderation_reports.event_deliveries, moderation_reports.queue_claim_intents, moderation_reports.queue_checkpoints, moderation_reports.queue_items, moderation_reports.case_intents, moderation_reports.decision_supersessions, moderation_reports.decision_revisions, moderation_reports.finding_revisions, moderation_reports.report_revisions, moderation_reports.cases');
         $connection->exec('TRUNCATE listing_lifecycle.moderation_command_intent_results, listing_lifecycle.moderation_command_intents');
@@ -158,7 +166,7 @@ final class PostgreSqlTestEnvironment
         foreach (['listing_lifecycle', 'real_estate_catalog', 'media', 'search_discovery', 'content_seo', 'reservation_lifecycle', 'contacts_leads', 'professionals', 'administration_audit', 'geography', 'identity_access'] as $schema) {
             $connection->exec("TRUNCATE {$schema}.public_projection_outbox_replays, {$schema}.public_projection_outbox_cursors, {$schema}.public_projection_outbox_deliveries, {$schema}.public_projection_outbox_messages CASCADE");
         }
-        $connection->exec('TRUNCATE media.media_items, media.media_id_reservations, media.media_collections, real_estate_catalog.property_addresses, real_estate_catalog.property_reference_reservations, real_estate_catalog.properties, listing_lifecycle.listing_revisions, listing_lifecycle.listings, administration_audit.administrative_action_audit_entries, administration_audit.administrative_action_decisions, administration_audit.administrative_action_approvals, administration_audit.administrative_actions');
+        $connection->exec('TRUNCATE listing_lifecycle.authoring_public_fact_handoffs, media.media_items, media.media_id_reservations, media.media_collections, real_estate_catalog.property_addresses, real_estate_catalog.property_reference_reservations, real_estate_catalog.properties, listing_lifecycle.listing_revisions, listing_lifecycle.listings, administration_audit.administrative_action_audit_entries, administration_audit.administrative_action_decisions, administration_audit.administrative_action_approvals, administration_audit.administrative_actions');
     }
 
     private static function environment(string $name): string

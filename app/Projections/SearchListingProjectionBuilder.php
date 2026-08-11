@@ -11,7 +11,7 @@ use Appart\Modules\RealEstateCatalog\Domain\ValueObject\PropertyStatus;
 
 final readonly class SearchListingProjectionBuilder
 {
-    public function build(Property $property, MediaCollection $media, Listing $listing): ?SearchListingProjection
+    public function build(Property $property, MediaCollection $media, Listing $listing, ?string $transactionKind = null): ?SearchListingProjection
     {
         $publication = $this->publicationRevision($listing);
         $primary = $media->primary();
@@ -41,6 +41,7 @@ final readonly class SearchListingProjectionBuilder
             primaryMediaId: $primary->id->value,
             publishedAt: $publication->occurredAt,
             expiresAt: $expiration->value,
+            transactionKind: $transactionKind,
         );
     }
 

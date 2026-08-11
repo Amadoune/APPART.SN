@@ -11,7 +11,7 @@ final readonly class ListingRevisionSnapshot
         public string $status,
         public string $actorId,
         public string $trigger,
-        public string $reason,
+        public ?string $reason,
         public string $origin,
         public string $occurredAt,
     ) {}

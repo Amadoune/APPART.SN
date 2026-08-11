@@ -1,11 +1,91 @@
 # Phase 5.0B — Amendment Register
 
-## PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04
+## HISTORICAL_ONLY — PHASE-5.9-OFFICIAL-REMOTE-AND-EXTERNAL-CI-AUTHORITY-RESOLUTION-01 — NO GO CERTIFIÉ — FERMÉ — GELÉ
+
+- nature : External Infrastructure / Authority Resolution ;
+- repository, owner, URL et principal officiels : MISSING ;
+- GitHub Actions effectif et run R5 permanent : MISSING/BLOCKED ;
+- second environnement indépendant : MISSING ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- aucun jalon 5.9 actif ; STOP PHASE 5.9 EXECUTION ;
+- Evidence 11, R6 et Phase 5.10 : NON OUVERTES.
+
+## HISTORICAL_ONLY — PHASE-5.9-EXTERNAL-CI-EXECUTION-ENVIRONMENT-QUALIFICATION-01 — NO GO CERTIFIÉ — FERMÉ — GELÉ
+
+- nature : Environment / External CI Qualification ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- workflow et modèle d'identité R5 : structurellement qualifiés ;
+- repository distant officiel, exécuteur externe et second environnement : MISSING ;
+- Evidence 11, R6 et Phase 5.10 : NON OUVERTES.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-10 — NO GO CERTIFIÉ — FERMÉ — GELÉ
+
+- Gates 1 à 22 : PASS terminal.
+- Première divergence : CI externe MISSING.
+- Reproduction indépendante : BLOCKED par fail-fast.
+
+- nature : Reproducible Build & CI Evidence — Candidate R5 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- source : clone neuf exclusif R5 ; packaging A/B vers destinations externes distinctes ;
+- R6 : NON OUVERTE / NON MATÉRIALISÉE.
+
+## HISTORICAL_ONLY — PHASE-5.9-PACKAGING-OUTPUT-LOCATION-QUALIFICATION-01
+
+- nature : Procedural Qualification / Evidence Procedure ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- objet : sorties A/B externes au worktree avec contrôle de propreté strict inchangé ;
+- preuves : A et B exit 0, 9 522 fichiers chacun, propreté initiale/intermédiaire/finale PASS, archives et arbres identiques ;
+- Evidence 10 : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ; R6 : NON OUVERTE / NON MATÉRIALISÉE.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-09
+
+- nature : Reproducible Build & CI Evidence — Candidate R5 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source : nouveau clone exclusif R5 ; exécution neuve, intégrale, supervisée et fail-fast ;
+- première divergence : Packaging B FAIL exit 1, la sortie Packaging A sous `dist/` rend le clone non propre ; comparaison/clean-room BLOCKED, CI/reproduction MISSING ;
+- R6 : NON OUVERTE / NON MATÉRIALISÉE.
+
+## HISTORICAL_ONLY — PHASE-5.9-POSTGRESQL-FULL-CAMPAIGN-DIAGNOSTIC-02
+
+- nature : diagnostic PostgreSQL complet de la divergence Evidence 08 ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source : clone R5 dédié ; aucun changement source autorisé ;
+- preuve : PostgreSQL 763/763 PASS, 3 623 assertions, exit 0, 880,117 s ; zéro bloqueur ou verrou non accordé ;
+- classification : ENVIRONMENT / PROCESS EXECUTION ; aucun défaut source R5 reproduit ;
+- Evidence 09 : OUVERTE ; R6 : NON OUVERTE / NON MATÉRIALISÉE.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-08
+
+- nature : Reproducible Build & CI Evidence — Candidate R5 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source : nouveau clone exclusif du tag R5 ;
+- prérequis : extracteur qualifié exposé dans le PATH du processus ;
+- exécution : neuve, intégrale et fail-fast.
+- première divergence : PostgreSQL complète sans résultat terminal, timeout 5 208 s, exit 124 ; portes suivantes BLOCKED ou MISSING.
+
+## HISTORICAL_ONLY — PHASE-5.9-DEPENDENCY-RESTORE-ENVIRONMENT-QUALIFICATION-01
+
+- nature : Dependency Restore Environment Qualification / Correction ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- périmètre : PHP CLI, ZIP/extracteur, PATH, Git et Composer épinglé ;
+- preuve : clone neuf R5, `unzip.exe` exposé par PATH de processus, Composer validate et install PASS exit 0, 112 paquets ;
+- Evidence 08 : OUVERTE.
+
+## HISTORICAL_ONLY — PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-07
+
+- nature : Reproducible Build & CI Evidence — Candidate R5 ;
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source : clone neuf exclusif du tag annoté `phase-5.9-baseline-candidate-r5` ;
+- exécution : neuve, intégrale et fail-fast.
+- première divergence : Dependency Restore FAIL — Composer exit 1, PHP ZIP non chargé et extracteurs indisponibles dans le PATH effectif ; portes suivantes BLOCKED ou MISSING.
+
+## HISTORICAL_ONLY — PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04
 
 - nature : Workspace Qualification / Candidate R5 Materialization ;
-- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - source ancestrale : R4 immuable ;
-- Evidence 07 : IDENTIFIÉE — NON OUVERTE.
+- candidate : `9801d9ed30ea3a5fa412708cd022d16bc84e472c`, tag annoté R5 ;
+- Evidence 07 : OUVERTE.
 
 ## HISTORICAL_ONLY — PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-03
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\IdentityAccessHttp\AuthenticatedSessionContext;
 use App\Application\IdentityAccessHttp\Contract\IdentityAccessHttpRuntime;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpCommand;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpResult;
@@ -16,6 +17,7 @@ use DateTimeImmutable;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 final class ProfessionalProfileHttpFoundationTest extends TestCase
@@ -77,6 +79,7 @@ final class ProfessionalProfileHttpFoundationTest extends TestCase
         }
     }
 
+    /** @return TestResponse<Response> */
     private function authenticated(string $uri): TestResponse
     {
         return $this->withCredentials()
@@ -123,7 +126,10 @@ final class ProfessionalHttpSessionRuntime implements IdentityAccessHttpRuntime
     public function inspectSession(string $secret, DateTimeImmutable $at): IdentityAccessSessionInspection
     {
         return $secret === 'valid-secret'
-            ? IdentityAccessSessionInspection::valid(AccountId::fromString('63000000-0000-4000-8000-000000000306'))
+            ? IdentityAccessSessionInspection::valid(new AuthenticatedSessionContext(
+                AccountId::fromString('63000000-0000-4000-8000-000000000306'),
+                '63000000-0000-4000-8000-000000000307',
+            ))
             : IdentityAccessSessionInspection::invalid();
     }
 }

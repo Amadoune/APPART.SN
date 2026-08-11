@@ -120,7 +120,7 @@ final readonly class PostgreSqlListingRepository implements ListingRegistry
         $statement = $this->connection->prepare('SELECT sequence, revision_id, previous_status, status, actor_id, trigger, reason, origin, occurred_at, occurred_at_offset FROM listing_lifecycle.listing_revisions WHERE listing_id = :id ORDER BY sequence');
         $statement->execute(['id' => $id]);
 
-        return array_map(fn (array $row): ListingRevisionSnapshot => new ListingRevisionSnapshot((int) $row['sequence'], (string) $row['revision_id'], $row['previous_status'] === null ? null : (string) $row['previous_status'], (string) $row['status'], (string) $row['actor_id'], (string) $row['trigger'], (string) $row['reason'], (string) $row['origin'], $this->normalizeDate((string) $row['occurred_at'], (int) $row['occurred_at_offset'])), $statement->fetchAll(PDO::FETCH_ASSOC));
+        return array_map(fn (array $row): ListingRevisionSnapshot => new ListingRevisionSnapshot((int) $row['sequence'], (string) $row['revision_id'], $row['previous_status'] === null ? null : (string) $row['previous_status'], (string) $row['status'], (string) $row['actor_id'], (string) $row['trigger'], $row['reason'] === null ? null : (string) $row['reason'], (string) $row['origin'], $this->normalizeDate((string) $row['occurred_at'], (int) $row['occurred_at_offset'])), $statement->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /** @param list<ListingRevisionSnapshot> $current

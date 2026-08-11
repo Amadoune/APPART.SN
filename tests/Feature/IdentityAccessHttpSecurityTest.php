@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\IdentityAccessHttp\AuthenticatedSessionContext;
 use App\Application\IdentityAccessHttp\Contract\IdentityAccessHttpRuntime;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpCommand;
 use App\Application\IdentityAccessHttp\IdentityAccessHttpResult;
@@ -106,6 +107,7 @@ final class IdentityAccessHttpSecurityTest extends TestCase
 
         self::assertNotNull($this->runtime->last);
         self::assertSame('dddddddd-dddd-4ddd-8ddd-dddddddddddd', $this->runtime->last->authenticatedAccount?->value);
+        self::assertSame('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', $this->runtime->last->authenticatedSession?->sessionId);
         self::assertArrayNotHasKey('accountId', $this->runtime->last->input);
     }
 
@@ -170,7 +172,10 @@ final class FakeIdentityAccessHttpRuntime implements IdentityAccessHttpRuntime
 
         return $secret === 'valid-secret'
             ? IdentityAccessSessionInspection::valid(
-                AccountId::fromString('dddddddd-dddd-4ddd-8ddd-dddddddddddd'),
+                new AuthenticatedSessionContext(
+                    AccountId::fromString('dddddddd-dddd-4ddd-8ddd-dddddddddddd'),
+                    'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+                ),
             )
             : IdentityAccessSessionInspection::invalid();
     }

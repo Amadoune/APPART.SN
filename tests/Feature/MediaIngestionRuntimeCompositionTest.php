@@ -5,10 +5,19 @@ namespace Tests\Feature;
 use App\Application\MediaIngestionRuntime\Contract\MediaIngestionRuntimeV1;
 use App\Application\MediaIngestionRuntime\MediaIngestionRuntimeStatus;
 use App\Application\RuntimeHealth\PublicProjectionRuntimeRequirements;
+use App\Infrastructure\MediaAttachment\CompositeMediaPropertyCatalog;
+use App\Infrastructure\MediaAttachment\PropertyAuthoringMediaCatalogAdapter;
+use Appart\Modules\Media\Application\Attachment\Contract\AttachReadyMediaAssetV1;
+use Appart\Modules\Media\Application\Attachment\DeterministicAttachReadyMediaAsset;
+use Appart\Modules\Media\Application\BinaryStorage\Contract\MediaBinaryStorageAuthorityV1;
+use Appart\Modules\Media\Application\BinaryStorage\DeterministicMediaBinaryStorageAuthority;
+use Appart\Modules\Media\Application\Contract\PropertyCatalog;
 use Appart\Modules\Media\Application\IngestionPersistence\Contract\MediaAssetStore;
 use Appart\Modules\Media\Application\IngestionPersistence\Contract\MediaProcessingStore;
 use Appart\Modules\Media\Application\IngestionPersistence\Contract\MediaQuotaStore;
 use Appart\Modules\Media\Application\IngestionPersistence\Contract\MediaUploadStore;
+use Appart\Modules\Media\Application\ReadyAsset\Contract\MediaAssetReadinessV1;
+use Appart\Modules\Media\Application\ReadyAsset\DeterministicMediaAssetReadiness;
 use Appart\Modules\Media\Infrastructure\Persistence\PostgreSql\PostgreSqlMediaAssetStore;
 use Appart\Modules\Media\Infrastructure\Persistence\PostgreSql\PostgreSqlMediaProcessingStore;
 use Appart\Modules\Media\Infrastructure\Persistence\PostgreSql\PostgreSqlMediaQuotaStore;
@@ -32,6 +41,17 @@ final class MediaIngestionRuntimeCompositionTest extends TestCase
         }
 
         $runtime = $this->app->make(MediaIngestionRuntimeV1::class);
+        self::assertInstanceOf(DeterministicAttachReadyMediaAsset::class, $runtime->attachment());
+        self::assertSame($runtime->attachment(), $this->app->make(AttachReadyMediaAssetV1::class));
+        self::assertInstanceOf(CompositeMediaPropertyCatalog::class, $this->app->make(PropertyCatalog::class));
+        self::assertSame(
+            $this->app->make(PropertyAuthoringMediaCatalogAdapter::class),
+            (new ReflectionProperty($this->app->make(PropertyCatalog::class), 'authoring'))->getValue($this->app->make(PropertyCatalog::class)),
+        );
+        self::assertInstanceOf(DeterministicMediaBinaryStorageAuthority::class, $runtime->binary());
+        self::assertSame($runtime->binary(), $this->app->make(MediaBinaryStorageAuthorityV1::class));
+        self::assertInstanceOf(DeterministicMediaAssetReadiness::class, $runtime->readiness());
+        self::assertSame($runtime->readiness(), $this->app->make(MediaAssetReadinessV1::class));
         $stores = [
             [$runtime->upload(), PostgreSqlMediaUploadStore::class],
             [$runtime->asset(), PostgreSqlMediaAssetStore::class],

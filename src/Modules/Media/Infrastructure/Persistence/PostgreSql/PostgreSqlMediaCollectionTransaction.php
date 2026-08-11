@@ -13,14 +13,25 @@ final readonly class PostgreSqlMediaCollectionTransaction implements MediaCollec
 
     public function run(Closure $operation): mixed
     {
-        $this->connection->beginTransaction();
+        $external = $this->connection->inTransaction();
+        if ($external) {
+            $this->connection->exec('SAVEPOINT media_collection_repository');
+        } else {
+            $this->connection->beginTransaction();
+        }
         try {
             $result = $operation();
-            $this->connection->commit();
+            if ($external) {
+                $this->connection->exec('RELEASE SAVEPOINT media_collection_repository');
+            } else {
+                $this->connection->commit();
+            }
 
             return $result;
         } catch (Throwable $error) {
-            if ($this->connection->inTransaction()) {
+            if ($external && $this->connection->inTransaction()) {
+                $this->connection->exec('ROLLBACK TO SAVEPOINT media_collection_repository');
+            } elseif ($this->connection->inTransaction()) {
                 $this->connection->rollBack();
             }
             throw $error;

@@ -45,13 +45,16 @@ final class PostgreSqlAuthoringPersistenceTest extends TestCase
     public function property_authoring_preserves_owner_and_converges_by_intent(): void
     {
         $store = new PostgreSqlPropertyAuthoringStore($this->connection, new PropertyAuthoringMapper);
-        $state = new PropertyAuthoringState(self::PROPERTY, self::OWNER, 1, $this->intent(1), $this->checksum('property-1'));
+        $state = new PropertyAuthoringState(self::PROPERTY, self::OWNER, 1, $this->intent(1), $this->checksum('property-1'), 'apartment', 'Dakar', 'Almadies');
 
         self::assertSame(PropertyAuthoringPersistenceWriteResult::Applied, $store->save($state, 0));
         self::assertSame(PropertyAuthoringPersistenceWriteResult::AlreadyApplied, $store->save($state, 0));
         self::assertSame(PropertyAuthoringPersistenceWriteResult::DivergentIntent, $store->save(new PropertyAuthoringState(self::PROPERTY, self::OWNER, 2, $this->intent(1), $this->checksum('different')), 1));
         self::assertSame(PropertyAuthoringPersistenceWriteResult::Rejected, $store->save(new PropertyAuthoringState(self::PROPERTY, self::DELEGATE, 2, $this->intent(2), $this->checksum('takeover')), 1));
         self::assertSame(self::OWNER, $store->read(self::PROPERTY)?->ownerAccountId);
+        self::assertSame('apartment', $store->read(self::PROPERTY)?->propertyType);
+        self::assertSame('Dakar', $store->read(self::PROPERTY)?->city);
+        self::assertSame('Almadies', $store->read(self::PROPERTY)?->neighborhood);
     }
 
     #[Test]

@@ -31,7 +31,7 @@ final readonly class PublicListingProjectionUpdater
             return new PublicListingProjectionUpdateResult(PublicListingProjectionUpdateOutcome::SourceUnavailable);
         }
 
-        $search = $this->searchBuilder->build($sources->property, $sources->media, $sources->listing);
+        $search = $this->searchBuilder->build($sources->property, $sources->media, $sources->listing, $sources->transactionKind);
         $decision = $this->seoDecisionPolicy->decide(
             $sources->listingSeo,
             $sources->searchSeo,

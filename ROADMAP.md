@@ -1,8 +1,8 @@
 # Roadmap APPART.SN REBUILD 2026
 
-## État normatif courant 5.9 — Candidate Baseline Materialization 04
+## État normatif courant 5.9 — STOP PHASE 5.9 EXECUTION
 
-`PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04` est GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif. Correction 03 est GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY. La candidate R5 doit descendre de R4 et contenir exactement la correction certifiée. R1–R4 restent immuables ; Evidence 07 est IDENTIFIÉE — NON OUVERTE.
+`PHASE-5.9-OFFICIAL-REMOTE-AND-EXTERNAL-CI-AUTHORITY-RESOLUTION-01` est `NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY`. Aucun jalon 5.9 n'est actif. La progression exige une décision humaine explicite résolvant repository, owner, URL, principal, GitHub Actions, conservation des preuves et environnement indépendant. Evidence 11, R6 et Phase 5.10 restent non ouvertes.
 
 ## HISTORICAL_ONLY — État normatif 5.9 — Candidate Baseline Materialization
 

@@ -5,6 +5,7 @@ use App\Providers\AdministrationConsoleHttpServiceProvider;
 use App\Providers\AdministrationConsoleOwnerReaderServiceProvider;
 use App\Providers\AdministrationConsoleRuntimeServiceProvider;
 use App\Providers\AppServiceProvider;
+use App\Providers\AuthoringPublicFactHandoffServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerReaderServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerSourceRuntimeReadServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerSourceRuntimeServiceProvider;
@@ -25,12 +26,18 @@ use App\Providers\LegacyMigrationHttpServiceProvider;
 use App\Providers\LegacyMigrationOwnerReaderServiceProvider;
 use App\Providers\LegacyMigrationRuntimeServiceProvider;
 use App\Providers\ListingAuthoringRuntimeServiceProvider;
+use App\Providers\ListingPublicationCommandGatewayServiceProvider;
+use App\Providers\ListingRevisionAuthorityServiceProvider;
+use App\Providers\MediaAssetReadinessServiceProvider;
 use App\Providers\MediaAssetRuntimeServiceProvider;
+use App\Providers\MediaAuthoringHttpServiceProvider;
+use App\Providers\MediaBinaryStorageServiceProvider;
 use App\Providers\MediaIngestionEventDeliveryServiceProvider;
 use App\Providers\MediaIngestionEventOutboxServiceProvider;
 use App\Providers\MediaIngestionRuntimeServiceProvider;
 use App\Providers\MediaProcessingRuntimeServiceProvider;
 use App\Providers\MediaQuotaRuntimeServiceProvider;
+use App\Providers\MediaReadyAssetAttachmentServiceProvider;
 use App\Providers\MediaUploadRuntimeServiceProvider;
 use App\Providers\ModerationAtomicOperationServiceProvider;
 use App\Providers\ModerationEventDeliveryServiceProvider;
@@ -46,6 +53,7 @@ use App\Providers\ModeratorAuthorizationServiceProvider;
 use App\Providers\NotificationsHttpServiceProvider;
 use App\Providers\NotificationsOwnerReaderServiceProvider;
 use App\Providers\NotificationsRuntimeServiceProvider;
+use App\Providers\OwnerDashboardServiceProvider;
 use App\Providers\ProfessionalProfileHttpServiceProvider;
 use App\Providers\ProfessionalProfileRuntimeServiceProvider;
 use App\Providers\ProfessionalPublicPortfolioRuntimeServiceProvider;
@@ -55,9 +63,13 @@ use App\Providers\PropertyAuthoringRuntimeServiceProvider;
 use App\Providers\PropertyListingAuthoringHttpServiceProvider;
 use App\Providers\PropertyListingAuthoringOperationsServiceProvider;
 use App\Providers\PropertyListingAuthoringRuntimeServiceProvider;
+use App\Providers\PublicationReviewAuthorizationServiceProvider;
+use App\Providers\PublicationReviewExperienceServiceProvider;
+use App\Providers\PublicationReviewQueueServiceProvider;
 use App\Providers\PublicAuthoringIntegrationServiceProvider;
 use App\Providers\PublicProjectionRuntimeServiceProvider;
 use App\Providers\PublicSearchQueryResolutionReaderServiceProvider;
+use App\Providers\PublicSearchResultsServiceProvider;
 use App\Providers\ReliabilityOperationsHttpServiceProvider;
 use App\Providers\ReliabilityOperationsOwnerReaderServiceProvider;
 use App\Providers\ReliabilityOperationsRuntimeServiceProvider;
@@ -75,6 +87,7 @@ use App\Providers\SecurityComplianceRuntimeServiceProvider;
 
 return [
     AppServiceProvider::class,
+    AuthoringPublicFactHandoffServiceProvider::class,
     ExperienceAcceptanceHttpServiceProvider::class,
     ExperienceAcceptanceOwnerReaderServiceProvider::class,
     ExperienceAcceptanceRuntimeServiceProvider::class,
@@ -102,6 +115,7 @@ return [
     SearchQueryResolutionOwnerSourceRuntimeServiceProvider::class,
     SearchQueryResolutionOwnerSourceRuntimeReadServiceProvider::class,
     PublicSearchQueryResolutionReaderServiceProvider::class,
+    PublicSearchResultsServiceProvider::class,
     SearchQueryResolutionHttpServiceProvider::class,
     ReservationAvailabilityOwnerSourceRuntimeReadServiceProvider::class,
     ReservationAvailabilityOwnerReaderServiceProvider::class,
@@ -119,15 +133,21 @@ return [
     IdentityAccessHttpServiceProvider::class,
     PropertyAuthoringRuntimeServiceProvider::class,
     ListingAuthoringRuntimeServiceProvider::class,
+    ListingRevisionAuthorityServiceProvider::class,
+    ListingPublicationCommandGatewayServiceProvider::class,
     PropertyListingAuthoringRuntimeServiceProvider::class,
     PropertyListingAuthoringHttpServiceProvider::class,
     PropertyListingAuthoringOperationsServiceProvider::class,
     PublicAuthoringIntegrationServiceProvider::class,
     MediaUploadRuntimeServiceProvider::class,
     MediaAssetRuntimeServiceProvider::class,
+    MediaBinaryStorageServiceProvider::class,
+    MediaAssetReadinessServiceProvider::class,
+    MediaReadyAssetAttachmentServiceProvider::class,
     MediaProcessingRuntimeServiceProvider::class,
     MediaQuotaRuntimeServiceProvider::class,
     MediaIngestionRuntimeServiceProvider::class,
+    MediaAuthoringHttpServiceProvider::class,
     MediaIngestionEventDeliveryServiceProvider::class,
     MediaIngestionEventOutboxServiceProvider::class,
     ModerationRuntimeServiceProvider::class,
@@ -141,6 +161,10 @@ return [
     ModerationEventOutboxServiceProvider::class,
     ModerationListingHandoffServiceProvider::class,
     ModeratorAuthorizationServiceProvider::class,
+    OwnerDashboardServiceProvider::class,
+    PublicationReviewQueueServiceProvider::class,
+    PublicationReviewAuthorizationServiceProvider::class,
+    PublicationReviewExperienceServiceProvider::class,
     ProfessionalPublicProfileRuntimeServiceProvider::class,
     ProfessionalVerificationRuntimeServiceProvider::class,
     ProfessionalPublicPortfolioRuntimeServiceProvider::class,

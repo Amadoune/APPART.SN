@@ -13,7 +13,7 @@ final readonly class TransitionEvidence
     public function __construct(
         public ActorId $actorId,
         public TransitionTrigger $trigger,
-        public TransitionReason $reason,
+        public ?TransitionReason $reason,
         public TransitionOrigin $origin,
         public DateTimeImmutable $occurredAt,
     ) {}

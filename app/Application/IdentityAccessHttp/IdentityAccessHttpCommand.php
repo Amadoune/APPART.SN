@@ -14,5 +14,6 @@ final readonly class IdentityAccessHttpCommand
         public array $input,
         public ?AccountId $authenticatedAccount,
         public DateTimeImmutable $requestedAt,
+        public ?AuthenticatedSessionContext $authenticatedSession = null,
     ) {}
 }

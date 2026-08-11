@@ -36,5 +36,7 @@ final readonly class PublicListingReadModel
         public ?string $publicJsonLd,
         public DateTimeImmutable $decidedAt,
         public string $expiredListingTreatment,
+        public ?string $transactionKind = null,
+        public ?string $city = null,
     ) {}
 }

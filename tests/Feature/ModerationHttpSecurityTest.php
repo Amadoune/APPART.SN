@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Application\IdentityAccessHttp\AuthenticatedSessionContext;
 use App\Application\IdentityAccessHttp\Contract\IdentityAccessHttpRuntime;
 use App\Application\IdentityAccessHttp\IdentityAccessSessionInspection;
 use App\Application\ModerationHttp\Contract\ModerationHttpRuntimeV1;
@@ -25,7 +26,7 @@ final class ModerationHttpSecurityTest extends TestCase
         $session = $this->createStub(IdentityAccessHttpRuntime::class);
         $session->method('inspectSession')->willReturnCallback(
             static fn (string $secret, DateTimeImmutable $at): IdentityAccessSessionInspection => $secret === 'valid'
-                ? IdentityAccessSessionInspection::valid(AccountId::fromString(self::ACCOUNT))
+                ? IdentityAccessSessionInspection::valid(new AuthenticatedSessionContext(AccountId::fromString(self::ACCOUNT), '70000000-0000-4000-8000-000000000002'))
                 : IdentityAccessSessionInspection::invalid(),
         );
         $this->app->instance(IdentityAccessHttpRuntime::class, $session);

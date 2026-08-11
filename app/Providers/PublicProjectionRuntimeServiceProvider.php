@@ -61,6 +61,7 @@ use App\Application\ProfessionalStatusEventRouting\ProfessionalStatusInboxStore;
 use App\Application\ProfessionalStatusEventTransport\ProfessionalStatusEventRouter;
 use App\Application\ProfessionalStatusEventTransport\ProfessionalStatusTransportSerializer;
 use App\Application\ProjectionRebuildRuntimeSource\Contract\InspectablePublicProjectionCandidateFactory;
+use App\Application\ProjectionRuntimeSource\Contract\CandidatePublicListingProjectionSource;
 use App\Application\ProjectionRuntimeSource\Contract\InspectablePublicListingProjectionSource;
 use App\Application\PropertyLifecycleEventConsumer\PropertyLifecycleEventDeliveryConsumer;
 use App\Application\PropertyLifecycleEventIntegration\AtomicPropertyLifecycleEventOrchestrator;
@@ -87,6 +88,7 @@ use App\Application\PublicProjectionRebuild\Contract\PublicProjectionCandidateFa
 use App\Application\PublicProjectionRebuild\Contract\PublicProjectionGenerationManager;
 use App\Application\PublicProjectionRebuild\Contract\PublicProjectionGenerationValidator;
 use App\Application\PublicProjectionRebuild\Contract\PublicProjectionRebuildEnumerator;
+use App\Application\PublicProjectionRebuild\PublicProjectionRebuilder;
 use App\Application\PublicProjectionRetry\PublicProjectionDeterministicRetryPolicy;
 use App\Application\PublicProjectionRetry\PublicProjectionFixedBackoff;
 use App\Application\PublicProjectionSourceLookup\Contract\MediaCollectionPropertyResolver;
@@ -226,6 +228,7 @@ use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\Listin
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\ListingPublicationEventSerializer;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\ListingPublicationEventType;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationWorkflow;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\Contract\AuthoringPublicFactHandoffV1;
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\ListingMapper;
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\ListingPublicationWorkflowMapper;
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\PostgreSql\PostgreSqlListingModerationIntentStore;
@@ -538,7 +541,22 @@ final class PublicProjectionRuntimeServiceProvider extends ServiceProvider
         $this->app->bind(ActiveGenerationReader::class, PostgreSqlActiveGenerationReader::class);
         $this->app->bind(DecisionTimeReader::class, ContentSeoSnapshotDecisionTimeReader::class);
 
+        $this->app->singleton(CertifiedPublicListingProjectionSource::class, static fn (Application $app): CertifiedPublicListingProjectionSource => new CertifiedPublicListingProjectionSource(
+            $app->make(ListingRegistry::class),
+            $app->make(PropertyRegistry::class),
+            $app->make(MediaCollectionOwnershipLookup::class),
+            $app->make(MediaCollectionRegistry::class),
+            $app->make(SearchDecisionReader::class),
+            $app->make(ContentSeoSourceSnapshotReader::class),
+            $app->make(PublicGeographyDecisionReader::class),
+            $app->make(PublicMediaDecisionReader::class),
+            $app->make(ActiveGenerationReader::class),
+            $app->make(DecisionTimeReader::class),
+            $app->make(AuthoringPublicFactHandoffV1::class),
+        ));
+
         $this->app->bind(InspectablePublicListingProjectionSource::class, CertifiedPublicListingProjectionSource::class);
+        $this->app->bind(CandidatePublicListingProjectionSource::class, CertifiedPublicListingProjectionSource::class);
         $this->app->bind(PublicListingProjectionSource::class, CertifiedPublicListingProjectionSource::class);
         $this->app->bind(MediaCollectionPropertyResolver::class, RegistryMediaCollectionPropertyResolver::class);
         $this->app->bind(PropertyListingsResolver::class, PostgreSqlPropertyListingsResolver::class);
@@ -553,6 +571,12 @@ final class PublicProjectionRuntimeServiceProvider extends ServiceProvider
         $this->app->bind(PublicProjectionRebuildEnumerator::class, PostgreSqlPublicProjectionRebuildEnumerator::class);
         $this->app->bind(InspectablePublicProjectionCandidateFactory::class, CertifiedPublicProjectionCandidateFactory::class);
         $this->app->bind(PublicProjectionCandidateFactory::class, CertifiedPublicProjectionCandidateFactory::class);
+        $this->app->singleton(PublicProjectionRebuilder::class, static fn (Application $app): PublicProjectionRebuilder => new PublicProjectionRebuilder(
+            $app->make(PublicProjectionRebuildEnumerator::class),
+            $app->make(PublicProjectionCandidateFactory::class),
+            $app->make(PublicListingProjectionWriter::class),
+            100,
+        ));
 
         $this->app->bind(PublicProjectionUpdateExecutor::class, PublicListingProjectionUpdaterExecutor::class);
         $this->app->bind(PublicProjectionDeliveryConsumer::class, PublicProjectionUpdaterConsumer::class);

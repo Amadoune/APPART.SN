@@ -7,7 +7,7 @@ use DateTimeImmutable;
 
 final class PublicListingReadModelFixture
 {
-    public static function make(bool $indexable = true, ?string $listingId = null, ?string $canonicalUrl = null): PublicListingReadModel
+    public static function make(bool $indexable = true, ?string $listingId = null, ?string $canonicalUrl = null, ?string $transactionKind = null, ?string $city = null, string $propertyType = 'Appartement'): PublicListingReadModel
     {
         $publishedAt = new DateTimeImmutable('2026-07-18T10:01:00+00:00');
         $canonical = $canonicalUrl ?? 'https://appart.sn/annonces/appartement-moderne-dakar';
@@ -20,7 +20,7 @@ final class PublicListingReadModelFixture
             mediaCollectionId: '93000000-0000-4000-8000-000000000001',
             headline: 'Appartement moderne a Dakar | APPART.SN',
             description: 'Decouvrez cet appartement moderne, lumineux et bien situe au coeur de Dakar pour votre prochain logement.',
-            propertyType: 'Appartement',
+            propertyType: $propertyType,
             surfaceSquareMeters: 120,
             roomCount: 5,
             geographicPlaceId: 'place:dakar:plateau',
@@ -49,6 +49,8 @@ final class PublicListingReadModelFixture
             publicJsonLd: $indexable ? $jsonLd : null,
             decidedAt: new DateTimeImmutable('2026-07-18T10:02:00+00:00'),
             expiredListingTreatment: 'not_applicable',
+            transactionKind: $transactionKind,
+            city: $city,
         );
     }
 }

@@ -23,9 +23,10 @@ final readonly class RequireIdentityAccessSession
 
         try {
             $inspection = $this->runtime->inspectSession($secret, new DateTimeImmutable);
-            if (! $inspection->valid || $inspection->accountId === null) {
+            if (! $inspection->valid || $inspection->accountId === null || $inspection->context === null) {
                 return $this->unauthorized();
             }
+            $request->attributes->set('iam_session_context', $inspection->context);
             $request->attributes->set('iam_account_id', $inspection->accountId);
 
             return $next($request);

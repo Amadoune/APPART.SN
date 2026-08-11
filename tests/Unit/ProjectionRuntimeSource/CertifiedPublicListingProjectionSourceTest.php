@@ -159,6 +159,19 @@ final class CertifiedPublicListingProjectionSourceTest extends TestCase
         self::assertSame(ProjectionSourceAssemblyStatus::DecisionTimeDivergent, $scenario->source()->inspect(self::LISTING)->status);
     }
 
+    public function test_candidate_rebuild_can_assemble_first_generation_without_active_generation(): void
+    {
+        $scenario = self::scenario();
+        $scenario->generation = ActiveGenerationReadResult::missing();
+        $candidate = PublicProjectionGenerationId::fromString('99000000-0000-4000-8000-000000000002');
+
+        $result = $scenario->source()->inspectForGeneration(self::LISTING, $candidate);
+
+        self::assertSame(ProjectionSourceAssemblyStatus::Found, $result->status);
+        self::assertNotNull($result->sources);
+        self::assertSame($candidate->value, $result->sources->generationId->value);
+    }
+
     public function test_corrupt_public_decisions_and_media_ownership_are_explained(): void
     {
         $scenario = self::scenario();

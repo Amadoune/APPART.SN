@@ -5,7 +5,7 @@ namespace App\Infrastructure\ProjectionRebuildRuntimeSource;
 use App\Application\ProjectionRebuildRuntimeSource\CandidateBuildResult;
 use App\Application\ProjectionRebuildRuntimeSource\CandidateBuildStatus;
 use App\Application\ProjectionRebuildRuntimeSource\Contract\InspectablePublicProjectionCandidateFactory;
-use App\Application\ProjectionRuntimeSource\Contract\InspectablePublicListingProjectionSource;
+use App\Application\ProjectionRuntimeSource\Contract\CandidatePublicListingProjectionSource;
 use App\Application\PublicProjectionStore\PublicListingProjectionRecord;
 use App\Application\PublicProjectionStore\PublicProjectionGenerationId;
 use App\Application\PublicProjectionStore\PublicProjectionPromotionReadiness;
@@ -18,7 +18,7 @@ use Throwable;
 final readonly class CertifiedPublicProjectionCandidateFactory implements InspectablePublicProjectionCandidateFactory
 {
     public function __construct(
-        private InspectablePublicListingProjectionSource $source,
+        private CandidatePublicListingProjectionSource $source,
         private SearchListingProjectionBuilder $searchBuilder,
         private ListingSeoDecisionPolicy $seoDecisionPolicy,
         private SeoListingProjectionBuilder $seoBuilder,
@@ -32,7 +32,7 @@ final readonly class CertifiedPublicProjectionCandidateFactory implements Inspec
 
     public function inspect(string $listingId, PublicProjectionGenerationId $generationId): CandidateBuildResult
     {
-        $assembled = $this->source->inspect($listingId);
+        $assembled = $this->source->inspectForGeneration($listingId, $generationId);
         if ($assembled->sources === null || $assembled->watermark === null) {
             return CandidateBuildResult::blocked($listingId, CandidateBuildStatus::SourceBlocked, $assembled->status, $assembled->readiness);
         }
@@ -41,7 +41,7 @@ final readonly class CertifiedPublicProjectionCandidateFactory implements Inspec
         }
 
         try {
-            $search = $this->searchBuilder->build($assembled->sources->property, $assembled->sources->media, $assembled->sources->listing);
+            $search = $this->searchBuilder->build($assembled->sources->property, $assembled->sources->media, $assembled->sources->listing, $assembled->sources->transactionKind);
             $decision = $this->seoDecisionPolicy->decide(
                 $assembled->sources->listingSeo,
                 $assembled->sources->searchSeo,

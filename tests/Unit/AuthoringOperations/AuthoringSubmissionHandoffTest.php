@@ -20,6 +20,10 @@ use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPubli
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationDiagnosticCode;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationRequest;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationResult;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\AuthoringPublicFactSnapshot;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\Contract\AuthoringPublicFactHandoffV1;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\PublicFactHandoffResult;
+use Appart\Modules\ListingLifecycle\Application\PublicFacts\PublicTransactionKind;
 use Closure;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -64,6 +68,12 @@ final class AuthoringSubmissionHandoffTest extends TestCase
             ->willReturn(ListingPublicationOrchestrationResult::concurrencyConflict(
                 ListingPublicationOrchestrationDiagnosticCode::VersionConflict,
             ));
+        $publicFacts = $this->createMock(AuthoringPublicFactHandoffV1::class);
+        $publicFacts->expects(self::once())->method('prepare')
+            ->with(self::callback(static fn (AuthoringPublicFactSnapshot $snapshot): bool => $snapshot->listingId === '65000000-0000-4000-8000-000000000003'
+                && $snapshot->authoringVersion === 1
+                && $snapshot->transactionKind === PublicTransactionKind::Sale))
+            ->willReturn(PublicFactHandoffResult::Applied);
         $operations = new DeterministicPropertyListingAuthoringOperations(
             $runtime,
             $this->createMock(CreateListingDraftV1::class),
@@ -75,6 +85,7 @@ final class AuthoringSubmissionHandoffTest extends TestCase
                 }
             },
             $publication,
+            $publicFacts,
         );
 
         $result = $operations->execute(new AuthoringOperationCommand(

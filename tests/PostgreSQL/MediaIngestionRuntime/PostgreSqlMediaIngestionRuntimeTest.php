@@ -5,8 +5,11 @@ namespace Tests\PostgreSQL\MediaIngestionRuntime;
 use App\Application\MediaIngestionRuntime\DeterministicMediaIngestionRuntimeAvailabilityPolicy;
 use App\Application\MediaIngestionRuntime\DeterministicMediaIngestionRuntimeV1;
 use App\Application\MediaIngestionRuntime\MediaIngestionRuntimeStatus;
+use Appart\Modules\Media\Application\BinaryStorage\Contract\MediaBinaryStorageAuthorityV1;
+use Appart\Modules\Media\Application\Attachment\Contract\AttachReadyMediaAssetV1;
 use Appart\Modules\Media\Application\IngestionPersistence\MediaIngestionPersistenceWriteResult;
 use Appart\Modules\Media\Application\IngestionPersistence\MediaUploadState;
+use Appart\Modules\Media\Application\ReadyAsset\Contract\MediaAssetReadinessV1;
 use Appart\Modules\Media\Infrastructure\Persistence\MediaIngestionStateMapper;
 use Appart\Modules\Media\Infrastructure\Persistence\PostgreSql\PostgreSqlMediaAssetStore;
 use Appart\Modules\Media\Infrastructure\Persistence\PostgreSql\PostgreSqlMediaProcessingStore;
@@ -34,6 +37,9 @@ final class PostgreSqlMediaIngestionRuntimeTest extends TestCase
         $mapper = new MediaIngestionStateMapper;
         $upload = new PostgreSqlMediaUploadStore($this->connection, $mapper);
         $runtime = new DeterministicMediaIngestionRuntimeV1(
+            $this->createStub(AttachReadyMediaAssetV1::class),
+            $this->createStub(MediaBinaryStorageAuthorityV1::class),
+            $this->createStub(MediaAssetReadinessV1::class),
             $upload,
             new PostgreSqlMediaAssetStore($this->connection, $mapper),
             new PostgreSqlMediaProcessingStore($this->connection, $mapper),

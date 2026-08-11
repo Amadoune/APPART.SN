@@ -46,7 +46,7 @@ abstract readonly class AbstractListingEvent implements ListingEvent
         return $this->evidence->trigger;
     }
 
-    public function reason(): TransitionReason
+    public function reason(): ?TransitionReason
     {
         return $this->evidence->reason;
     }

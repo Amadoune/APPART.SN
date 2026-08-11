@@ -10,5 +10,8 @@ final readonly class PropertyAuthoringState
         public int $version,
         public string $intentId,
         public string $intentChecksum,
+        public ?string $propertyType = null,
+        public ?string $city = null,
+        public ?string $neighborhood = null,
     ) {}
 }

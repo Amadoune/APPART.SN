@@ -1,10 +1,78 @@
 # Changelog
 
-## [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04] — 2026-08-08
+## HISTORICAL_ONLY — [PHASE-5.9-OFFICIAL-REMOTE-AND-EXTERNAL-CI-AUTHORITY-RESOLUTION-01] — 2026-08-09 — NO GO CERTIFIÉ — FERMÉ — GELÉ
 
-- statut : GO PROPOSÉ — OUVERTE, unique jalon 5.9 actif ;
+- Aucun repository, owner, URL ou principal externe officiel n'est désigné.
+- Actions, run R5 permanent, conservation durable et reproduction indépendante restent MISSING/BLOCKED.
+- Aucun remote ajouté ; R5, Evidence 11, R6 et Phase 5.10 inchangés/non ouverts.
+- Aucun jalon 5.9 actif ; STOP PHASE 5.9 EXECUTION jusqu'à résolution humaine explicite de l'autorité externe.
+
+## HISTORICAL_ONLY — [PHASE-5.9-EXTERNAL-CI-EXECUTION-ENVIRONMENT-QUALIFICATION-01] — 2026-08-09 — NO GO CERTIFIÉ — FERMÉ — GELÉ
+
+- Workflow R5 et chaîne d'identité externe qualifiés documentairement.
+- Repository distant officiel, exécuteur externe et second environnement : MISSING.
+- Evidence 11, R6 et Phase 5.10 : NON OUVERTES.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-10] — 2026-08-09 — NO GO CERTIFIÉ — FERMÉ — GELÉ
+
+- Gates 1 à 22 : PASS terminal, incluant deux packagings externes déterministes et une clean-room R5.
+- CI externe : MISSING, première divergence ; reproduction indépendante : BLOCKED par fail-fast.
+- R5 demeure immuable ; aucun commit, tag ou R6.
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ — HISTORICAL_ONLY ;
+- source : clone neuf exclusif R5 ; campagne neuve, intégrale et fail-fast ;
+- packaging A/B : destinations temporaires externes distinctes.
+
+## HISTORICAL_ONLY — [PHASE-5.9-PACKAGING-OUTPUT-LOCATION-QUALIFICATION-01] — 2026-08-09
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- objet : qualifier deux destinations de packaging temporaires, externes et distinctes sans affaiblir la propreté Git ;
+- preuves : Packaging A et B PASS exit 0, clone propre avant/entre/après, archives et arbres déterministement identiques, aucun processus résiduel ;
+- Evidence 10 : IDENTIFIÉE — NON OUVERTE ; R6 : NON OUVERTE / NON MATÉRIALISÉE.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-09] — 2026-08-09
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source : nouveau clone exclusif du tag R5 ; campagne neuve, intégrale, supervisée et fail-fast ;
+- portes PASS jusqu'à Packaging A ; Packaging B FAIL exit 1 car la sortie A sous `dist/` rend le clone non propre (`?? dist/`) ; portes suivantes BLOCKED/MISSING ;
+- R5 inchangée ; R6 non ouverte / non matérialisée.
+
+## HISTORICAL_ONLY — [PHASE-5.9-POSTGRESQL-FULL-CAMPAIGN-DIAGNOSTIC-02] — 2026-08-09
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ; état antérieur GO PROPOSÉ — OUVERT conservé dans l'historique du jalon ;
+- objet : classifier la campagne PostgreSQL Evidence 08 non terminale sans modifier R5 ;
+- résultat : PostgreSQL PASS — 763 tests, 3 623 assertions, exit 0, 880,117 s ; aucun lock, bloqueur ou processus résiduel ;
+- classification : ENVIRONMENT / PROCESS EXECUTION, supervision/capture Evidence 08 non terminale ; aucun défaut R5 reproduit ;
+- Evidence 09 : IDENTIFIÉE — NON OUVERTE ; R6 : NON OUVERTE / NON MATÉRIALISÉE.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-08] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source : clone neuf exclusif du tag R5 ;
+- environnement : `unzip.exe` exposé par le PATH du processus avant Dependency Restore ;
+- exécution neuve, intégrale et fail-fast.
+- portes PASS jusqu'à Foundation ; première divergence PostgreSQL complète non terminale, timeout 5 208 s, exit 124 ; portes suivantes BLOCKED/MISSING.
+
+## HISTORICAL_ONLY — [PHASE-5.9-DEPENDENCY-RESTORE-ENVIRONMENT-QUALIFICATION-01] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
+- objet : qualifier les prérequis environnementaux ZIP/extracteur de la restauration Composer depuis R5 ;
+- preuve ciblée : clone neuf R5, Composer validate PASS, install de 112 paquets PASS exit 0 via `unzip.exe` exposé par le PATH du processus ;
+- Evidence 08 : OUVERTE.
+
+## HISTORICAL_ONLY — [PHASE-5.9-REPRODUCIBLE-BUILD-AND-CI-EVIDENCE-07] — 2026-08-08
+
+- statut : NO GO CERTIFIÉ — FERMÉ — GELÉ ;
+- source exclusive : clone neuf du tag annoté R5 ;
+- campagne neuve et fail-fast, sans recyclage de preuves historiques.
+- première divergence : Dependency Restore FAIL, Composer exit 1 ; PHP ZIP non chargé et `unzip`/`7z` indisponibles dans le PATH effectif du processus ; portes suivantes BLOCKED ou MISSING.
+
+## HISTORICAL_ONLY — [PHASE-5.9-CANDIDATE-BASELINE-MATERIALIZATION-04] — 2026-08-08
+
+- statut : GO CERTIFIÉ — FERMÉ — GELÉ ;
 - objet : matérialiser la candidate R5 descendante de R4 contenant exactement la correction certifiée et sa traçabilité normative ;
-- Evidence 07 : IDENTIFIÉE — NON OUVERTE.
+- candidate : `9801d9ed30ea3a5fa412708cd022d16bc84e472c`, tag annoté `phase-5.9-baseline-candidate-r5` ;
+- Evidence 07 : OUVERTE.
 
 ## HISTORICAL_ONLY — [PHASE-5.9-BUILD-CI-SOURCE-IDENTITY-ALIGNMENT-CORRECTION-03] — 2026-08-08
 

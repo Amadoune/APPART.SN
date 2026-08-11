@@ -22,6 +22,8 @@ use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\Listin
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationDiagnosticCode;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationResult;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationStatus;
+use Appart\Modules\PublicationReview\Application\Queue\PublicationReviewConsumer;
+use Appart\Modules\PublicationReview\Application\Queue\PublicationReviewIngestionResult;
 use DateTimeImmutable;
 use Throwable;
 
@@ -34,6 +36,7 @@ final readonly class AtomicListingPublicationEventOrchestrator implements Listin
         private PublicProjectionDeliveryCatalogMessageFactory $messages,
         private PublicProjectionOutboxWriter $outbox,
         private PublicProjectionOutboxConsumerId $consumerId,
+        private ?PublicationReviewConsumer $publicationReview = null,
     ) {}
 
     public function transition(ListingPublicationEventOrchestrationRequest $request): ListingPublicationOrchestrationResult
@@ -65,6 +68,12 @@ final readonly class AtomicListingPublicationEventOrchestrator implements Listin
                     $written = $this->outbox->append($message, $this->consumerId);
                     if (! in_array($written, [PublicProjectionOutboxWriteResult::Applied, PublicProjectionOutboxWriteResult::AlreadyApplied], true)) {
                         throw new ListingPublicationEventIntegrationFailure('Listing publication event Outbox write was rejected.');
+                    }
+                    if ($this->publicationReview !== null) {
+                        $ingested = $this->publicationReview->consume($event);
+                        if (! in_array($ingested, [PublicationReviewIngestionResult::Applied, PublicationReviewIngestionResult::AlreadyApplied, PublicationReviewIngestionResult::Ignored], true)) {
+                            throw new ListingPublicationEventIntegrationFailure('Listing publication event Publication Review handoff was rejected.');
+                        }
                     }
                 }
 
