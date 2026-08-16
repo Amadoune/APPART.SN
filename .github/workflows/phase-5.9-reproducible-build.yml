@@ -3,7 +3,7 @@ name: Phase 5.9 Reproducible Build
 on:
   push:
     tags:
-      - 'appart-sn-release-candidate-rc2-r4'
+      - 'appart-sn-release-candidate-rc2-r5'
   workflow_dispatch:
 
 permissions:
@@ -28,9 +28,9 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      SOURCE_BASE_SHA: a731a7303023f4b956d0c7d9666e482fedd3c99e
-      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r4
-      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r4
+      SOURCE_BASE_SHA: 984c0de2462cc6e34c77ac82bd9f695c72c94ebf
+      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r5
+      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r5
       APP_ENV: testing
       APP_KEY: ${{ secrets.RC2_TEST_APP_KEY }}
       DB_CONNECTION: pgsql

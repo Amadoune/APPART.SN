@@ -6,15 +6,15 @@ use PHPUnit\Framework\TestCase;
 
 final class BuildCiSourceIdentityArchitectureTest extends TestCase
 {
-    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r4';
+    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r5';
 
-    private const SOURCE_BASE = 'a731a7303023f4b956d0c7d9666e482fedd3c99e';
+    private const SOURCE_BASE = '984c0de2462cc6e34c77ac82bd9f695c72c94ebf';
 
-    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2-r3';
+    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2-r4';
 
-    private const R5_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
+    private const LEGACY_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
 
-    private const R5_SOURCE_BASE = '058719f8aa154466056299b8c26bd7d51f944127';
+    private const LEGACY_SOURCE_BASE = '058719f8aa154466056299b8c26bd7d51f944127';
 
     public function test_runtime_lock_expresses_the_non_self_referential_identity_policy(): void
     {
@@ -41,8 +41,8 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
             self::assertStringContainsString(self::CANDIDATE_TAG, $control);
             self::assertStringContainsString('git cat-file -t', $control);
             self::assertStringContainsString('git merge-base --is-ancestor', $control);
-            self::assertStringNotContainsString(self::R5_CANDIDATE_TAG, $control);
-            self::assertStringNotContainsString(self::R5_SOURCE_BASE, $control);
+            self::assertStringNotContainsString(self::LEGACY_CANDIDATE_TAG, $control);
+            self::assertStringNotContainsString(self::LEGACY_SOURCE_BASE, $control);
         }
 
         self::assertStringContainsString('= "$GITHUB_SHA"', $workflow);
@@ -72,7 +72,7 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
     {
         foreach ($this->controls() as $control) {
             self::assertStringNotContainsString(str_repeat('0', 40), $control);
-            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r5', $control);
+            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r6', $control);
         }
     }
 

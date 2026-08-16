@@ -48,6 +48,7 @@ use Appart\Modules\RealEstateCatalog\Application\Contract\PropertyRegistry;
 use Appart\Modules\RealEstateCatalog\Infrastructure\Persistence\PostgreSql\PostgreSqlPropertyRepository;
 use PDO;
 use Tests\PostgreSQL\Support\PostgreSqlTestEnvironment;
+use Tests\Support\PublicProjectionAuthorizedDeliveryCatalog;
 use Tests\TestCase;
 
 final class PublicProjectionRuntimeBindingTest extends TestCase
@@ -144,8 +145,7 @@ final class PublicProjectionRuntimeBindingTest extends TestCase
 
         $registrations = new \ReflectionProperty(PublicProjectionDeliveryConsumerRegistry::class, 'registrations')->getValue($this->app->make(PublicProjectionDeliveryConsumerRegistry::class));
         self::assertIsArray($registrations);
-        self::assertCount(54, $registrations);
-        self::assertCount(54, array_unique(array_map(static fn ($registration): string => $registration->eventType->value, $registrations)));
+        PublicProjectionAuthorizedDeliveryCatalog::assertMatches($registrations);
     }
 
     public function test_each_runtime_contract_has_one_explicit_container_binding(): void

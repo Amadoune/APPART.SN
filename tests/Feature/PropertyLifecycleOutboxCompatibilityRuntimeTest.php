@@ -7,6 +7,7 @@ use App\Application\PublicProjectionWorker\PublicProjectionDeliveryConsumerRegis
 use Appart\Modules\RealEstateCatalog\Application\PropertyLifecycle\Event\PropertyLifecycleEventType;
 use PDO;
 use Tests\PostgreSQL\Support\PostgreSqlTestEnvironment;
+use Tests\Support\PublicProjectionAuthorizedDeliveryCatalog;
 use Tests\TestCase;
 
 final class PropertyLifecycleOutboxCompatibilityRuntimeTest extends TestCase
@@ -34,9 +35,8 @@ final class PropertyLifecycleOutboxCompatibilityRuntimeTest extends TestCase
         $registrations = new \ReflectionProperty($registry, 'registrations')->getValue($registry);
 
         self::assertIsArray($registrations);
-        self::assertCount(54, $registrations);
+        PublicProjectionAuthorizedDeliveryCatalog::assertMatches($registrations);
         $pairs = array_map(static fn ($registration): string => $registration->eventType->value.'@'.$registration->payloadVersion->value, $registrations);
-        self::assertCount(54, array_unique($pairs));
         foreach (PropertyLifecycleEventType::cases() as $eventType) {
             self::assertContains($eventType->value.'@1', $pairs);
         }

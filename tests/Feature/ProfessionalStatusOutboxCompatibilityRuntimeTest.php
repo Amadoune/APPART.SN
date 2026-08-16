@@ -11,6 +11,7 @@ use Appart\Modules\Professionals\Application\ProfessionalStatusEvent\Professiona
 use PDO;
 use ReflectionProperty;
 use Tests\PostgreSQL\Support\PostgreSqlTestEnvironment;
+use Tests\Support\PublicProjectionAuthorizedDeliveryCatalog;
 use Tests\TestCase;
 
 final class ProfessionalStatusOutboxCompatibilityRuntimeTest extends TestCase
@@ -26,9 +27,7 @@ final class ProfessionalStatusOutboxCompatibilityRuntimeTest extends TestCase
         $registry = $this->app->make(PublicProjectionDeliveryConsumerRegistry::class);
         $registrations = (new ReflectionProperty($registry, 'registrations'))->getValue($registry);
         self::assertIsArray($registrations);
-        self::assertCount(54, $registrations);
-        $pairs = array_map(static fn ($registration): string => $registration->eventType->value.'@'.$registration->payloadVersion->value, $registrations);
-        self::assertCount(54, array_unique($pairs));
+        PublicProjectionAuthorizedDeliveryCatalog::assertMatches($registrations);
         foreach (ProfessionalStatusEventType::cases() as $eventType) {
             $matching = array_values(array_filter($registrations, static fn ($registration): bool => $registration->eventType->value === $eventType->value));
             self::assertCount(1, $matching);

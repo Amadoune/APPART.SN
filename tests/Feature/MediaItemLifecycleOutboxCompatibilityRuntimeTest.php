@@ -13,6 +13,7 @@ use Appart\Modules\Media\Application\MediaItemLifecycleEvent\MediaItemLifecycleE
 use PDO;
 use ReflectionProperty;
 use Tests\PostgreSQL\Support\PostgreSqlTestEnvironment;
+use Tests\Support\PublicProjectionAuthorizedDeliveryCatalog;
 use Tests\TestCase;
 
 final class MediaItemLifecycleOutboxCompatibilityRuntimeTest extends TestCase
@@ -28,10 +29,7 @@ final class MediaItemLifecycleOutboxCompatibilityRuntimeTest extends TestCase
         $registry = $this->app->make(PublicProjectionDeliveryConsumerRegistry::class);
         $registrations = (new ReflectionProperty($registry, 'registrations'))->getValue($registry);
         self::assertIsArray($registrations);
-        $pairs = array_map(static fn ($registration): string => $registration->eventType->value.'@'.$registration->payloadVersion->value, $registrations);
-
-        self::assertCount(54, $registrations);
-        self::assertCount(54, array_unique($pairs));
+        PublicProjectionAuthorizedDeliveryCatalog::assertMatches($registrations);
         foreach (MediaItemLifecycleEventType::cases() as $eventType) {
             $matching = array_values(array_filter($registrations, static fn ($registration): bool => $registration->eventType == PublicProjectionDeliveryEventType::fromString($eventType->value) && $registration->payloadVersion == PublicProjectionDeliveryPayloadVersion::fromInt(1)));
             self::assertCount(1, $matching);
