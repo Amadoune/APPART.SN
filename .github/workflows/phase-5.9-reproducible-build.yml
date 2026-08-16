@@ -3,7 +3,7 @@ name: Phase 5.9 Reproducible Build
 on:
   push:
     tags:
-      - 'appart-sn-release-candidate-rc2-r2'
+      - 'appart-sn-release-candidate-rc2-r3'
   workflow_dispatch:
 
 permissions:
@@ -28,9 +28,9 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      SOURCE_BASE_SHA: ab5d3f57a577160d3aae36cee5778dc7bae59a16
-      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r2
-      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r2
+      SOURCE_BASE_SHA: 6fc2f7944368c65f0cd87dfa68f550faa3461be9
+      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r3
+      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r3
       APPART_TEST_PG_DSN: pgsql:host=127.0.0.1;port=5432;dbname=appart_test
       APPART_TEST_PG_USER: appart_test
       APPART_TEST_PG_PASSWORD: appart_test_ci
@@ -73,6 +73,9 @@ jobs:
           npm ci --ignore-scripts
           npm ls --depth=0
 
+      - name: Frontend production build
+        run: npm run build
+
       - name: Unit, Feature, Architecture and Foundation gates
         run: |
           php artisan test --testsuite=Unit
@@ -89,9 +92,6 @@ jobs:
           php vendor/bin/pint --test
           git diff --check
           test -z "$(git status --porcelain)"
-
-      - name: Frontend production build
-        run: npm run build
 
       - name: Build deterministic release artifact
         env:

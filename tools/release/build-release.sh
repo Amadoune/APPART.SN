@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly EXPECTED_SOURCE_BASE="ab5d3f57a577160d3aae36cee5778dc7bae59a16"
-readonly EXPECTED_CANDIDATE_TAG="appart-sn-release-candidate-rc2-r2"
+readonly EXPECTED_SOURCE_BASE="6fc2f7944368c65f0cd87dfa68f550faa3461be9"
+readonly EXPECTED_CANDIDATE_TAG="appart-sn-release-candidate-rc2-r3"
 readonly ROOT="$(git rev-parse --show-toplevel)"
 readonly BUILD_SHA="$(git rev-parse HEAD)"
 readonly OUTPUT_DIR="${1:-$ROOT/dist/release}"

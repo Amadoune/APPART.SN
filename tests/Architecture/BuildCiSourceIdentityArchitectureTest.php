@@ -6,11 +6,11 @@ use PHPUnit\Framework\TestCase;
 
 final class BuildCiSourceIdentityArchitectureTest extends TestCase
 {
-    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r2';
+    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r3';
 
-    private const SOURCE_BASE = 'ab5d3f57a577160d3aae36cee5778dc7bae59a16';
+    private const SOURCE_BASE = '6fc2f7944368c65f0cd87dfa68f550faa3461be9';
 
-    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2';
+    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2-r2';
 
     private const R5_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
 
@@ -72,7 +72,7 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
     {
         foreach ($this->controls() as $control) {
             self::assertStringNotContainsString(str_repeat('0', 40), $control);
-            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r3', $control);
+            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r4', $control);
         }
     }
 
@@ -82,6 +82,30 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
             self::assertStringContainsString(self::SOURCE_BASE, $control);
             self::assertStringContainsString(self::CANDIDATE_TAG, $control);
         }
+    }
+
+    public function test_frontend_production_build_precedes_every_test_suite(): void
+    {
+        $workflow = $this->read('.github/workflows/phase-5.9-reproducible-build.yml');
+        preg_match_all('/^      - name: (.+)$/m', $workflow, $matches, PREG_OFFSET_CAPTURE);
+
+        $steps = [];
+        foreach ($matches[1] as [$name, $offset]) {
+            $steps[$name] = $offset;
+        }
+
+        self::assertArrayHasKey('Restore locked dependencies', $steps);
+        self::assertArrayHasKey('Frontend production build', $steps);
+        self::assertArrayHasKey('Unit, Feature, Architecture and Foundation gates', $steps);
+        self::assertArrayHasKey('PostgreSQL gate', $steps);
+        self::assertArrayHasKey('Static analysis and formatting gates', $steps);
+        self::assertArrayHasKey('Build deterministic release artifact', $steps);
+        self::assertLessThan($steps['Frontend production build'], $steps['Restore locked dependencies']);
+        self::assertLessThan($steps['Unit, Feature, Architecture and Foundation gates'], $steps['Frontend production build']);
+        self::assertLessThan($steps['PostgreSQL gate'], $steps['Frontend production build']);
+        self::assertLessThan($steps['Static analysis and formatting gates'], $steps['Frontend production build']);
+        self::assertLessThan($steps['Build deterministic release artifact'], $steps['Frontend production build']);
+        self::assertSame(1, substr_count($workflow, 'run: npm run build'));
     }
 
     /** @return list<string> */
