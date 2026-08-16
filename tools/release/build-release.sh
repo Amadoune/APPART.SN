@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly EXPECTED_SOURCE_BASE="058719f8aa154466056299b8c26bd7d51f944127"
-readonly EXPECTED_CANDIDATE_TAG="phase-5.9-baseline-candidate-r5"
+readonly EXPECTED_SOURCE_BASE="ab5d3f57a577160d3aae36cee5778dc7bae59a16"
+readonly EXPECTED_CANDIDATE_TAG="appart-sn-release-candidate-rc2-r2"
 readonly ROOT="$(git rev-parse --show-toplevel)"
 readonly BUILD_SHA="$(git rev-parse HEAD)"
 readonly OUTPUT_DIR="${1:-$ROOT/dist/release}"
 readonly RELEASE_ROOT="$OUTPUT_DIR/root"
+
+if [[ "${APPART_ALIGNMENT_CHECK_ONLY:-0}" == "1" ]]; then
+  test "$BUILD_SHA" = "$EXPECTED_SOURCE_BASE"
+  test -z "$(git tag --list "$EXPECTED_CANDIDATE_TAG")"
+  echo "Successor alignment verified: ${EXPECTED_CANDIDATE_TAG} after ${EXPECTED_SOURCE_BASE}"
+  exit 0
+fi
 
 test "$(git cat-file -t "refs/tags/${EXPECTED_CANDIDATE_TAG}")" = "tag"
 test "$(git rev-parse "${EXPECTED_CANDIDATE_TAG}^{commit}")" = "$BUILD_SHA"

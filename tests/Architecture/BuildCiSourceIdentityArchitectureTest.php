@@ -6,13 +6,15 @@ use PHPUnit\Framework\TestCase;
 
 final class BuildCiSourceIdentityArchitectureTest extends TestCase
 {
-    private const CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
+    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r2';
 
-    private const SOURCE_BASE = '058719f8aa154466056299b8c26bd7d51f944127';
+    private const SOURCE_BASE = 'ab5d3f57a577160d3aae36cee5778dc7bae59a16';
 
-    private const PREVIOUS_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r3';
+    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2';
 
-    private const PREVIOUS_CANDIDATE_COMMIT = 'a2c53c00094a219c9858261f952f5599a260a828';
+    private const R5_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
+
+    private const R5_SOURCE_BASE = '058719f8aa154466056299b8c26bd7d51f944127';
 
     public function test_runtime_lock_expresses_the_non_self_referential_identity_policy(): void
     {
@@ -39,8 +41,8 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
             self::assertStringContainsString(self::CANDIDATE_TAG, $control);
             self::assertStringContainsString('git cat-file -t', $control);
             self::assertStringContainsString('git merge-base --is-ancestor', $control);
-            self::assertStringNotContainsString(self::PREVIOUS_CANDIDATE_TAG, $control);
-            self::assertStringNotContainsString(self::PREVIOUS_CANDIDATE_COMMIT, $control);
+            self::assertStringNotContainsString(self::R5_CANDIDATE_TAG, $control);
+            self::assertStringNotContainsString(self::R5_SOURCE_BASE, $control);
         }
 
         self::assertStringContainsString('= "$GITHUB_SHA"', $workflow);
@@ -54,6 +56,42 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
         self::assertStringContainsString("- '".self::CANDIDATE_TAG."'", $workflow);
         self::assertStringNotContainsString('phase-5.9-baseline-candidate-*', $workflow);
         self::assertStringNotContainsString('phase-5.9-build-ci-rc*', $workflow);
+    }
+
+    public function test_predecessor_tag_is_rejected_as_the_future_candidate(): void
+    {
+        $controls = $this->controls();
+
+        foreach ($controls as $control) {
+            self::assertStringNotContainsString(self::PREDECESSOR_TAG."'", $control);
+            self::assertStringNotContainsString(self::PREDECESSOR_TAG.'"', $control);
+        }
+    }
+
+    public function test_wrong_predecessor_and_future_tag_are_rejected(): void
+    {
+        foreach ($this->controls() as $control) {
+            self::assertStringNotContainsString(str_repeat('0', 40), $control);
+            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r3', $control);
+        }
+    }
+
+    public function test_cross_file_identity_is_exactly_consistent(): void
+    {
+        foreach ($this->controls() as $control) {
+            self::assertStringContainsString(self::SOURCE_BASE, $control);
+            self::assertStringContainsString(self::CANDIDATE_TAG, $control);
+        }
+    }
+
+    /** @return list<string> */
+    private function controls(): array
+    {
+        return [
+            $this->read('build/runtime.lock.json'),
+            $this->read('.github/workflows/phase-5.9-reproducible-build.yml'),
+            $this->read('tools/release/build-release.sh'),
+        ];
     }
 
     private function read(string $relativePath): string
