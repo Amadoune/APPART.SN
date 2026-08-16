@@ -6,11 +6,11 @@ use PHPUnit\Framework\TestCase;
 
 final class BuildCiSourceIdentityArchitectureTest extends TestCase
 {
-    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r3';
+    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r4';
 
-    private const SOURCE_BASE = '6fc2f7944368c65f0cd87dfa68f550faa3461be9';
+    private const SOURCE_BASE = 'a731a7303023f4b956d0c7d9666e482fedd3c99e';
 
-    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2-r2';
+    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2-r3';
 
     private const R5_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
 
@@ -72,7 +72,7 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
     {
         foreach ($this->controls() as $control) {
             self::assertStringNotContainsString(str_repeat('0', 40), $control);
-            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r4', $control);
+            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r5', $control);
         }
     }
 
@@ -106,6 +106,20 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
         self::assertLessThan($steps['Static analysis and formatting gates'], $steps['Frontend production build']);
         self::assertLessThan($steps['Build deterministic release artifact'], $steps['Frontend production build']);
         self::assertSame(1, substr_count($workflow, 'run: npm run build'));
+    }
+
+    public function test_feature_preflight_precedes_all_test_suites_and_uses_external_secrets(): void
+    {
+        $workflow = $this->read('.github/workflows/phase-5.9-reproducible-build.yml');
+
+        self::assertStringContainsString('php tools/release/check-feature-environment.php', $workflow);
+        self::assertStringContainsString('${{ secrets.RC2_TEST_APP_KEY }}', $workflow);
+        self::assertSame(3, substr_count($workflow, '${{ secrets.RC2_TEST_PG_PASSWORD }}'));
+        self::assertStringNotContainsString('POSTGRES_PASSWORD: appart_test_ci', $workflow);
+        self::assertLessThan(
+            strpos($workflow, 'Unit, Feature, Architecture and Foundation gates'),
+            strpos($workflow, 'Verify Feature environment and database isolation'),
+        );
     }
 
     /** @return list<string> */

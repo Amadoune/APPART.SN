@@ -3,7 +3,7 @@ name: Phase 5.9 Reproducible Build
 on:
   push:
     tags:
-      - 'appart-sn-release-candidate-rc2-r3'
+      - 'appart-sn-release-candidate-rc2-r4'
   workflow_dispatch:
 
 permissions:
@@ -19,7 +19,7 @@ jobs:
         env:
           POSTGRES_DB: appart_test
           POSTGRES_USER: appart_test
-          POSTGRES_PASSWORD: appart_test_ci
+          POSTGRES_PASSWORD: ${{ secrets.RC2_TEST_PG_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
@@ -28,12 +28,20 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      SOURCE_BASE_SHA: 6fc2f7944368c65f0cd87dfa68f550faa3461be9
-      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r3
-      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r3
+      SOURCE_BASE_SHA: a731a7303023f4b956d0c7d9666e482fedd3c99e
+      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r4
+      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r4
+      APP_ENV: testing
+      APP_KEY: ${{ secrets.RC2_TEST_APP_KEY }}
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: appart_test
+      DB_USERNAME: appart_test
+      DB_PASSWORD: ${{ secrets.RC2_TEST_PG_PASSWORD }}
       APPART_TEST_PG_DSN: pgsql:host=127.0.0.1;port=5432;dbname=appart_test
       APPART_TEST_PG_USER: appart_test
-      APPART_TEST_PG_PASSWORD: appart_test_ci
+      APPART_TEST_PG_PASSWORD: ${{ secrets.RC2_TEST_PG_PASSWORD }}
       APPART_APPLICATION_PG_DATABASE: appart_rebuild
     steps:
       - name: Checkout immutable build candidate
@@ -75,6 +83,9 @@ jobs:
 
       - name: Frontend production build
         run: npm run build
+
+      - name: Verify Feature environment and database isolation
+        run: php tools/release/check-feature-environment.php
 
       - name: Unit, Feature, Architecture and Foundation gates
         run: |
