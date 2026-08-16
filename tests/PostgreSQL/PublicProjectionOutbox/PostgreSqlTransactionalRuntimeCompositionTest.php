@@ -95,6 +95,24 @@ final class PostgreSqlTransactionalRuntimeCompositionTest extends TestCase
         self::assertSame(0, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
     }
 
+    public function test_aggregate_and_outbox_transaction_joins_an_existing_local_transaction_with_a_savepoint(): void
+    {
+        $this->connection->beginTransaction();
+        try {
+            $this->app->make(PostgreSqlAggregateOutboxTransaction::class)->run(function (): void {
+                $this->app->make(ListingRegistry::class)->add($this->listing());
+                self::assertSame(PublicProjectionOutboxWriteResult::Applied, $this->app->make(PublicProjectionOutboxWriter::class)->append($this->message(), $this->app->make(PublicProjectionOutboxConsumerId::class)));
+            });
+            self::assertSame(1, $this->countRows('listing_lifecycle.listings'));
+            self::assertSame(1, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
+        } finally {
+            $this->connection->rollBack();
+        }
+
+        self::assertSame(0, $this->countRows('listing_lifecycle.listings'));
+        self::assertSame(0, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
+    }
+
     private function listing(): Listing
     {
         return Listing::createDraft(

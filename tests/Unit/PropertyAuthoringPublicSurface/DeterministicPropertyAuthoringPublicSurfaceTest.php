@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\PropertyAuthoringPublicSurface;
 
+use App\Application\PropertyAuthoringGeographySelection\Contract\GeographySelectionReplayValidatorV1;
+use App\Application\PropertyAuthoringSourceCompleteness\DeterministicPropertyAuthoringStateEnricherV1;
 use App\Application\PropertyListingAuthoringHttp\DeterministicPropertyListingAuthoringHttpRuntime;
 use App\Application\PropertyListingAuthoringHttp\PropertyListingAuthoringHttpOperation;
 use App\Application\PropertyListingAuthoringHttp\PropertyListingAuthoringHttpStatus;
@@ -23,7 +25,10 @@ final class DeterministicPropertyAuthoringPublicSurfaceTest extends TestCase
         $runtime = $this->createMock(PropertyListingAuthoringRuntimeV1::class);
         $runtime->method('inspect')->willReturn(new PropertyListingAuthoringRuntimeReport(PropertyListingAuthoringRuntimeStatus::Ready));
         $runtime->method('propertyAuthoring')->willReturn($store);
-        $surface = new DeterministicPropertyListingAuthoringHttpRuntime($runtime);
+        $surface = new DeterministicPropertyListingAuthoringHttpRuntime(
+            $runtime,
+            new DeterministicPropertyAuthoringStateEnricherV1($this->createStub(GeographySelectionReplayValidatorV1::class)),
+        );
 
         $write = $surface->execute(
             PropertyListingAuthoringHttpOperation::InitiateProperty,

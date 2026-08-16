@@ -13,6 +13,7 @@ use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\PostgreSql\Postgr
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\PostgreSql\PostgreSqlListingDraftStore;
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\PostgreSql\PostgreSqlListingOwnershipStore;
 use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringPersistenceWriteResult;
+use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringSourceCompleteness;
 use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringState;
 use Appart\Modules\RealEstateCatalog\Infrastructure\Persistence\PostgreSql\PostgreSqlPropertyAuthoringStore;
 use Appart\Modules\RealEstateCatalog\Infrastructure\Persistence\PropertyAuthoringMapper;
@@ -55,6 +56,52 @@ final class PostgreSqlAuthoringPersistenceTest extends TestCase
         self::assertSame('apartment', $store->read(self::PROPERTY)?->propertyType);
         self::assertSame('Dakar', $store->read(self::PROPERTY)?->city);
         self::assertSame('Almadies', $store->read(self::PROPERTY)?->neighborhood);
+        self::assertNull($store->read(self::PROPERTY)?->geographicPlaceId);
+        self::assertSame(PropertyAuthoringSourceCompleteness::IncompleteForPromotion, $store->read(self::PROPERTY)?->completeness());
+    }
+
+    #[Test]
+    public function enriched_property_snapshot_persists_all_sources_with_locking_and_replay(): void
+    {
+        $store = new PostgreSqlPropertyAuthoringStore($this->connection, new PropertyAuthoringMapper);
+        $state = new PropertyAuthoringState(
+            self::PROPERTY,
+            self::OWNER,
+            1,
+            $this->intent(1),
+            $this->checksum('complete'),
+            'apartment',
+            'Dakar',
+            'Almadies',
+            'REF-099',
+            120,
+            4,
+            2,
+            2020,
+            '56000000-0000-4000-8000-000000000010',
+            '12 avenue Cheikh Anta Diop',
+            '56000000-0000-4000-8000-000000000011',
+        );
+
+        self::assertSame(PropertyAuthoringPersistenceWriteResult::Applied, $store->save($state, 0));
+        self::assertSame(PropertyAuthoringPersistenceWriteResult::AlreadyApplied, $store->save($state, 0));
+        self::assertSame(PropertyAuthoringPersistenceWriteResult::VersionConflict, $store->save(new PropertyAuthoringState(
+            self::PROPERTY,
+            self::OWNER,
+            2,
+            $this->intent(2),
+            $this->checksum('next'),
+        ), 0));
+        $reloaded = $store->read(self::PROPERTY);
+        self::assertSame('REF-099', $reloaded?->propertyReference);
+        self::assertSame(120, $reloaded?->surfaceSquareMeters);
+        self::assertSame(4, $reloaded?->rooms);
+        self::assertSame(2, $reloaded?->bathrooms);
+        self::assertSame(2020, $reloaded?->constructionYear);
+        self::assertSame('56000000-0000-4000-8000-000000000010', $reloaded?->geographicPlaceId);
+        self::assertSame('12 avenue Cheikh Anta Diop', $reloaded?->addressLine);
+        self::assertSame('56000000-0000-4000-8000-000000000011', $reloaded?->addressIntentId);
+        self::assertSame(PropertyAuthoringSourceCompleteness::CompleteForPromotion, $reloaded?->completeness());
     }
 
     #[Test]

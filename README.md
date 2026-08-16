@@ -160,6 +160,12 @@ La campagne PostgreSQL certifiée reste une gate distincte, exécutée avec
 préconditions, commandes et règles de comparaison sont dans
 [`docs/PHASE-5.0B-QUALITY-BASELINE.md`](docs/PHASE-5.0B-QUALITY-BASELINE.md).
 
+La base applicative locale (`appart_rebuild`) et la base des suites
+destructives (`appart_test`) doivent toujours être distinctes. Les suites
+exigent l'identité `APPART_APPLICATION_PG_DATABASE` et refusent tout reset
+lorsque la base courante n'est pas explicitement test-only ou correspond à
+la base applicative.
+
 ## Commandes
 
 ```bash

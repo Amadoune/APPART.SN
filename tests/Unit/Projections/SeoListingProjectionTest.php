@@ -7,6 +7,7 @@ use App\Projections\SeoListingProjectionBuilder;
 use Appart\Modules\ContentSeo\Domain\Model\BreadcrumbItem;
 use Appart\Modules\ContentSeo\Domain\Model\CanonicalHistoryEntry;
 use Appart\Modules\ContentSeo\Domain\Model\ListingSeoDecision;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographyBreadcrumbItemV2;
 use Appart\Modules\ContentSeo\Domain\Model\PublicJsonLd;
 use Appart\Modules\ContentSeo\Domain\Model\StructuredData;
 use Appart\Modules\ContentSeo\Domain\ValueObject\CanonicalDisposition;
@@ -138,6 +139,37 @@ final class SeoListingProjectionTest extends TestCase
         self::assertSame('90000000-0000-4000-8000-000000000001', $projection?->listingId);
         self::assertSame('https://appart.sn/annonces/decision-canonique', $projection?->canonicalUrl);
         self::assertSame($decision->decidedAt, $projection?->decidedAt);
+    }
+
+    public function test_v2_geography_breadcrumb_is_serialized_without_url(): void
+    {
+        $base = $this->decision();
+        $decision = ListingSeoDecision::decide(
+            listingId: $base->listingId,
+            canonical: $base->canonical,
+            canonicalHistory: $base->canonicalHistory,
+            headline: $base->headline,
+            description: $base->description,
+            indexability: $base->indexability,
+            robots: $base->robots,
+            htmlRobotsDirective: $base->htmlRobotsDirective,
+            pageTreatment: $base->pageTreatment,
+            breadcrumb: [new BreadcrumbItem('Appartement moderne a Dakar', $base->canonical)],
+            structuredData: $base->structuredData,
+            publicJsonLd: $base->publicJsonLd,
+            publicMedia: $base->publicMedia,
+            expiredTreatment: $base->expiredTreatment,
+            publishedAt: $base->publishedAt,
+            expiresAt: $base->expiresAt,
+            decidedAt: $base->decidedAt,
+            geographyBreadcrumbV2: [new PublicGeographyBreadcrumbItemV2('city:dakar', 'city', 'Dakar')],
+        );
+
+        $projection = $this->builder->build($decision);
+
+        self::assertSame('public-geography-breadcrumb-v2', $projection?->breadcrumbSchemaVersion);
+        self::assertSame([['placeId' => 'city:dakar', 'type' => 'city', 'label' => 'Dakar']], $projection?->geographyBreadcrumb);
+        self::assertArrayNotHasKey('url', $projection->geographyBreadcrumb[0]);
     }
 
     private function decision(

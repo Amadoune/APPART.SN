@@ -10,8 +10,12 @@ use App\Application\ProjectionRuntimeSource\ProjectionSourceAssemblyStatus;
 use App\Application\PublicGeographyRevision\PublicGeographyRevisionStrategy;
 use App\Application\PublicGeographySource\Contract\PublicGeographyDecisionReader;
 use App\Application\PublicGeographySource\PublicGeographyBreadcrumbItem;
+use App\Application\PublicGeographySource\PublicGeographyBreadcrumbItemV2;
 use App\Application\PublicGeographySource\PublicGeographyDecision;
+use App\Application\PublicGeographySource\PublicGeographyDecisionStatusV2;
+use App\Application\PublicGeographySource\PublicGeographyDecisionV2;
 use App\Application\PublicGeographySource\PublicGeographyReadResult;
+use App\Application\PublicGeographySource\PublicGeographyRevisionVectorItemV2;
 use App\Application\PublicMediaRevision\PublicMediaRevisionStrategy;
 use App\Application\PublicMediaSource\Contract\PublicMediaDecisionReader;
 use App\Application\PublicMediaSource\PublicMediaDecision;
@@ -127,6 +131,37 @@ final class CertifiedPublicListingProjectionSourceTest extends TestCase
         $media = $scenario->source()->inspect(self::LISTING);
         self::assertSame(ProjectionSourceAssemblyStatus::Found, $media->status);
         self::assertSame(PublicProjectionPromotionReadiness::MissingPublicMediaVersion, $media->readiness);
+    }
+
+    public function test_v2_geography_flows_to_the_public_read_model_without_a_geography_url(): void
+    {
+        $scenario = self::scenario();
+        $payload = '{"schemaVersion":"public-geography-place-representation-v2","terminalPlaceId":"place:dakar:plateau","status":"available","locality":"Dakar","breadcrumb":[{"placeId":"country:sn","type":"country","officialName":"Senegal","parentPlaceId":null,"aggregateVersion":1},{"placeId":"city:dakar","type":"city","officialName":"Dakar","parentPlaceId":"country:sn","aggregateVersion":2}],"revisionVector":[{"placeId":"country:sn","aggregateVersion":1},{"placeId":"city:dakar","aggregateVersion":2}]}';
+        $decision = new PublicGeographyDecisionV2(
+            'place:dakar:plateau',
+            PublicGeographyDecisionStatusV2::Available,
+            'Dakar',
+            [
+                new PublicGeographyBreadcrumbItemV2('country:sn', 'country', 'Senegal', null, 1),
+                new PublicGeographyBreadcrumbItemV2('city:dakar', 'city', 'Dakar', 'country:sn', 2),
+            ],
+            [
+                new PublicGeographyRevisionVectorItemV2('country:sn', 1),
+                new PublicGeographyRevisionVectorItemV2('city:dakar', 2),
+            ],
+            (new PublicGeographyRevisionStrategy)->revise(3, $payload, 'geography:v2:source-test'),
+        );
+        $scenario->geography = PublicGeographyReadResult::foundV2('place:dakar:plateau', $decision);
+        $writer = new CapturingProjectionWriter;
+        $updater = new PublicListingProjectionUpdater($scenario->source(), new SearchListingProjectionBuilder, new ListingSeoDecisionPolicy(new CanonicalPolicy, new CanonicalHistoryPolicy), new SeoListingProjectionBuilder, new PublicListingReadModelBuilder, $writer);
+
+        self::assertSame(PublicListingProjectionUpdateOutcome::Applied, $updater->update(self::LISTING)->outcome);
+        self::assertSame('public-geography-breadcrumb-v2', $writer->record?->readModel?->breadcrumbSchemaVersion);
+        self::assertSame([
+            ['placeId' => 'country:sn', 'type' => 'country', 'label' => 'Senegal'],
+            ['placeId' => 'city:dakar', 'type' => 'city', 'label' => 'Dakar'],
+        ], $writer->record?->readModel?->geographyBreadcrumb);
+        self::assertSame('Dakar', $writer->record?->readModel?->city);
     }
 
     public function test_missing_or_corrupted_search_and_content_are_explained(): void

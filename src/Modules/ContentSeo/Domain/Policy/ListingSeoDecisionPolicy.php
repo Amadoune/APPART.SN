@@ -11,6 +11,7 @@ use Appart\Modules\ContentSeo\Domain\Model\ListingSeoDecision;
 use Appart\Modules\ContentSeo\Domain\Model\ListingSeoSource;
 use Appart\Modules\ContentSeo\Domain\Model\PropertySeoSource;
 use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSource;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSourceV2;
 use Appart\Modules\ContentSeo\Domain\Model\PublicJsonLd;
 use Appart\Modules\ContentSeo\Domain\Model\PublicMediaSeoSource;
 use Appart\Modules\ContentSeo\Domain\Model\SearchSeoSource;
@@ -39,7 +40,7 @@ final readonly class ListingSeoDecisionPolicy
         ListingSeoSource $listing,
         SearchSeoSource $search,
         PropertySeoSource $property,
-        ?PublicGeographySeoSource $geography,
+        PublicGeographySeoSource|PublicGeographySeoSourceV2|null $geography,
         ?PublicMediaSeoSource $media,
         array $canonicalHistory,
         DateTimeImmutable $at,
@@ -59,7 +60,9 @@ final readonly class ListingSeoDecisionPolicy
             && $datesAreCoherent;
 
         $breadcrumb = $title !== null && $geography !== null
-            ? [...$geography->breadcrumb, new BreadcrumbItem($listing->headline, $canonical)]
+            ? ($geography instanceof PublicGeographySeoSource
+                ? [...$geography->breadcrumb, new BreadcrumbItem($listing->headline, $canonical)]
+                : [new BreadcrumbItem($listing->headline, $canonical)])
             : [];
         $structuredData = $title !== null && $geography !== null
             ? new StructuredData(StructuredDataType::RealEstateListing, [
@@ -90,6 +93,7 @@ final readonly class ListingSeoDecisionPolicy
             publishedAt: $listing->publishedAt,
             expiresAt: $listing->expiresAt,
             decidedAt: $at,
+            geographyBreadcrumbV2: $geography instanceof PublicGeographySeoSourceV2 ? $geography->breadcrumb : [],
         );
     }
 
@@ -157,7 +161,7 @@ final readonly class ListingSeoDecisionPolicy
         return $this->history->replace($history, $current->canonical, $canonical, $at);
     }
 
-    private function assertSameListing(ListingSeoSource $listing, SearchSeoSource $search, PropertySeoSource $property, ?PublicGeographySeoSource $geography, ?PublicMediaSeoSource $media): void
+    private function assertSameListing(ListingSeoSource $listing, SearchSeoSource $search, PropertySeoSource $property, PublicGeographySeoSource|PublicGeographySeoSourceV2|null $geography, ?PublicMediaSeoSource $media): void
     {
         $expected = $listing->listingId->value;
         if ($search->listingId->value !== $expected || $property->listingId->value !== $expected || ($geography !== null && $geography->listingId->value !== $expected) || ($media !== null && $media->listingId->value !== $expected)) {

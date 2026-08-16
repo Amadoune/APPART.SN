@@ -22,6 +22,7 @@ final readonly class DeterministicPublicAuthoringJourney implements PublicAuthor
             $request->expectedVersion,
             $request->data,
             $request->occurredAt,
+            $request->expectedAuthoringVersion,
         ));
 
         return new PublicAuthoringJourneyResponse(match ($result->status) {

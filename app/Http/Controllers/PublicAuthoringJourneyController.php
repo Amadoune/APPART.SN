@@ -24,7 +24,7 @@ final class PublicAuthoringJourneyController extends Controller
             }
             /** @var array<string, mixed> $input */
             $input = $request->safe()->except([
-                '_intentId', 'propertyId', 'listingId', 'expectedVersion', 'requestedAt',
+                '_intentId', 'propertyId', 'listingId', 'expectedVersion', 'expectedAuthoringVersion', 'requestedAt',
             ]);
             $result = $this->journey->execute(new PublicAuthoringJourneyRequest(
                 $request->operation(),
@@ -35,6 +35,7 @@ final class PublicAuthoringJourneyController extends Controller
                 (int) $request->validated('expectedVersion'),
                 $input,
                 new DateTimeImmutable((string) $request->validated('requestedAt')),
+                $request->validated('expectedAuthoringVersion'),
             ));
 
             return $this->response($result->status, $result->data);

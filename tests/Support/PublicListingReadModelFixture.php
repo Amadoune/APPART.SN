@@ -7,7 +7,8 @@ use DateTimeImmutable;
 
 final class PublicListingReadModelFixture
 {
-    public static function make(bool $indexable = true, ?string $listingId = null, ?string $canonicalUrl = null, ?string $transactionKind = null, ?string $city = null, string $propertyType = 'Appartement'): PublicListingReadModel
+    /** @param list<array{placeId:string,type:string,label:string}> $geographyBreadcrumb */
+    public static function make(bool $indexable = true, ?string $listingId = null, ?string $canonicalUrl = null, ?string $transactionKind = null, ?string $city = null, string $propertyType = 'Appartement', array $geographyBreadcrumb = []): PublicListingReadModel
     {
         $publishedAt = new DateTimeImmutable('2026-07-18T10:01:00+00:00');
         $canonical = $canonicalUrl ?? 'https://appart.sn/annonces/appartement-moderne-dakar';
@@ -51,6 +52,8 @@ final class PublicListingReadModelFixture
             expiredListingTreatment: 'not_applicable',
             transactionKind: $transactionKind,
             city: $city,
+            breadcrumbSchemaVersion: $geographyBreadcrumb === [] ? 'content-seo-breadcrumb-v1' : 'public-geography-breadcrumb-v2',
+            geographyBreadcrumb: $geographyBreadcrumb,
         );
     }
 }

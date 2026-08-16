@@ -73,6 +73,24 @@ final class PublicWebAdapterTest extends TestCase
         $response->assertDontSee('application/ld+json', false);
     }
 
+    public function test_v2_geography_breadcrumb_is_informational_and_has_no_link(): void
+    {
+        $listing = PublicListingReadModelFixture::make(geographyBreadcrumb: [
+            ['placeId' => 'country:sn', 'type' => 'country', 'label' => 'Senegal'],
+            ['placeId' => 'region:dakar', 'type' => 'region', 'label' => 'Dakar Region'],
+            ['placeId' => 'city:dakar', 'type' => 'city', 'label' => 'Dakar'],
+        ]);
+        $this->app->instance(PublicListingQuery::class, new InMemoryPublicListingQuery([$listing]));
+
+        $response = $this->get('/annonces/appartement-moderne-dakar');
+
+        $response->assertOk();
+        $response->assertSee('<span>Senegal</span>', false);
+        $response->assertSee('<span aria-current="location">Dakar</span>', false);
+        $response->assertDontSee('href="/geography/', false);
+        $response->assertDontSee('href="#"', false);
+    }
+
     public function test_listing_id_and_historical_style_paths_are_not_route_fallbacks(): void
     {
         $listing = PublicListingReadModelFixture::make();

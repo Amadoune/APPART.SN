@@ -2,11 +2,17 @@
 
 namespace Tests\PostgreSQL\PublicGeographySource;
 
+use App\Application\PublicGeographyRefresh\AffectedPublicGeographyTerminalStatus;
 use App\Application\PublicGeographyRevision\PublicGeographyRevisionStrategy;
 use App\Application\PublicGeographySource\PublicGeographyBreadcrumbItem;
+use App\Application\PublicGeographySource\PublicGeographyBreadcrumbItemV2;
 use App\Application\PublicGeographySource\PublicGeographyDecision;
+use App\Application\PublicGeographySource\PublicGeographyDecisionStatusV2;
+use App\Application\PublicGeographySource\PublicGeographyDecisionV2;
 use App\Application\PublicGeographySource\PublicGeographyReadStatus;
+use App\Application\PublicGeographySource\PublicGeographyRevisionVectorItemV2;
 use App\Application\PublicGeographySource\PublicGeographyWriteResult;
+use App\Infrastructure\PublicGeographySource\PostgreSql\PostgreSqlAffectedPublicGeographyTerminalReader;
 use App\Infrastructure\PublicGeographySource\PostgreSql\PostgreSqlPublicGeographyMapper;
 use App\Infrastructure\PublicGeographySource\PostgreSql\PostgreSqlPublicGeographyReader;
 use App\Infrastructure\PublicGeographySource\PostgreSql\PostgreSqlPublicGeographyWriter;
@@ -65,6 +71,22 @@ final class PostgreSqlPublicGeographySourceTest extends TestCase
         self::assertSame(PublicGeographyReadStatus::Missing, $this->reader()->read($d->placeId)->status);
     }
 
+    public function test_v2_write_read_replay_and_affected_terminal_lookup(): void
+    {
+        $decision = $this->decisionV2();
+        self::assertSame(PublicGeographyWriteResult::Applied, $this->writer()->store($decision));
+        self::assertSame(PublicGeographyWriteResult::AlreadyApplied, $this->writer()->store($decision));
+
+        $read = $this->reader()->read($decision->terminalPlaceId);
+        self::assertSame(PublicGeographyReadStatus::Found, $read->status);
+        self::assertEquals($decision, $read->decision);
+        self::assertSame(3, $read->decision?->revision->watermarkVersion());
+
+        $affected = (new PostgreSqlAffectedPublicGeographyTerminalReader($this->connection))->read('c3120000-0000-4000-8000-000000000001', null, 10);
+        self::assertSame(AffectedPublicGeographyTerminalStatus::Available, $affected->status);
+        self::assertSame([$decision->terminalPlaceId], $affected->terminalPlaceIds);
+    }
+
     public function test_concurrent_identical_writes_converge_without_double_effect(): void
     {
         $barrier = sys_get_temp_dir().DIRECTORY_SEPARATOR.'appart-public-geography-'.bin2hex(random_bytes(8));
@@ -105,6 +127,19 @@ final class PostgreSqlPublicGeographySourceTest extends TestCase
         $payload = json_encode(['locality' => $locality, 'breadcrumb' => array_map(static fn ($i) => ['label' => $i->label, 'url' => $i->url], $items)], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
 
         return new PublicGeographyDecision('place:dakar', (new PublicGeographyRevisionStrategy)->revise($version, $payload, 'place:'.$version.':published'), $locality, $items);
+    }
+
+    private function decisionV2(): PublicGeographyDecisionV2
+    {
+        $breadcrumb = [
+            new PublicGeographyBreadcrumbItemV2('c3120000-0000-4000-8000-000000000001', 'country', 'Senegal', null, 1),
+            new PublicGeographyBreadcrumbItemV2('c3120000-0000-4000-8000-000000000002', 'region', 'Dakar Region', 'c3120000-0000-4000-8000-000000000001', 1),
+            new PublicGeographyBreadcrumbItemV2('c3120000-0000-4000-8000-000000000003', 'city', 'Dakar', 'c3120000-0000-4000-8000-000000000002', 1),
+        ];
+        $vector = array_map(static fn (PublicGeographyBreadcrumbItemV2 $item): PublicGeographyRevisionVectorItemV2 => new PublicGeographyRevisionVectorItemV2($item->placeId, $item->aggregateVersion), $breadcrumb);
+        $payload = '{"schemaVersion":"public-geography-place-representation-v2","terminalPlaceId":"c3120000-0000-4000-8000-000000000003","status":"available","locality":"Dakar","breadcrumb":[{"placeId":"c3120000-0000-4000-8000-000000000001","type":"country","officialName":"Senegal","parentPlaceId":null,"aggregateVersion":1},{"placeId":"c3120000-0000-4000-8000-000000000002","type":"region","officialName":"Dakar Region","parentPlaceId":"c3120000-0000-4000-8000-000000000001","aggregateVersion":1},{"placeId":"c3120000-0000-4000-8000-000000000003","type":"city","officialName":"Dakar","parentPlaceId":"c3120000-0000-4000-8000-000000000002","aggregateVersion":1}],"revisionVector":[{"placeId":"c3120000-0000-4000-8000-000000000001","aggregateVersion":1},{"placeId":"c3120000-0000-4000-8000-000000000002","aggregateVersion":1},{"placeId":"c3120000-0000-4000-8000-000000000003","aggregateVersion":1}]}';
+
+        return new PublicGeographyDecisionV2('c3120000-0000-4000-8000-000000000003', PublicGeographyDecisionStatusV2::Available, 'Dakar', $breadcrumb, $vector, (new PublicGeographyRevisionStrategy)->revise(3, $payload, 'listing:rc2:public-geography-v2'));
     }
 
     private function reader(): PostgreSqlPublicGeographyReader

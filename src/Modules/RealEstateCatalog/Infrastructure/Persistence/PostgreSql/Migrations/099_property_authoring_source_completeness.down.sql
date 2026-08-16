@@ -1,0 +1,15 @@
+ALTER TABLE real_estate_catalog_authoring.property_authoring
+    DROP CONSTRAINT IF EXISTS property_authoring_reference_chk,
+    DROP CONSTRAINT IF EXISTS property_authoring_surface_chk,
+    DROP CONSTRAINT IF EXISTS property_authoring_rooms_chk,
+    DROP CONSTRAINT IF EXISTS property_authoring_bathrooms_chk,
+    DROP CONSTRAINT IF EXISTS property_authoring_construction_year_chk,
+    DROP CONSTRAINT IF EXISTS property_authoring_address_line_chk,
+    DROP COLUMN IF EXISTS property_reference,
+    DROP COLUMN IF EXISTS surface_square_meters,
+    DROP COLUMN IF EXISTS rooms,
+    DROP COLUMN IF EXISTS bathrooms,
+    DROP COLUMN IF EXISTS construction_year,
+    DROP COLUMN IF EXISTS geographic_place_id,
+    DROP COLUMN IF EXISTS address_line,
+    DROP COLUMN IF EXISTS address_intent_id;

@@ -27,8 +27,11 @@ final class MediaAuthoringPublicSurfaceArchitectureTest extends TestCase
         $routes = (string) file_get_contents($root.'/routes/web.php');
         self::assertSame(1, substr_count($routes, "Route::prefix('/api/authoring/properties/{propertyId}/media')"));
         $request = (string) file_get_contents($root.'/app/Http/Requests/MediaAuthoringHttpRequest.php');
+        $controller = (string) file_get_contents($root.'/app/Http/Controllers/MediaAuthoringHttpController.php');
         self::assertStringNotContainsString("'owner", $request);
         self::assertStringContainsString("'image'", $request);
         self::assertStringContainsString("'replacementMediaId'", $request);
+        self::assertStringContainsString('$image->getPathname()', $controller);
+        self::assertStringNotContainsString('$image->getRealPath()', $controller);
     }
 }

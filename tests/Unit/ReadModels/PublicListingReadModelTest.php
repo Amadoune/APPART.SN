@@ -123,6 +123,23 @@ final class PublicListingReadModelTest extends TestCase
         $this->builder->build($this->search(), $this->seo(indexability: 'indexable', robots: 'noindex_follow'));
     }
 
+    public function test_v2_geography_is_copied_and_city_is_selected_by_type(): void
+    {
+        $seo = $this->seo(
+            breadcrumbSchemaVersion: 'public-geography-breadcrumb-v2',
+            geographyBreadcrumb: [
+                ['placeId' => 'country:sn', 'type' => 'country', 'label' => 'Senegal'],
+                ['placeId' => 'city:dakar', 'type' => 'city', 'label' => 'Dakar'],
+            ],
+        );
+
+        $model = $this->builder->build($this->search(), $seo);
+
+        self::assertSame('public-geography-breadcrumb-v2', $model?->breadcrumbSchemaVersion);
+        self::assertSame($seo->geographyBreadcrumb, $model?->geographyBreadcrumb);
+        self::assertSame('Dakar', $model?->city);
+    }
+
     private function search(): SearchListingProjection
     {
         return new SearchListingProjection(
@@ -148,6 +165,8 @@ final class PublicListingReadModelTest extends TestCase
         ?string $publicJsonLd = '{"@context":"https://schema.org","@type":"RealEstateListing","name":"Appartement moderne a Dakar | APPART.SN","url":"https://appart.sn/annonces/appartement-moderne-dakar","category":"Appartement","addressLocality":"Dakar","image":"https://media.appart.sn/listings/primary.webp"}',
         ?DateTimeImmutable $publishedAt = null,
         ?DateTimeImmutable $expiresAt = null,
+        string $breadcrumbSchemaVersion = 'content-seo-breadcrumb-v1',
+        array $geographyBreadcrumb = [],
     ): SeoListingProjection {
         return new SeoListingProjection(
             listingId: $listingId ?? $this->listingId(),
@@ -183,6 +202,8 @@ final class PublicListingReadModelTest extends TestCase
             expiresAt: $expiresAt ?? $this->at(120),
             decidedAt: $this->at(2),
             expiredListingTreatment: 'not_applicable',
+            breadcrumbSchemaVersion: $breadcrumbSchemaVersion,
+            geographyBreadcrumb: $geographyBreadcrumb,
         );
     }
 

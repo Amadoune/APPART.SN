@@ -23,15 +23,18 @@ final class PropertyListingAuthoringOperationsArchitectureTest extends TestCase
         }
     }
 
-    public function test_handoff_uses_create_listing_v1_and_publication_orchestrator_contracts(): void
+    public function test_handoff_uses_create_listing_v1_and_event_publication_orchestrator_contracts(): void
     {
         $source = (string) file_get_contents(
             dirname(__DIR__, 2).'/app/Application/PropertyListingAuthoringOperations/DeterministicPropertyListingAuthoringOperations.php',
         );
 
         self::assertStringContainsString('CreateListingDraftV1', $source);
-        self::assertStringContainsString('ListingPublicationOrchestrator', $source);
+        self::assertStringContainsString('ListingPublicationEventOrchestrator', $source);
+        self::assertStringContainsString('ListingPublicationEventMetadata', $source);
         self::assertStringContainsString('ListingPublicationAction::Submit', $source);
+        self::assertStringContainsString('throw new AuthoringOperationRollback', $source);
+        self::assertStringContainsString('private function committable', $source);
         self::assertStringNotContainsString('ListingPublicationWorkflowStore', $source);
         self::assertStringNotContainsString('PostgreSqlListingPublication', $source);
     }
@@ -43,7 +46,8 @@ final class PropertyListingAuthoringOperationsArchitectureTest extends TestCase
         $requirements = (string) file_get_contents($root.'/app/Application/RuntimeHealth/PublicProjectionRuntimeRequirements.php');
 
         self::assertStringContainsString('PropertyListingAuthoringOperations::class', $provider);
-        foreach (['Controller', 'Route', 'Middleware', 'Event', 'Delivery', 'Outbox', 'RuntimeHealth'] as $forbidden) {
+        self::assertStringContainsString('ListingPublicationEventOrchestrator::class', $provider);
+        foreach (['Controller', 'Route', 'Middleware', 'Delivery', 'Outbox', 'RuntimeHealth'] as $forbidden) {
             self::assertStringNotContainsString($forbidden, $provider);
         }
         self::assertSame(60, substr_count($requirements, 'new RuntimeHealthRequirement('));

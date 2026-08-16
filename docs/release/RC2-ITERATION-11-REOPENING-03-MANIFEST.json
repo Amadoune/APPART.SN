@@ -1,0 +1,47 @@
+{
+  "campaignId": "9fcb7575-8c54-4b75-8fae-9ad26d3761ba",
+  "scope": "RC2 Iteration 11 Reopening 03",
+  "searchOpened": false,
+  "steps": [
+    {
+      "campaignId": "9fcb7575-8c54-4b75-8fae-9ad26d3761ba",
+      "step": "system_chrome_tls_preflight",
+      "timestamp": "2026-08-15T00:08:02.2740793Z",
+      "browserProfile": "RC2-OWNER-REOPENING03",
+      "url": "https://appart.test/",
+      "httpMethod": "GET",
+      "httpStatus": null,
+      "actorAccountId": null,
+      "propertyId": null,
+      "listingId": null,
+      "queueItemId": null,
+      "commandId": null,
+      "occurredAt": null,
+      "expectedVersion": null,
+      "resultVersion": null,
+      "applicationResult": "PASS_OPERATOR_ATTESTED_NO_TLS_INTERSTITIAL",
+      "postgresqlCheckpoint": null,
+      "evidenceReference": "operator confirmation in RC2 Reopening 03 instruction"
+    },
+    {
+      "campaignId": "9fcb7575-8c54-4b75-8fae-9ad26d3761ba",
+      "step": "owner_login_manual_interaction",
+      "timestamp": "2026-08-15T00:08:02.2740793Z",
+      "browserProfile": "RC2-OWNER-REOPENING03",
+      "url": "https://appart.test/connexion?next=%2Fauthoring%2Fworkspace",
+      "httpMethod": null,
+      "httpStatus": null,
+      "actorAccountId": "4e992d1a-8a7a-48f9-8677-f4562f72a228",
+      "propertyId": null,
+      "listingId": null,
+      "queueItemId": null,
+      "commandId": null,
+      "occurredAt": null,
+      "expectedVersion": null,
+      "resultVersion": null,
+      "applicationResult": "FAIL_FAST_MANUAL_INTERACTION_SURFACE_UNAVAILABLE_TO_EXECUTION_AGENT",
+      "postgresqlCheckpoint": null,
+      "evidenceReference": "automation prohibited; no permitted manual input/observation channel exposed"
+    }
+  ]
+}

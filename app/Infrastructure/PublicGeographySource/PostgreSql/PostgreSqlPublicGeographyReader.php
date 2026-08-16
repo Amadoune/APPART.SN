@@ -5,6 +5,7 @@ namespace App\Infrastructure\PublicGeographySource\PostgreSql;
 use App\Application\PublicGeographyRevision\Contract\PublicGeographyRevisionReader;
 use App\Application\PublicGeographyRevision\PublicGeographyRevision;
 use App\Application\PublicGeographySource\Contract\PublicGeographyDecisionReader;
+use App\Application\PublicGeographySource\PublicGeographyDecisionV2;
 use App\Application\PublicGeographySource\PublicGeographyReadResult;
 use App\Application\PublicGeographySource\PublicGeographyReadStatus;
 use PDO;
@@ -21,7 +22,11 @@ final readonly class PostgreSqlPublicGeographyReader implements PublicGeographyD
         if ($row === false) {
             return PublicGeographyReadResult::missing($placeId);
         } try {
-            return PublicGeographyReadResult::found($placeId, $this->mapper->toDecision($row));
+            $decision = $this->mapper->toDecision($row);
+
+            return $decision instanceof PublicGeographyDecisionV2
+                ? PublicGeographyReadResult::foundV2($placeId, $decision)
+                : PublicGeographyReadResult::found($placeId, $decision);
         } catch (\Throwable) {
             return PublicGeographyReadResult::corrupted($placeId);
         }

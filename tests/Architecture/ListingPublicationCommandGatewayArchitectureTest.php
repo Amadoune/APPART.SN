@@ -29,4 +29,20 @@ final class ListingPublicationCommandGatewayArchitectureTest extends TestCase
             self::assertStringNotContainsString($forbidden, $gateway);
         }
     }
+
+    public function test_begin_review_uses_the_owner_scoped_authoring_property_catalog(): void
+    {
+        $provider = (string) file_get_contents(dirname(__DIR__, 2).'/app/Providers/ListingPublicationCommandGatewayServiceProvider.php');
+
+        self::assertStringContainsString('needs(SendToReview::class)', $provider);
+        self::assertStringContainsString('PropertyAuthoringCatalogAdapter::class', $provider);
+    }
+
+    public function test_approve_uses_the_owner_scoped_authoring_property_catalog(): void
+    {
+        $provider = (string) file_get_contents(dirname(__DIR__, 2).'/app/Providers/ListingPublicationCommandGatewayServiceProvider.php');
+
+        self::assertStringContainsString('needs(PublishListing::class)', $provider);
+        self::assertSame(2, substr_count($provider, 'PropertyAuthoringCatalogAdapter::class'));
+    }
 }

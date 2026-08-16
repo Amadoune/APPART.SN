@@ -7,7 +7,9 @@ use Appart\Modules\ContentSeo\Domain\Model\BreadcrumbItem;
 use Appart\Modules\ContentSeo\Domain\Model\CanonicalHistoryEntry;
 use Appart\Modules\ContentSeo\Domain\Model\ListingSeoDecision;
 use Appart\Modules\ContentSeo\Domain\Model\ListingSeoSource;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographyBreadcrumbItemV2;
 use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSource;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSourceV2;
 use Appart\Modules\ContentSeo\Domain\Model\PublicMediaSeoSource;
 use Appart\Modules\ContentSeo\Domain\Policy\CanonicalHistoryPolicy;
 use Appart\Modules\ContentSeo\Domain\Policy\CanonicalPolicy;
@@ -110,6 +112,20 @@ final class ListingSeoDecisionPolicyTest extends ContentSeoTestCase
         self::assertNull($decision->publicMedia);
     }
 
+    public function test_v2_geography_preserves_canonical_and_indexability_without_geography_url(): void
+    {
+        $decision = $this->decision(geographyV2: true);
+
+        self::assertSame(SeoIndexability::Indexable, $decision->indexability);
+        self::assertSame('https://appart.sn/annonces/appartement-moderne-dakar', $decision->canonical->value);
+        self::assertCount(1, $decision->breadcrumb);
+        self::assertSame('Dakar', $decision->structuredData?->facts['addressLocality']);
+        self::assertEquals([
+            new PublicGeographyBreadcrumbItemV2('country:sn', 'country', 'Senegal'),
+            new PublicGeographyBreadcrumbItemV2('city:dakar', 'city', 'Dakar'),
+        ], $decision->geographyBreadcrumbV2);
+    }
+
     public function test_expired_listing_is_noindex_and_uses_only_the_explicit_retention_directive(): void
     {
         $removed = $this->decision(state: ListingSeoState::Expired, expiredTreatment: ExpiredListingTreatment::Remove);
@@ -167,6 +183,7 @@ final class ListingSeoDecisionPolicyTest extends ContentSeoTestCase
         int $atMinute = 2,
         ExpiredListingTreatment $expiredTreatment = ExpiredListingTreatment::NotApplicable,
         SeoPageTreatment $nonIndexablePageTreatment = SeoPageTreatment::Remove,
+        bool $geographyV2 = false,
     ): ListingSeoDecision {
         [, $search, $property] = $this->sources(1, $state);
         $listing = new ListingSeoSource(
@@ -186,7 +203,7 @@ final class ListingSeoDecisionPolicyTest extends ContentSeoTestCase
             $listing,
             $search,
             $property,
-            $geography ? $this->geography() : null,
+            $geography ? ($geographyV2 ? $this->geographyV2() : $this->geography()) : null,
             $media ? new PublicMediaSeoSource($this->listingId(), PublicMediaUrl::fromString('https://media.appart.sn/listings/primary.webp')) : null,
             $history,
             $this->at($atMinute),
@@ -198,6 +215,14 @@ final class ListingSeoDecisionPolicyTest extends ContentSeoTestCase
         return new PublicGeographySeoSource($this->listingId(), 'Dakar', [
             new BreadcrumbItem('Accueil', CanonicalUrl::fromString('https://appart.sn/accueil')),
             new BreadcrumbItem('Dakar', CanonicalUrl::fromString('https://appart.sn/dakar')),
+        ]);
+    }
+
+    private function geographyV2(): PublicGeographySeoSourceV2
+    {
+        return new PublicGeographySeoSourceV2($this->listingId(), 'Dakar', [
+            new PublicGeographyBreadcrumbItemV2('country:sn', 'country', 'Senegal'),
+            new PublicGeographyBreadcrumbItemV2('city:dakar', 'city', 'Dakar'),
         ]);
     }
 }

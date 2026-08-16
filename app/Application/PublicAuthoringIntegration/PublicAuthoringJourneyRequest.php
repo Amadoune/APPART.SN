@@ -16,5 +16,6 @@ final readonly class PublicAuthoringJourneyRequest
         public int $expectedVersion,
         public array $data,
         public DateTimeImmutable $occurredAt,
+        public ?int $expectedAuthoringVersion = null,
     ) {}
 }

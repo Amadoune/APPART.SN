@@ -8,12 +8,18 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="authoring-experience">
+@if (is_array($resumeSnapshot ?? null))
+    <script id="authoring-resume-bootstrap" type="application/json">{!! json_encode($resumeSnapshot, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+@endif
 <header class="authoring-header">
     <a class="brand" href="{{ route('home') }}" aria-label="APPART.SN — Accueil"><span class="brand__mark" aria-hidden="true">A</span><span>APPART<span class="brand__dot">.</span>SN</span></a>
     <button class="shell-button shell-button--quiet" type="button" data-iam-logout>Se déconnecter</button>
 </header>
 
 <main class="authoring-shell" data-listing-wizard>
+    @if (is_string($resumeError ?? null))
+        <p class="authoring-status" data-state="error" role="alert">Ce brouillon ne peut pas être repris dans son état actuel.</p>
+    @endif
     <div class="authoring-progress" aria-label="Progression de création">
         <p><span data-step-current>1</span> sur 7</p>
         <div class="authoring-progress__track"><span data-step-progress></span></div>
@@ -38,13 +44,31 @@
                     <label class="authoring-choice"><input type="radio" name="propertyType" value="{{ $value }}" required><strong>{{ $label }}</strong></label>
                 @endforeach
             </div>
+            <div class="authoring-fields">
+                <label>Référence du bien<input name="propertyReference" type="text" minlength="4" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9._/-]{3,63}" required placeholder="APPART-ALM-001"></label>
+                <div class="authoring-fields__row">
+                    <label>Surface en m²<input name="surfaceSquareMeters" type="number" min="1" max="10000000" required inputmode="numeric"></label>
+                    <label>Pièces<input name="rooms" type="number" min="0" max="1000" required inputmode="numeric"></label>
+                    <label>Salles de bain<input name="bathrooms" type="number" min="0" max="1000" required inputmode="numeric"></label>
+                </div>
+                <label>Année de construction <span>(facultatif)</span><input name="constructionYear" type="number" min="1800" max="9999" inputmode="numeric"></label>
+            </div>
         </section>
 
         <section data-wizard-step="3" class="authoring-step" hidden>
             <p class="shell-kicker">Localisation</p><h1>Où se trouve le bien ?</h1><p>Ces informations permettent de situer clairement l’annonce.</p>
-            <div class="authoring-fields">
-                <label>Ville<input name="city" type="text" minlength="2" maxlength="120" autocomplete="address-level2" required placeholder="Dakar"></label>
-                <label>Quartier<input name="neighborhood" type="text" minlength="2" maxlength="120" autocomplete="address-level3" required placeholder="Almadies"></label>
+            <div class="authoring-fields" data-geography-selection data-endpoint="{{ route('property-authoring.geography-selections') }}">
+                <div data-geography-levels aria-live="polite"></div>
+                <p data-geography-status role="status">Chargement du référentiel géographique…</p>
+                <p data-geography-choice hidden>Localisation sélectionnée : <strong data-geography-choice-label></strong></p>
+                <input name="geographicPlaceId" type="hidden" required>
+                <input name="geographicPlaceType" type="hidden">
+                <input name="geographicParentPlaceId" type="hidden">
+                <input name="geographicSelectionCursor" type="hidden">
+                <input name="geographicSelectionLimit" type="hidden" value="50">
+                <input name="city" type="hidden" data-legacy-city>
+                <input name="neighborhood" type="hidden" data-legacy-neighborhood>
+                <label>Adresse du bien<input name="addressLine" type="text" minlength="3" maxlength="255" required autocomplete="street-address" placeholder="12 avenue Cheikh Anta Diop"></label>
             </div>
         </section>
 

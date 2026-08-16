@@ -7,6 +7,7 @@ use Appart\Modules\ContentSeo\Domain\Model\CanonicalHistoryEntry;
 use Appart\Modules\ContentSeo\Domain\Model\ListingSeoSource;
 use Appart\Modules\ContentSeo\Domain\Model\PropertySeoSource;
 use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSource;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSourceV2;
 use Appart\Modules\ContentSeo\Domain\Model\PublicMediaSeoSource;
 use Appart\Modules\ContentSeo\Domain\Model\SearchSeoSource;
 use Appart\Modules\ListingLifecycle\Domain\Model\Listing;
@@ -25,7 +26,7 @@ final readonly class PublicListingProjectionSources
         public ListingSeoSource $listingSeo,
         public SearchSeoSource $searchSeo,
         public PropertySeoSource $propertySeo,
-        public ?PublicGeographySeoSource $publicGeographySeo,
+        public PublicGeographySeoSource|PublicGeographySeoSourceV2|null $publicGeographySeo,
         public ?PublicMediaSeoSource $publicMediaSeo,
         public array $canonicalHistory,
         public DateTimeImmutable $decisionAt,

@@ -2,6 +2,10 @@
 
 namespace App\Application\PropertyListingAuthoringOperations;
 
+use App\Application\ListingPublicationEventIntegration\Contract\ListingPublicationEventOrchestrator;
+use App\Application\ListingPublicationEventIntegration\ListingPublicationEventOrchestrationRequest;
+use App\Application\PropertyAuthoringSourceCompleteness\Contract\PropertyAuthoringStateEnricherV1;
+use App\Application\PropertyAuthoringSourceCompleteness\PropertyAuthoringEnrichmentStatus;
 use App\Application\PropertyListingAuthoringOperations\Contract\PropertyListingAuthoringOperations;
 use App\Application\PropertyListingAuthoringRuntime\Contract\PropertyListingAuthoringRuntimeV1;
 use App\Application\PropertyListingAuthoringRuntime\PropertyListingAuthoringRuntimeStatus;
@@ -13,7 +17,8 @@ use Appart\Modules\ListingLifecycle\Application\Creation\Contract\CreateListingD
 use Appart\Modules\ListingLifecycle\Application\Creation\Contract\ListingCreationTransaction;
 use Appart\Modules\ListingLifecycle\Application\Creation\CreateListingDraftCommandV1;
 use Appart\Modules\ListingLifecycle\Application\Creation\CreateListingDraftStatusV1;
-use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Contract\ListingPublicationOrchestrator;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\ListingPublicationEventInstant;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\ListingPublicationEventMetadata;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationAction;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationRequest;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationOrchestrationResult;
@@ -22,9 +27,19 @@ use Appart\Modules\ListingLifecycle\Application\PublicFacts\AuthoringPublicFactS
 use Appart\Modules\ListingLifecycle\Application\PublicFacts\Contract\AuthoringPublicFactHandoffV1;
 use Appart\Modules\ListingLifecycle\Application\PublicFacts\PublicFactHandoffResult;
 use Appart\Modules\ListingLifecycle\Application\PublicFacts\PublicTransactionKind;
+use Appart\Modules\ListingLifecycle\Application\RevisionAuthority\Contract\ListingRevisionAllocatorV1;
+use Appart\Modules\ListingLifecycle\Application\RevisionAuthority\ListingRevisionIntentId;
+use Appart\Modules\ListingLifecycle\Application\RevisionAuthority\ListingRevisionOperation;
+use Appart\Modules\ListingLifecycle\Application\UseCase\SubmitListing;
+use Appart\Modules\ListingLifecycle\Domain\Model\TransitionEvidence;
+use Appart\Modules\ListingLifecycle\Domain\ValueObject\ActorId;
 use Appart\Modules\ListingLifecycle\Domain\ValueObject\ListingId;
+use Appart\Modules\ListingLifecycle\Domain\ValueObject\TransitionOrigin;
+use Appart\Modules\ListingLifecycle\Domain\ValueObject\TransitionTrigger;
 use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringPersistenceWriteResult;
-use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringState;
+use Appart\Modules\RealEstateCatalog\Application\Promotion\Contract\PromoteAuthoredPropertyV1;
+use Appart\Modules\RealEstateCatalog\Application\Promotion\PromoteAuthoredPropertyCommand;
+use Appart\Modules\RealEstateCatalog\Application\Promotion\PromoteAuthoredPropertyStatus;
 use Throwable;
 
 final readonly class DeterministicPropertyListingAuthoringOperations implements PropertyListingAuthoringOperations
@@ -33,8 +48,12 @@ final readonly class DeterministicPropertyListingAuthoringOperations implements 
         private PropertyListingAuthoringRuntimeV1 $runtime,
         private CreateListingDraftV1 $createListing,
         private ListingCreationTransaction $listingTransaction,
-        private ListingPublicationOrchestrator $publication,
+        private ListingPublicationEventOrchestrator $publication,
+        private PropertyAuthoringStateEnricherV1 $propertyEnricher,
         private ?AuthoringPublicFactHandoffV1 $publicFacts = null,
+        private ?SubmitListing $submitListing = null,
+        private ?ListingRevisionAllocatorV1 $revisions = null,
+        private ?PromoteAuthoredPropertyV1 $promoteProperty = null,
     ) {}
 
     public function execute(AuthoringOperationCommand $command): AuthoringOperationResult
@@ -65,16 +84,20 @@ final readonly class DeterministicPropertyListingAuthoringOperations implements 
         }
         $store = $this->runtime->propertyAuthoring();
         $current = $store->read($command->propertyId);
-        $result = $store->save(new PropertyAuthoringState(
+        $enriched = $this->propertyEnricher->enrich(
             $command->propertyId,
             $command->actorAccountId,
             $command->expectedVersion + 1,
             $command->intentId,
-            $command->checksum(),
-            isset($command->data['propertyType']) ? (string) $command->data['propertyType'] : $current?->propertyType,
-            isset($command->data['city']) ? (string) $command->data['city'] : $current?->city,
-            isset($command->data['neighborhood']) ? (string) $command->data['neighborhood'] : $current?->neighborhood,
-        ), $command->expectedVersion);
+            $current,
+            $command->data,
+        );
+        if ($enriched->status !== PropertyAuthoringEnrichmentStatus::Validated || $enriched->state === null) {
+            return new AuthoringOperationResult($enriched->status === PropertyAuthoringEnrichmentStatus::DependencyUnavailable
+                ? AuthoringOperationStatus::DependencyUnavailable
+                : AuthoringOperationStatus::Invalid);
+        }
+        $result = $store->save($enriched->state, $command->expectedVersion);
 
         return match ($result) {
             PropertyAuthoringPersistenceWriteResult::Applied => $this->success(AuthoringOperationStatus::Applied, $command->expectedVersion + 1),
@@ -239,29 +262,78 @@ final readonly class DeterministicPropertyListingAuthoringOperations implements 
         if ($this->completenessCode($draft) !== 'COMPLETE') {
             return new AuthoringOperationResult(AuthoringOperationStatus::Incomplete);
         }
-        $handoff = $this->listingTransaction->run(function () use ($command, $draft): ListingPublicationOrchestrationResult {
-            if ($this->publicFacts !== null) {
-                $prepared = $this->publicFacts->prepare(new AuthoringPublicFactSnapshot(
-                    $draft->listingId,
-                    $draft->version,
-                    PublicTransactionKind::from($draft->transactionKind),
-                    $command->intentId,
-                    $command->checksum(),
-                    $command->occurredAt,
+        if ($this->promoteProperty === null || $command->expectedAuthoringVersion === null) {
+            return new AuthoringOperationResult(AuthoringOperationStatus::DependencyUnavailable);
+        }
+        $promotion = $this->promoteProperty->promote(new PromoteAuthoredPropertyCommand(
+            $draft->propertyId,
+            $command->actorAccountId,
+            $command->expectedAuthoringVersion,
+            $command->intentId,
+            $command->occurredAt,
+        ));
+        if (! in_array($promotion->status, [PromoteAuthoredPropertyStatus::Applied, PromoteAuthoredPropertyStatus::AlreadyApplied], true)) {
+            return new AuthoringOperationResult(match ($promotion->status) {
+                PromoteAuthoredPropertyStatus::AuthoringMissing,
+                PromoteAuthoredPropertyStatus::OwnershipMismatch => AuthoringOperationStatus::NotFoundOrForbidden,
+                PromoteAuthoredPropertyStatus::IncompleteAuthoring => AuthoringOperationStatus::Incomplete,
+                PromoteAuthoredPropertyStatus::VersionConflict => AuthoringOperationStatus::ConcurrentModification,
+                PromoteAuthoredPropertyStatus::DivergentCommand => AuthoringOperationStatus::DivergentIntent,
+                PromoteAuthoredPropertyStatus::DomainRejected => AuthoringOperationStatus::LifecycleConflict,
+                PromoteAuthoredPropertyStatus::DependencyUnavailable => AuthoringOperationStatus::DependencyUnavailable,
+            });
+        }
+        $handoff = null;
+        try {
+            $this->listingTransaction->run(function () use ($command, $draft, &$handoff): void {
+                if ($this->publicFacts !== null) {
+                    $prepared = $this->publicFacts->prepare(new AuthoringPublicFactSnapshot(
+                        $draft->listingId,
+                        $draft->version,
+                        PublicTransactionKind::from($draft->transactionKind),
+                        $command->intentId,
+                        $command->checksum(),
+                        $command->occurredAt,
+                    ));
+                    if (! in_array($prepared, [PublicFactHandoffResult::Applied, PublicFactHandoffResult::AlreadyApplied], true)) {
+                        throw new AuthoringOperationRollback;
+                    }
+                }
+
+                $listingId = ListingId::fromString($command->listingId);
+                if ($this->submitListing !== null && $this->revisions !== null) {
+                    $revision = $this->revisions->allocate($listingId, ListingRevisionOperation::Submit, ListingRevisionIntentId::fromString($command->intentId));
+                    $this->submitListing->execute($listingId, $revision, new TransitionEvidence(
+                        ActorId::fromString($command->actorAccountId),
+                        TransitionTrigger::SubmissionConfirmed,
+                        null,
+                        TransitionOrigin::Advertiser,
+                        $command->occurredAt,
+                    ));
+                }
+
+                $instant = ListingPublicationEventInstant::fromCanonicalUtc(
+                    $command->occurredAt->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.u\Z'),
+                );
+
+                $handoff = $this->publication->transition(new ListingPublicationEventOrchestrationRequest(
+                    new ListingPublicationOrchestrationRequest($listingId, ListingPublicationAction::Submit, $command->expectedVersion),
+                    new ListingPublicationEventMetadata($instant, $instant),
                 ));
-                if (! in_array($prepared, [PublicFactHandoffResult::Applied, PublicFactHandoffResult::AlreadyApplied], true)) {
+                if (! $this->committable($handoff)) {
                     throw new AuthoringOperationRollback;
                 }
+            });
+        } catch (AuthoringOperationRollback $rollback) {
+            if (! $handoff instanceof ListingPublicationOrchestrationResult) {
+                throw $rollback;
             }
-
-            return $this->publication->transition(new ListingPublicationOrchestrationRequest(
-                ListingId::fromString($command->listingId),
-                ListingPublicationAction::Submit,
-                $command->expectedVersion,
-            ));
-        });
+        }
         if (! $handoff instanceof ListingPublicationOrchestrationResult) {
             throw new AuthoringOperationRollback;
+        }
+        if (in_array($handoff->status, [ListingPublicationOrchestrationStatus::Applied, ListingPublicationOrchestrationStatus::AlreadyApplied], true) && $handoff->transition === null) {
+            return new AuthoringOperationResult(AuthoringOperationStatus::DependencyUnavailable);
         }
 
         return match ($handoff->status) {
@@ -271,6 +343,12 @@ final readonly class DeterministicPropertyListingAuthoringOperations implements 
             ListingPublicationOrchestrationStatus::ConcurrencyConflict => new AuthoringOperationResult(AuthoringOperationStatus::ConcurrentModification),
             ListingPublicationOrchestrationStatus::PersistenceFailure => new AuthoringOperationResult(AuthoringOperationStatus::DependencyUnavailable),
         };
+    }
+
+    private function committable(ListingPublicationOrchestrationResult $result): bool
+    {
+        return in_array($result->status, [ListingPublicationOrchestrationStatus::Applied, ListingPublicationOrchestrationStatus::AlreadyApplied], true)
+            && $result->transition !== null;
     }
 
     private function creationFailure(CreateListingDraftStatusV1 $status): AuthoringOperationResult

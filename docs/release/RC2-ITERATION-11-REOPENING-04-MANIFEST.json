@@ -1,0 +1,109 @@
+{
+  "campaignId": "a905da4c-8d13-4a4a-9e35-e224b0b03c52",
+  "scope": "RC2 Iteration 11 Reopening 04",
+  "openedAt": "2026-08-15T07:15:45.2588684Z",
+  "closedAt": "2026-08-15T07:25:39.8000566Z",
+  "applicationDatabase": "appart_rebuild",
+  "testDatabase": "appart_test",
+  "propertyId": "5797a9b5-088d-43ea-8854-cac441946f6b",
+  "listingId": "979cd5aa-ced1-48a1-8adf-8b29c843a0c2",
+  "propertyAuthoringVersion": 1,
+  "listingDraftVersion": 1,
+  "ownerAccountId": "a3120000-0000-4000-8000-000000000001",
+  "reviewerAccountId": "a3120000-0000-4000-8000-000000000002",
+  "searchOpened": false,
+  "commands": [
+    {
+      "operation": "submit",
+      "commandId": "ef9e24b4-c42e-4221-8fe0-3f2e52cec2e6",
+      "occurredAt": "2026-08-15T09:16:27.907+02:00",
+      "expectedVersion": 1,
+      "expectedAuthoringVersion": 1,
+      "httpResult": "success",
+      "applicationResult": "applied"
+    },
+    {
+      "operation": "claim",
+      "commandId": "e18f2036-7077-4157-bf90-8418d4e4e6d3",
+      "occurredAt": "2026-08-15T07:18:42.428791+00:00",
+      "expectedVersion": 1,
+      "applicationResult": "applied",
+      "replayResult": "already_applied"
+    },
+    {
+      "operation": "begin_review",
+      "commandId": "8a18909b-3ff3-4e0a-92df-61041d0f2dff",
+      "occurredAt": "2026-08-15T07:19:16.857397+00:00",
+      "expectedVersion": 2,
+      "applicationResult": "applied",
+      "replayResult": "already_applied"
+    },
+    {
+      "operation": "approve_and_publish",
+      "commandId": "b58f5019-5111-4781-8bc1-2d096fedc9bf",
+      "projectionCommandId": "7cb365c9-2b79-47fd-8f05-2f2e188e042e",
+      "occurredAt": "2026-08-15T07:22:24.151935+00:00",
+      "expectedVersion": 3,
+      "publicationResult": "applied",
+      "projectionResult": "not_ready",
+      "strictReplayResult": "not_ready"
+    }
+  ],
+  "checkpoints": [
+    {
+      "name": "preflight",
+      "applicationDatabase": "appart_rebuild",
+      "propertyAuthoringVersion": 1,
+      "listingDraftVersion": 1,
+      "aggregateState": "draft",
+      "aggregateVersion": 0,
+      "workflowState": "draft",
+      "workflowVersion": 1,
+      "canonicalPropertyCount": 0,
+      "promotionLedgerCount": 0,
+      "queueItemCount": 0,
+      "mediaCount": 1,
+      "geographicPlaceId": "c3120000-0000-4000-8000-000000000003"
+    },
+    {
+      "name": "after_submit",
+      "propertyId": "5797a9b5-088d-43ea-8854-cac441946f6b",
+      "listingId": "979cd5aa-ced1-48a1-8adf-8b29c843a0c2",
+      "addressId": "9676749f-04e4-5158-989a-5aa0cf1fea83",
+      "geographicPlaceId": "c3120000-0000-4000-8000-000000000003",
+      "promotionCommandId": "ef9e24b4-c42e-4221-8fe0-3f2e52cec2e6",
+      "aggregateState": "submitted",
+      "aggregateVersion": 1,
+      "workflowState": "submitted",
+      "workflowVersion": 2,
+      "queueItemId": "listing-publication-2d0636c593152c03dbb6546d47e99f554b59db80a6188e6fa11ef06dbe6d7176",
+      "queueVersion": 1
+    },
+    {
+      "name": "after_published",
+      "canonicalPropertyPresent": true,
+      "promotionLedgerPresent": true,
+      "aggregateState": "published",
+      "aggregateVersion": 3,
+      "workflowState": "published",
+      "workflowVersion": 4,
+      "queueState": "completed",
+      "queueVersion": 4
+    },
+    {
+      "name": "after_projection_replay",
+      "sourceAssemblyStatus": "search_missing",
+      "projectionResult": "not_ready",
+      "projectionReplayResult": "not_ready",
+      "projectionLedgerCount": 0,
+      "projectionStoreCount": 0
+    }
+  ],
+  "firstDivergence": {
+    "boundary": "Published -> CertifiedPublicListingProjectionSource -> ProjectPublishedListingV1",
+    "status": "search_missing",
+    "effect": "projection_not_ready",
+    "uiObservation": "confirmed view rendered despite not_ready result"
+  },
+  "verdict": "NO GO PROPOSED - ITERATION 11 - REOPENING 04"
+}

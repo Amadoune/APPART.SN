@@ -30,9 +30,21 @@
         <div class="shell-container">
             <nav class="property-breadcrumb" aria-label="Fil d'Ariane">
                 <ol>
-                    @foreach ($listing->breadcrumb as $item)
-                        <li><a href="{{ $item['url'] }}">{{ $item['label'] }}</a></li>
-                    @endforeach
+                    @if ($listing->breadcrumbSchemaVersion === 'public-geography-breadcrumb-v2')
+                        @foreach ($listing->geographyBreadcrumb as $item)
+                            <li>
+                                @if ($loop->last)
+                                    <span aria-current="location">{{ $item['label'] }}</span>
+                                @else
+                                    <span>{{ $item['label'] }}</span>
+                                @endif
+                            </li>
+                        @endforeach
+                    @else
+                        @foreach ($listing->breadcrumb as $item)
+                            <li><a href="{{ $item['url'] }}">{{ $item['label'] }}</a></li>
+                        @endforeach
+                    @endif
                 </ol>
             </nav>
 

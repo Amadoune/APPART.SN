@@ -71,7 +71,12 @@ use App\Application\PropertyLifecycleEventRouting\Contract\PropertyLifecycleEven
 use App\Application\PropertyLifecycleEventRouting\DurablePropertyLifecycleEventRouter;
 use App\Application\PropertyLifecycleEventTransport\Contract\PropertyLifecycleEventRouter;
 use App\Application\PropertyListingResolution\Contract\PropertyListingsResolver;
+use App\Application\PublicGeographyMaterialization\Contract\MaterializePublicGeographyDecisionV2;
+use App\Application\PublicGeographyMaterialization\DeterministicPublicGeographyDecisionMaterializerV2;
+use App\Application\PublicGeographyRefresh\Contract\AffectedPublicGeographyTerminalReaderV1;
+use App\Application\PublicGeographyRefresh\PlaceRenamedPublicGeographyConsumer;
 use App\Application\PublicGeographySource\Contract\PublicGeographyDecisionReader;
+use App\Application\PublicGeographySource\Contract\PublicGeographyDecisionWriter;
 use App\Application\PublicMediaSource\Contract\PublicMediaDecisionReader;
 use App\Application\PublicProjectionDelivery\Contract\PublicProjectionDeliveryConsumer;
 use App\Application\PublicProjectionDelivery\PublicProjectionDeliveryCatalogMessageFactory;
@@ -130,7 +135,9 @@ use App\Infrastructure\ProjectionRebuildRuntimeSource\PostgreSql\PostgreSqlPubli
 use App\Infrastructure\ProjectionRuntimeSource\CertifiedPublicListingProjectionSource;
 use App\Infrastructure\PropertyLifecycleEventRouting\PostgreSql\PostgreSqlPropertyLifecycleEventInbox;
 use App\Infrastructure\PropertyListingResolution\PostgreSql\PostgreSqlPropertyListingsResolver;
+use App\Infrastructure\PublicGeographySource\PostgreSql\PostgreSqlAffectedPublicGeographyTerminalReader;
 use App\Infrastructure\PublicGeographySource\PostgreSql\PostgreSqlPublicGeographyReader;
+use App\Infrastructure\PublicGeographySource\PostgreSql\PostgreSqlPublicGeographyWriter;
 use App\Infrastructure\PublicMediaSource\PostgreSql\PostgreSqlPublicMediaReader;
 use App\Infrastructure\PublicProjectionOutbox\PostgreSql\PostgreSqlAggregateOutboxParticipantTransaction;
 use App\Infrastructure\PublicProjectionOutbox\PostgreSql\PostgreSqlAggregateOutboxTransaction;
@@ -537,6 +544,10 @@ final class PublicProjectionRuntimeServiceProvider extends ServiceProvider
         $this->app->singleton(AtomicListingPublicationEventOrchestrator::class);
         $this->app->alias(AtomicListingPublicationEventOrchestrator::class, ListingPublicationEventOrchestrator::class);
         $this->app->bind(PublicGeographyDecisionReader::class, PostgreSqlPublicGeographyReader::class);
+        $this->app->bind(PublicGeographyDecisionWriter::class, PostgreSqlPublicGeographyWriter::class);
+        $this->app->bind(MaterializePublicGeographyDecisionV2::class, DeterministicPublicGeographyDecisionMaterializerV2::class);
+        $this->app->bind(AffectedPublicGeographyTerminalReaderV1::class, PostgreSqlAffectedPublicGeographyTerminalReader::class);
+        $this->app->singleton(PlaceRenamedPublicGeographyConsumer::class);
         $this->app->bind(PublicMediaDecisionReader::class, PostgreSqlPublicMediaReader::class);
         $this->app->bind(ActiveGenerationReader::class, PostgreSqlActiveGenerationReader::class);
         $this->app->bind(DecisionTimeReader::class, ContentSeoSnapshotDecisionTimeReader::class);
@@ -603,6 +614,7 @@ final class PublicProjectionRuntimeServiceProvider extends ServiceProvider
             $mediaItemLifecycleConsumer = $app->make(MediaItemLifecycleDeliveryConsumer::class);
             $administrativeActionLifecycleConsumer = $app->make(AdministrativeActionLifecycleDeliveryConsumer::class);
             $placeLifecycleConsumer = $app->make(PlaceLifecycleDeliveryConsumer::class);
+            $placeRenamedConsumer = $app->make(PlaceRenamedPublicGeographyConsumer::class);
             $accountStatusConsumer = $app->make(AccountStatusDeliveryConsumer::class);
             $registrations = [];
             foreach (['listing.reconstruction.requested', 'property.reconstruction.requested', 'media.reconstruction.requested', 'search.reconstruction.requested', 'content_seo.reconstruction.requested'] as $eventType) {
@@ -677,6 +689,12 @@ final class PublicProjectionRuntimeServiceProvider extends ServiceProvider
                     $placeLifecycleConsumer,
                 );
             }
+            $registrations[] = new PublicProjectionDeliveryConsumerRegistration(
+                $consumerId,
+                PublicProjectionDeliveryEventType::fromString('place.lifecycle.renamed'),
+                PublicProjectionDeliveryPayloadVersion::fromInt(1),
+                $placeRenamedConsumer,
+            );
             foreach (AccountStatusEventType::cases() as $eventType) {
                 $registrations[] = new PublicProjectionDeliveryConsumerRegistration(
                     $consumerId,

@@ -19,10 +19,12 @@ final class PublicationReviewExperienceRequest extends FormRequest
             'claim' => [
                 'commandId' => ['required', 'uuid'],
                 'expectedVersion' => ['required', 'integer', 'min:1'],
+                'occurredAt' => ['required', 'date_format:Y-m-d\TH:i:s.uP'],
             ],
             'begin' => [
                 'commandId' => ['required', 'uuid'],
                 'expectedVersion' => ['required', 'integer', 'min:1'],
+                'occurredAt' => ['required', 'date_format:Y-m-d\TH:i:s.uP'],
                 'listingId' => ['required', 'uuid'],
                 'submissionVersion' => ['required', 'integer', 'min:1'],
             ],
@@ -30,6 +32,7 @@ final class PublicationReviewExperienceRequest extends FormRequest
                 'commandId' => ['required', 'uuid'],
                 'projectionCommandId' => ['required', 'uuid', 'different:commandId'],
                 'expectedVersion' => ['required', 'integer', 'min:1'],
+                'occurredAt' => ['required', 'date_format:Y-m-d\TH:i:s.uP'],
                 'listingId' => ['required', 'uuid'],
                 'submissionVersion' => ['required', 'integer', 'min:1'],
             ],

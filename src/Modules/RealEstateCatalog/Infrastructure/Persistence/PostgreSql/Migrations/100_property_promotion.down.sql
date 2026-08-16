@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS real_estate_catalog.property_promotion_commands;

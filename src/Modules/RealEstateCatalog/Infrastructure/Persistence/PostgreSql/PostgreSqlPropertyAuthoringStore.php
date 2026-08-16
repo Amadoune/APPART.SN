@@ -16,7 +16,7 @@ final readonly class PostgreSqlPropertyAuthoringStore implements PropertyAuthori
 
     public function read(string $propertyId): ?PropertyAuthoringState
     {
-        $statement = $this->connection->prepare('SELECT property_id, owner_account_id, version, last_intent_id, last_intent_checksum, property_type, city, neighborhood FROM real_estate_catalog_authoring.property_authoring WHERE property_id=:id');
+        $statement = $this->connection->prepare('SELECT property_id, owner_account_id, version, last_intent_id, last_intent_checksum, property_type, city, neighborhood, property_reference, surface_square_meters, rooms, bathrooms, construction_year, geographic_place_id, address_line, address_intent_id FROM real_estate_catalog_authoring.property_authoring WHERE property_id=:id');
         $statement->execute(['id' => $propertyId]);
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
@@ -80,8 +80,8 @@ final readonly class PostgreSqlPropertyAuthoringStore implements PropertyAuthori
     private function write(PropertyAuthoringState $state, bool $insert): void
     {
         $sql = $insert
-            ? 'INSERT INTO real_estate_catalog_authoring.property_authoring(property_id,owner_account_id,version,last_intent_id,last_intent_checksum,property_type,city,neighborhood) VALUES(:property_id,:owner_account_id,:version,:intent_id,:checksum,:property_type,:city,:neighborhood)'
-            : 'UPDATE real_estate_catalog_authoring.property_authoring SET version=:version,last_intent_id=:intent_id,last_intent_checksum=:checksum,property_type=:property_type,city=:city,neighborhood=:neighborhood,updated_at=CURRENT_TIMESTAMP WHERE property_id=:property_id AND owner_account_id=:owner_account_id';
+            ? 'INSERT INTO real_estate_catalog_authoring.property_authoring(property_id,owner_account_id,version,last_intent_id,last_intent_checksum,property_type,city,neighborhood,property_reference,surface_square_meters,rooms,bathrooms,construction_year,geographic_place_id,address_line,address_intent_id) VALUES(:property_id,:owner_account_id,:version,:intent_id,:checksum,:property_type,:city,:neighborhood,:property_reference,:surface_square_meters,:rooms,:bathrooms,:construction_year,:geographic_place_id,:address_line,:address_intent_id)'
+            : 'UPDATE real_estate_catalog_authoring.property_authoring SET version=:version,last_intent_id=:intent_id,last_intent_checksum=:checksum,property_type=:property_type,city=:city,neighborhood=:neighborhood,property_reference=:property_reference,surface_square_meters=:surface_square_meters,rooms=:rooms,bathrooms=:bathrooms,construction_year=:construction_year,geographic_place_id=:geographic_place_id,address_line=:address_line,address_intent_id=:address_intent_id,updated_at=CURRENT_TIMESTAMP WHERE property_id=:property_id AND owner_account_id=:owner_account_id';
         $statement = $this->connection->prepare($sql);
         $statement->execute([
             'property_id' => $state->propertyId,
@@ -92,6 +92,14 @@ final readonly class PostgreSqlPropertyAuthoringStore implements PropertyAuthori
             'property_type' => $state->propertyType,
             'city' => $state->city,
             'neighborhood' => $state->neighborhood,
+            'property_reference' => $state->propertyReference,
+            'surface_square_meters' => $state->surfaceSquareMeters,
+            'rooms' => $state->rooms,
+            'bathrooms' => $state->bathrooms,
+            'construction_year' => $state->constructionYear,
+            'geographic_place_id' => $state->geographicPlaceId,
+            'address_line' => $state->addressLine,
+            'address_intent_id' => $state->addressIntentId,
         ]);
     }
 

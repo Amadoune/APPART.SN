@@ -34,6 +34,7 @@ jobs:
       APPART_TEST_PG_DSN: pgsql:host=127.0.0.1;port=5432;dbname=appart_test
       APPART_TEST_PG_USER: appart_test
       APPART_TEST_PG_PASSWORD: appart_test_ci
+      APPART_APPLICATION_PG_DATABASE: appart_rebuild
     steps:
       - name: Checkout immutable build candidate
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262

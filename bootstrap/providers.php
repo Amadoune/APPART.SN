@@ -1,11 +1,15 @@
 <?php
 
+use App\Providers\AddressIdentityServiceProvider;
+use App\Providers\ActiveGenerationBootstrapServiceProvider;
 use App\Providers\AdministrationAuditPublicAppendServiceProvider;
 use App\Providers\AdministrationConsoleHttpServiceProvider;
 use App\Providers\AdministrationConsoleOwnerReaderServiceProvider;
 use App\Providers\AdministrationConsoleRuntimeServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\AuthoringPublicFactHandoffServiceProvider;
+use App\Providers\AuthoringDraftResumeServiceProvider;
+use App\Providers\BusinessYearAuthorityServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerReaderServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerSourceRuntimeReadServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerSourceRuntimeServiceProvider;
@@ -15,9 +19,13 @@ use App\Providers\ContactsLeadsConsentOwnerSourceRuntimeServiceProvider;
 use App\Providers\ContentSeoHttpServiceProvider;
 use App\Providers\ContentSeoOwnerReaderServiceProvider;
 use App\Providers\ContentSeoRuntimeServiceProvider;
+use App\Providers\ContentSeoSnapshotMaterializationServiceProvider;
 use App\Providers\ExperienceAcceptanceHttpServiceProvider;
 use App\Providers\ExperienceAcceptanceOwnerReaderServiceProvider;
 use App\Providers\ExperienceAcceptanceRuntimeServiceProvider;
+use App\Providers\GeographicPlaceCatalogServiceProvider;
+use App\Providers\GeographyPlacePersistenceServiceProvider;
+use App\Providers\GeographySelectionServiceProvider;
 use App\Providers\IdentityAccessEventOutboxServiceProvider;
 use App\Providers\IdentityAccessHttpServiceProvider;
 use App\Providers\IdentityAccessOrchestrationServiceProvider;
@@ -59,7 +67,9 @@ use App\Providers\ProfessionalProfileRuntimeServiceProvider;
 use App\Providers\ProfessionalPublicPortfolioRuntimeServiceProvider;
 use App\Providers\ProfessionalPublicProfileRuntimeServiceProvider;
 use App\Providers\ProfessionalVerificationRuntimeServiceProvider;
+use App\Providers\PropertyAuthoringGeographySelectionServiceProvider;
 use App\Providers\PropertyAuthoringRuntimeServiceProvider;
+use App\Providers\PropertyAuthoringSourceCompletenessServiceProvider;
 use App\Providers\PropertyListingAuthoringHttpServiceProvider;
 use App\Providers\PropertyListingAuthoringOperationsServiceProvider;
 use App\Providers\PropertyListingAuthoringRuntimeServiceProvider;
@@ -68,6 +78,10 @@ use App\Providers\PublicationReviewExperienceServiceProvider;
 use App\Providers\PublicationReviewQueueServiceProvider;
 use App\Providers\PublicAuthoringIntegrationServiceProvider;
 use App\Providers\PublicProjectionRuntimeServiceProvider;
+use App\Providers\PublicPropertyPromotionServiceProvider;
+use App\Providers\PublicMediaBinaryDeliveryServiceProvider;
+use App\Providers\PublicMediaMaterializationServiceProvider;
+use App\Providers\PublicSearchDecisionMaterializationServiceProvider;
 use App\Providers\PublicSearchQueryResolutionReaderServiceProvider;
 use App\Providers\PublicSearchResultsServiceProvider;
 use App\Providers\ReliabilityOperationsHttpServiceProvider;
@@ -87,10 +101,16 @@ use App\Providers\SecurityComplianceRuntimeServiceProvider;
 
 return [
     AppServiceProvider::class,
+    AddressIdentityServiceProvider::class,
+    ActiveGenerationBootstrapServiceProvider::class,
     AuthoringPublicFactHandoffServiceProvider::class,
+    BusinessYearAuthorityServiceProvider::class,
     ExperienceAcceptanceHttpServiceProvider::class,
     ExperienceAcceptanceOwnerReaderServiceProvider::class,
     ExperienceAcceptanceRuntimeServiceProvider::class,
+    GeographyPlacePersistenceServiceProvider::class,
+    GeographicPlaceCatalogServiceProvider::class,
+    GeographySelectionServiceProvider::class,
     ReliabilityOperationsHttpServiceProvider::class,
     ReliabilityOperationsOwnerReaderServiceProvider::class,
     ReliabilityOperationsRuntimeServiceProvider::class,
@@ -127,6 +147,8 @@ return [
     ContactsLeadsConsentOwnerReaderServiceProvider::class,
     AdministrationAuditPublicAppendServiceProvider::class,
     PublicProjectionRuntimeServiceProvider::class,
+    PublicSearchDecisionMaterializationServiceProvider::class,
+    ContentSeoSnapshotMaterializationServiceProvider::class,
     IdentityAccessRuntimeServiceProvider::class,
     IdentityAccessOrchestrationServiceProvider::class,
     IdentityAccessEventOutboxServiceProvider::class,
@@ -136,6 +158,9 @@ return [
     ListingRevisionAuthorityServiceProvider::class,
     ListingPublicationCommandGatewayServiceProvider::class,
     PropertyListingAuthoringRuntimeServiceProvider::class,
+    PublicPropertyPromotionServiceProvider::class,
+    PublicMediaBinaryDeliveryServiceProvider::class,
+    PublicMediaMaterializationServiceProvider::class,
     PropertyListingAuthoringHttpServiceProvider::class,
     PropertyListingAuthoringOperationsServiceProvider::class,
     PublicAuthoringIntegrationServiceProvider::class,
@@ -170,4 +195,7 @@ return [
     ProfessionalPublicPortfolioRuntimeServiceProvider::class,
     ProfessionalProfileRuntimeServiceProvider::class,
     ProfessionalProfileHttpServiceProvider::class,
+    PropertyAuthoringGeographySelectionServiceProvider::class,
+    PropertyAuthoringSourceCompletenessServiceProvider::class,
+    AuthoringDraftResumeServiceProvider::class,
 ];

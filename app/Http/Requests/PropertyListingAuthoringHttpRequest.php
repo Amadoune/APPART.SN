@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Application\PropertyListingAuthoringHttp\PropertyListingAuthoringHttpOperation;
+use Appart\Modules\Geography\Domain\ValueObject\PlaceType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -85,6 +86,17 @@ final class PropertyListingAuthoringHttpRequest extends FormRequest
             'propertyType' => ['sometimes', Rule::in(['apartment', 'house', 'villa', 'land', 'office', 'commercial'])],
             'city' => ['sometimes', 'string', 'min:2', 'max:120'],
             'neighborhood' => ['sometimes', 'string', 'min:2', 'max:120'],
+            'propertyReference' => ['sometimes', 'string', 'regex:~^[A-Za-z0-9][A-Za-z0-9._/-]{3,63}$~'],
+            'surfaceSquareMeters' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:10000000'],
+            'rooms' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:1000'],
+            'bathrooms' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:1000'],
+            'constructionYear' => ['sometimes', 'nullable', 'integer', 'min:1800', 'max:9999'],
+            'addressLine' => ['sometimes', 'nullable', 'string', 'min:3', 'max:255'],
+            'geographicPlaceId' => ['sometimes', 'uuid'],
+            'geographicPlaceType' => ['required_with:geographicPlaceId', Rule::enum(PlaceType::class)],
+            'geographicParentPlaceId' => ['present_with:geographicPlaceId', 'nullable', 'uuid'],
+            'geographicSelectionCursor' => ['present_with:geographicPlaceId', 'nullable', 'string', 'max:2048'],
+            'geographicSelectionLimit' => ['required_with:geographicPlaceId', 'integer', 'min:1', 'max:100'],
         ];
     }
 }

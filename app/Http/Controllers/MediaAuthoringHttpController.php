@@ -10,6 +10,7 @@ use App\Http\Requests\MediaAuthoringHttpRequest;
 use Appart\Modules\IdentityAccess\Domain\ValueObject\AccountId;
 use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 final class MediaAuthoringHttpController extends Controller
@@ -37,7 +38,14 @@ final class MediaAuthoringHttpController extends Controller
             };
 
             return $this->respond($result);
-        } catch (Throwable) {
+        } catch (Throwable $error) {
+            Log::error('media_authoring.http.unavailable', [
+                'stage' => 'uncaught_exception',
+                'exception' => $error::class,
+                'source' => basename($error->getFile()),
+                'line' => $error->getLine(),
+            ]);
+
             return $this->respond(new MediaAuthoringHttpResult(MediaAuthoringHttpStatus::Unavailable));
         }
     }
@@ -48,12 +56,18 @@ final class MediaAuthoringHttpController extends Controller
         if ($image === null || ! $image->isValid()) {
             return new MediaAuthoringHttpResult(MediaAuthoringHttpStatus::Invalid);
         }
-        $stream = fopen($image->getRealPath(), 'rb');
+        $stream = fopen($image->getPathname(), 'rb');
         if (! is_resource($stream)) {
+            Log::error('media_authoring.http.unavailable', [
+                'stage' => 'open_stream',
+                'upload_error' => $image->getError(),
+                'readable' => is_readable($image->getPathname()),
+            ]);
+
             return new MediaAuthoringHttpResult(MediaAuthoringHttpStatus::Unavailable);
         }
         try {
-            return $this->runtime->upload(
+            $result = $this->runtime->upload(
                 $ownerAccountId,
                 $propertyId,
                 (string) $request->validated('_intentId'),
@@ -64,6 +78,11 @@ final class MediaAuthoringHttpController extends Controller
                 $request->validated('caption'),
                 (new DateTimeImmutable)->format(DATE_ATOM),
             );
+            if ($result->status === MediaAuthoringHttpStatus::Unavailable) {
+                Log::error('media_authoring.http.unavailable', ['stage' => 'runtime_unavailable']);
+            }
+
+            return $result;
         } finally {
             fclose($stream);
         }

@@ -41,13 +41,23 @@ final readonly class PublicListingReadModelBuilder
             decidedAt: $seo->decidedAt,
             expiredListingTreatment: $seo->expiredListingTreatment,
             transactionKind: $search->transactionKind,
-            city: $this->city($seo->breadcrumb),
+            city: $this->city($seo->breadcrumb, $seo->geographyBreadcrumb),
+            breadcrumbSchemaVersion: $seo->breadcrumbSchemaVersion,
+            geographyBreadcrumb: $seo->geographyBreadcrumb,
         );
     }
 
-    /** @param list<array{label:string, url:string}> $breadcrumb */
-    private function city(array $breadcrumb): ?string
+    /**
+     * @param  list<array{label:string, url:string}>  $breadcrumb
+     * @param  list<array{placeId:string, type:string, label:string}>  $geographyBreadcrumb
+     */
+    private function city(array $breadcrumb, array $geographyBreadcrumb): ?string
     {
+        foreach ($geographyBreadcrumb as $item) {
+            if ($item['type'] === 'city') {
+                return $item['label'];
+            }
+        }
         if ($breadcrumb === []) {
             return null;
         }

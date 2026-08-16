@@ -9,6 +9,7 @@ final readonly class PublicListingReadModel
     /**
      * @param  list<array{url:string, disposition:string, effectiveAt:DateTimeImmutable, replacedAt:?DateTimeImmutable, redirectTarget:?string}>  $canonicalHistory
      * @param  list<array{label:string, url:string}>  $breadcrumb
+     * @param  list<array{placeId:string, type:string, label:string}>  $geographyBreadcrumb
      * @param  array{type:string, facts:array<string, string>}|null  $structuredData
      */
     public function __construct(
@@ -38,5 +39,7 @@ final readonly class PublicListingReadModel
         public string $expiredListingTreatment,
         public ?string $transactionKind = null,
         public ?string $city = null,
+        public string $breadcrumbSchemaVersion = 'content-seo-breadcrumb-v1',
+        public array $geographyBreadcrumb = [],
     ) {}
 }

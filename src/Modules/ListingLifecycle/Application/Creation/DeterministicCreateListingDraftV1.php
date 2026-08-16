@@ -5,6 +5,9 @@ namespace Appart\Modules\ListingLifecycle\Application\Creation;
 use Appart\Modules\ListingLifecycle\Application\Creation\Contract\CreateListingDraftV1;
 use Appart\Modules\ListingLifecycle\Application\Creation\Contract\ListingCreationIntentStore;
 use Appart\Modules\ListingLifecycle\Application\Creation\Contract\ListingCreationTransaction;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Contract\ListingPublicationWorkflowStore;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationPersistenceWriteResult;
+use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationState;
 use Appart\Modules\ListingLifecycle\Application\UseCase\CreateDraft;
 use Appart\Modules\ListingLifecycle\Domain\Exception\InvalidListingValue;
 use Appart\Modules\ListingLifecycle\Domain\Exception\ListingIdConflict;
@@ -25,6 +28,7 @@ final readonly class DeterministicCreateListingDraftV1 implements CreateListingD
         private CreateDraft $createDraft,
         private ListingCreationIntentStore $intents,
         private ListingCreationTransaction $transaction,
+        private ?ListingPublicationWorkflowStore $publicationWorkflows = null,
     ) {}
 
     public function create(CreateListingDraftCommandV1 $command): CreateListingDraftResultV1
@@ -63,6 +67,13 @@ final readonly class DeterministicCreateListingDraftV1 implements CreateListingD
                         $command->occurredAt,
                     ),
                 );
+                if ($this->publicationWorkflows !== null && ! in_array(
+                    $this->publicationWorkflows->initialize($listing->id(), ListingPublicationState::Draft),
+                    [ListingPublicationPersistenceWriteResult::Applied, ListingPublicationPersistenceWriteResult::AlreadyApplied],
+                    true,
+                )) {
+                    throw new ListingPublicationWorkflowInitializationFailed;
+                }
                 $this->intents->markApplied($intent->intentId, $listing->version());
 
                 return CreateListingDraftResultV1::applied(
@@ -82,3 +93,5 @@ final readonly class DeterministicCreateListingDraftV1 implements CreateListingD
         }
     }
 }
+
+final class ListingPublicationWorkflowInitializationFailed extends \RuntimeException {}

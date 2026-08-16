@@ -10,6 +10,8 @@ use App\Application\ProjectionRuntimeSource\Contract\CandidatePublicListingProje
 use App\Application\ProjectionRuntimeSource\ProjectionSourceAssemblyResult;
 use App\Application\ProjectionRuntimeSource\ProjectionSourceAssemblyStatus;
 use App\Application\PublicGeographySource\Contract\PublicGeographyDecisionReader;
+use App\Application\PublicGeographySource\PublicGeographyDecisionStatusV2;
+use App\Application\PublicGeographySource\PublicGeographyDecisionV2;
 use App\Application\PublicGeographySource\PublicGeographyReadStatus;
 use App\Application\PublicMediaSource\Contract\PublicMediaDecisionReader;
 use App\Application\PublicMediaSource\PublicMediaReadStatus;
@@ -18,7 +20,9 @@ use App\Application\PublicProjectionUpdater\PublicListingProjectionSources;
 use Appart\Modules\ContentSeo\Application\Contract\ContentSeoSourceSnapshotReader;
 use Appart\Modules\ContentSeo\Application\Snapshot\ContentSeoSnapshotReadStatus;
 use Appart\Modules\ContentSeo\Domain\Model\BreadcrumbItem;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographyBreadcrumbItemV2;
 use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSource;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographySeoSourceV2;
 use Appart\Modules\ContentSeo\Domain\Model\PublicMediaSeoSource;
 use Appart\Modules\ContentSeo\Domain\ValueObject\CanonicalUrl;
 use Appart\Modules\ContentSeo\Domain\ValueObject\ListingId as SeoListingId;
@@ -170,7 +174,7 @@ final readonly class CertifiedPublicListingProjectionSource implements Candidate
         return ProjectionSourceAssemblyResult::found($listingId, $sources);
     }
 
-    /** @return array{?PublicGeographySeoSource, ?int, ?ProjectionSourceAssemblyStatus} */
+    /** @return array{PublicGeographySeoSource|PublicGeographySeoSourceV2|null, ?int, ?ProjectionSourceAssemblyStatus} */
     private function geography(SeoListingId $listingId, ?string $placeId): array
     {
         if ($placeId === null) {
@@ -187,6 +191,18 @@ final readonly class CertifiedPublicListingProjectionSource implements Candidate
             return [null, null, ProjectionSourceAssemblyStatus::PublicGeographyCorrupted];
         }
         try {
+            if ($result->decision instanceof PublicGeographyDecisionV2) {
+                if ($result->decision->status !== PublicGeographyDecisionStatusV2::Available || $result->decision->locality === null) {
+                    return [null, null, null];
+                }
+                $breadcrumb = array_map(
+                    static fn ($item): PublicGeographyBreadcrumbItemV2 => new PublicGeographyBreadcrumbItemV2($item->placeId, $item->type, $item->officialName),
+                    $result->decision->breadcrumb,
+                );
+                $source = new PublicGeographySeoSourceV2($listingId, $result->decision->locality, $breadcrumb);
+
+                return [$source, $result->decision->revision->watermarkVersion(), null];
+            }
             $breadcrumb = array_map(
                 static fn ($item): BreadcrumbItem => new BreadcrumbItem($item->label, CanonicalUrl::fromString($item->url)),
                 $result->decision->breadcrumb,

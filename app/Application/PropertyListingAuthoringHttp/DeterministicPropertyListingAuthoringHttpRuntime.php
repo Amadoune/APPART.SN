@@ -2,6 +2,8 @@
 
 namespace App\Application\PropertyListingAuthoringHttp;
 
+use App\Application\PropertyAuthoringSourceCompleteness\Contract\PropertyAuthoringStateEnricherV1;
+use App\Application\PropertyAuthoringSourceCompleteness\PropertyAuthoringEnrichmentStatus;
 use App\Application\PropertyListingAuthoringHttp\Contract\PropertyListingAuthoringHttpRuntime;
 use App\Application\PropertyListingAuthoringRuntime\Contract\PropertyListingAuthoringRuntimeV1;
 use App\Application\PropertyListingAuthoringRuntime\PropertyListingAuthoringRuntimeStatus;
@@ -9,11 +11,13 @@ use Appart\Modules\ListingLifecycle\Application\AuthoringPersistence\AuthoringPe
 use Appart\Modules\ListingLifecycle\Application\AuthoringPersistence\ListingDraftState;
 use Appart\Modules\ListingLifecycle\Application\AuthoringPersistence\ListingOwnershipState;
 use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringPersistenceWriteResult;
-use Appart\Modules\RealEstateCatalog\Application\AuthoringPersistence\PropertyAuthoringState;
 
 final readonly class DeterministicPropertyListingAuthoringHttpRuntime implements PropertyListingAuthoringHttpRuntime
 {
-    public function __construct(private PropertyListingAuthoringRuntimeV1 $runtime) {}
+    public function __construct(
+        private PropertyListingAuthoringRuntimeV1 $runtime,
+        private PropertyAuthoringStateEnricherV1 $propertyEnricher,
+    ) {}
 
     public function execute(
         PropertyListingAuthoringHttpOperation $operation,
@@ -50,16 +54,20 @@ final readonly class DeterministicPropertyListingAuthoringHttpRuntime implements
         $store = $this->runtime->propertyAuthoring();
         $current = $store->read($id);
         $expected = (int) ($input['expectedVersion'] ?? 0);
-        $result = $store->save(new PropertyAuthoringState(
+        $enriched = $this->propertyEnricher->enrich(
             $id,
             $accountId,
             $expected + 1,
             $intentId,
-            $this->checksum($input),
-            isset($input['propertyType']) ? (string) $input['propertyType'] : $current?->propertyType,
-            isset($input['city']) ? (string) $input['city'] : $current?->city,
-            isset($input['neighborhood']) ? (string) $input['neighborhood'] : $current?->neighborhood,
-        ), $expected);
+            $current,
+            $input,
+        );
+        if ($enriched->status !== PropertyAuthoringEnrichmentStatus::Validated || $enriched->state === null) {
+            return new PropertyListingAuthoringHttpResult($enriched->status === PropertyAuthoringEnrichmentStatus::DependencyUnavailable
+                ? PropertyListingAuthoringHttpStatus::Unavailable
+                : PropertyListingAuthoringHttpStatus::Invalid);
+        }
+        $result = $store->save($enriched->state, $expected);
 
         return $this->propertyResult($result, $expected + 1);
     }
@@ -76,6 +84,14 @@ final readonly class DeterministicPropertyListingAuthoringHttpRuntime implements
             'propertyType' => $state->propertyType,
             'city' => $state->city,
             'neighborhood' => $state->neighborhood,
+            'propertyReference' => $state->propertyReference,
+            'surfaceSquareMeters' => $state->surfaceSquareMeters,
+            'rooms' => $state->rooms,
+            'bathrooms' => $state->bathrooms,
+            'constructionYear' => $state->constructionYear,
+            'geographicPlaceId' => $state->geographicPlaceId,
+            'addressLine' => $state->addressLine,
+            'sourceCompleteness' => $state->completeness()->value,
             'version' => $state->version,
         ]);
     }

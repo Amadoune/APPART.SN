@@ -20,10 +20,12 @@ use App\Http\Controllers\PlaceLifecycleHttpController;
 use App\Http\Controllers\ProfessionalProfileHttpController;
 use App\Http\Controllers\ProfessionalStatusHttpController;
 use App\Http\Controllers\PropertyLifecycleTransitionController;
+use App\Http\Controllers\PropertyAuthoringGeographySelectionController;
 use App\Http\Controllers\PropertyListingAuthoringHttpController;
 use App\Http\Controllers\PublicationReviewExperienceController;
 use App\Http\Controllers\PublicAuthoringJourneyController;
 use App\Http\Controllers\PublicListingController;
+use App\Http\Controllers\PublicMediaBinaryController;
 use App\Http\Controllers\PublicSearchExperienceController;
 use App\Http\Controllers\PublicSitemapController;
 use App\Http\Controllers\ReservationLifecycleHttpController;
@@ -47,6 +49,11 @@ Route::get('/espace-proprietaire', OwnerDashboardController::class)
 
 Route::get('/sitemap.xml', PublicSitemapController::class)
     ->name('public-sitemap');
+
+Route::get('/media/{mediaId}/revisions/{assetVersion}', PublicMediaBinaryController::class)
+    ->whereUuid('mediaId')
+    ->whereNumber('assetVersion')
+    ->name('public-media.binary');
 
 Route::get('/_local/bootstrap', function () {
     abort_unless(app()->environment('local'), 404);
@@ -165,6 +172,8 @@ Route::prefix('/api/identity-access')->group(function (): void {
 Route::prefix('/api/authoring')
     ->middleware([RequireIdentityAccessSession::class, 'throttle:property-listing-authoring'])
     ->group(function (): void {
+        Route::get('/geography/selections', PropertyAuthoringGeographySelectionController::class)
+            ->name('property-authoring.geography-selections');
         Route::post('/properties/{propertyId}', PropertyListingAuthoringHttpController::class)
             ->where('propertyId', '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}')->defaults('authoring_operation', PropertyListingAuthoringHttpOperation::InitiateProperty->value);
         Route::get('/properties/{propertyId}', PropertyListingAuthoringHttpController::class)
@@ -208,6 +217,9 @@ Route::post('/api/public-authoring/v1/{journeyOperation}', PublicAuthoringJourne
 Route::get('/authoring/workspace', AuthoringWorkspaceController::class)
     ->middleware(RequireIdentityAccessSession::class)
     ->name('public-authoring.workspace');
+Route::get('/authoring/workspace/{listingId}', AuthoringWorkspaceController::class)
+    ->middleware(RequireIdentityAccessSession::class)
+    ->name('public-authoring.workspace.resume');
 
 Route::prefix('/publication-review')
     ->middleware([RequireIdentityAccessSession::class, 'throttle:iam-authenticated'])

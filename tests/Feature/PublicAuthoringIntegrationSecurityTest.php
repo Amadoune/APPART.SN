@@ -74,11 +74,27 @@ final class PublicAuthoringIntegrationSecurityTest extends TestCase
             'propertyType' => 'apartment',
             'city' => 'Dakar',
             'neighborhood' => 'Almadies',
+            'propertyReference' => 'REF-001',
+            'surfaceSquareMeters' => 120,
+            'rooms' => 4,
+            'bathrooms' => 2,
+            'constructionYear' => 2020,
+            'addressLine' => '12 avenue Cheikh Anta Diop',
+            'geographicPlaceId' => '75000000-0000-4000-8000-000000000004',
+            'geographicPlaceType' => 'neighborhood',
+            'geographicParentPlaceId' => '75000000-0000-4000-8000-000000000005',
+            'geographicSelectionCursor' => null,
+            'geographicSelectionLimit' => 50,
         ], $this->journey->last->data);
 
         $this->withCredentials()->withUnencryptedCookie('__Host-appart_session', 'public-authoring-session')
             ->withHeader('Idempotency-Key', self::INTENT)
             ->postJson('/api/public-authoring/v1/initiate-property', $payload + ['accountId' => self::ACCOUNT])
+            ->assertUnprocessable();
+
+        $this->withCredentials()->withUnencryptedCookie('__Host-appart_session', 'public-authoring-session')
+            ->withHeader('Idempotency-Key', self::INTENT)
+            ->postJson('/api/public-authoring/v1/initiate-property', $payload + ['addressIntentId' => self::INTENT])
             ->assertUnprocessable();
     }
 
@@ -104,6 +120,17 @@ final class PublicAuthoringIntegrationSecurityTest extends TestCase
             'propertyType' => 'apartment',
             'city' => 'Dakar',
             'neighborhood' => 'Almadies',
+            'propertyReference' => 'REF-001',
+            'surfaceSquareMeters' => 120,
+            'rooms' => 4,
+            'bathrooms' => 2,
+            'constructionYear' => 2020,
+            'addressLine' => '12 avenue Cheikh Anta Diop',
+            'geographicPlaceId' => '75000000-0000-4000-8000-000000000004',
+            'geographicPlaceType' => 'neighborhood',
+            'geographicParentPlaceId' => '75000000-0000-4000-8000-000000000005',
+            'geographicSelectionCursor' => null,
+            'geographicSelectionLimit' => 50,
         ];
     }
 }

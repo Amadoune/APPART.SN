@@ -13,7 +13,6 @@ use App\Application\PropertyLifecycleEventIntegration\Contract\PropertyLifecycle
 use App\Application\ReservationLifecycleEventIntegration\Contract\ReservationLifecycleAtomicTransaction;
 use Closure;
 use PDO;
-use RuntimeException;
 use Throwable;
 
 final readonly class PostgreSqlAggregateOutboxTransaction implements AccountStatusAtomicTransaction, AdministrativeActionLifecycleAtomicTransaction, LeadLifecycleAtomicTransaction, ListingPublicationAtomicTransaction, MediaItemLifecycleAtomicTransaction, PlaceLifecycleAtomicTransaction, ProfessionalStatusAtomicTransaction, PropertyLifecycleAtomicTransaction, ReservationLifecycleAtomicTransaction
@@ -22,17 +21,21 @@ final readonly class PostgreSqlAggregateOutboxTransaction implements AccountStat
 
     public function run(Closure $aggregateAndOutboxWrites): mixed
     {
-        if ($this->connection->inTransaction()) {
-            throw new RuntimeException('Nested Aggregate + Outbox transactions are forbidden.');
-        }
-        $this->connection->beginTransaction();
+        $owner = ! $this->connection->inTransaction();
+        $savepoint = 'aggregate_outbox_'.bin2hex(random_bytes(8));
+        $owner ? $this->connection->beginTransaction() : $this->connection->exec("SAVEPOINT {$savepoint}");
         try {
             $result = $aggregateAndOutboxWrites();
-            $this->connection->commit();
+            $owner ? $this->connection->commit() : $this->connection->exec("RELEASE SAVEPOINT {$savepoint}");
 
             return $result;
         } catch (Throwable $error) {
-            $this->connection->rollBack();
+            if ($owner) {
+                $this->connection->rollBack();
+            } elseif ($this->connection->inTransaction()) {
+                $this->connection->exec("ROLLBACK TO SAVEPOINT {$savepoint}");
+                $this->connection->exec("RELEASE SAVEPOINT {$savepoint}");
+            }
             throw $error;
         }
     }

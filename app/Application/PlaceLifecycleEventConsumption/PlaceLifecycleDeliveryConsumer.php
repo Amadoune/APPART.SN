@@ -5,6 +5,7 @@ namespace App\Application\PlaceLifecycleEventConsumption;
 use App\Application\PlaceLifecycleEventTransport\PlaceLifecycleDeliveryPayload;
 use App\Application\PlaceLifecycleEventTransport\PlaceLifecycleEventRouter;
 use App\Application\PlaceLifecycleEventTransport\PlaceLifecycleTransportEnvelope;
+use App\Application\PublicGeographyRefresh\PublicGeographyMutationRefreshConsumer;
 use App\Application\PublicProjectionDelivery\Contract\PublicProjectionDeliveryConsumer;
 use App\Application\PublicProjectionDelivery\PublicProjectionDeliveryConsumptionResult;
 use App\Application\PublicProjectionDelivery\PublicProjectionDeliveryMessage;
@@ -15,6 +16,7 @@ final readonly class PlaceLifecycleDeliveryConsumer implements PublicProjectionD
     public function __construct(
         private PlaceLifecycleEventRouter $router,
         private PlaceLifecycleDeliveryConsumptionPolicy $policy,
+        private ?PublicGeographyMutationRefreshConsumer $publicGeography = null,
     ) {}
 
     public function consume(PublicProjectionDeliveryMessage $message): PublicProjectionDeliveryConsumptionResult
@@ -40,7 +42,14 @@ final readonly class PlaceLifecycleDeliveryConsumer implements PublicProjectionD
             return PublicProjectionDeliveryConsumptionResult::PermanentFailure;
         }
 
-        return match ($this->consumeEnvelope($envelope)) {
+        $consumption = $this->consumeEnvelope($envelope);
+        if ($consumption === PlaceLifecycleDeliveryConsumptionResult::Acknowledged
+            && $this->publicGeography !== null
+            && ! $this->publicGeography->consume($event->payload->placeId->value, $event->eventId->value)) {
+            $consumption = PlaceLifecycleDeliveryConsumptionResult::Retry;
+        }
+
+        return match ($consumption) {
             PlaceLifecycleDeliveryConsumptionResult::Acknowledged => PublicProjectionDeliveryConsumptionResult::Consumed,
             PlaceLifecycleDeliveryConsumptionResult::Retry => PublicProjectionDeliveryConsumptionResult::RetryableFailure,
             PlaceLifecycleDeliveryConsumptionResult::Quarantined => PublicProjectionDeliveryConsumptionResult::PermanentFailure,

@@ -80,8 +80,8 @@ final class CreateLocalPublicFactListing extends Command
 
     public function handle(): int
     {
-        if (! app()->environment('local') || (string) config('database.connections.pgsql.database') !== 'appart_test') {
-            $this->error('Local product data is restricted to APP_ENV=local and DB_DATABASE=appart_test.');
+        if (! app()->environment('local') || (string) config('database.connections.pgsql.database') !== 'appart_rebuild') {
+            $this->error('Local product data is restricted to APP_ENV=local and DB_DATABASE=appart_rebuild.');
 
             return self::FAILURE;
         }

@@ -21,6 +21,7 @@ final readonly class ListingSeoDecision
     /**
      * @param  list<CanonicalHistoryEntry>  $canonicalHistory
      * @param  list<BreadcrumbItem>  $breadcrumb
+     * @param  list<PublicGeographyBreadcrumbItemV2>  $geographyBreadcrumbV2
      */
     private function __construct(
         public ListingId $listingId,
@@ -40,11 +41,13 @@ final readonly class ListingSeoDecision
         public ?DateTimeImmutable $publishedAt,
         public ?DateTimeImmutable $expiresAt,
         public DateTimeImmutable $decidedAt,
+        public array $geographyBreadcrumbV2 = [],
     ) {}
 
     /**
      * @param  list<CanonicalHistoryEntry>  $canonicalHistory
      * @param  list<BreadcrumbItem>  $breadcrumb
+     * @param  list<PublicGeographyBreadcrumbItemV2>  $geographyBreadcrumbV2
      */
     public static function decide(
         ListingId $listingId,
@@ -64,6 +67,7 @@ final readonly class ListingSeoDecision
         ?DateTimeImmutable $publishedAt,
         ?DateTimeImmutable $expiresAt,
         DateTimeImmutable $decidedAt,
+        array $geographyBreadcrumbV2 = [],
     ): self {
         $indexable = $indexability === SeoIndexability::Indexable;
         if (($indexable && ($robots !== RobotsPolicy::IndexFollow || $htmlRobotsDirective->value !== 'index, follow' || $pageTreatment !== SeoPageTreatment::Retain || $headline === null || $description === null || $breadcrumb === [] || $structuredData === null || $publicJsonLd === null || $publicMedia === null || $publishedAt === null || $expiresAt === null || $expiredTreatment !== ExpiredListingTreatment::NotApplicable))
@@ -77,7 +81,7 @@ final readonly class ListingSeoDecision
             throw new SeoViolation('Inconsistent listing SEO decision.');
         }
 
-        return new self($listingId, $canonical, $canonicalHistory, $headline, $description, $indexability, $robots, $htmlRobotsDirective, $pageTreatment, $breadcrumb, $structuredData, $publicJsonLd, $publicMedia, $expiredTreatment, $publishedAt, $expiresAt, $decidedAt);
+        return new self($listingId, $canonical, $canonicalHistory, $headline, $description, $indexability, $robots, $htmlRobotsDirective, $pageTreatment, $breadcrumb, $structuredData, $publicJsonLd, $publicMedia, $expiredTreatment, $publishedAt, $expiresAt, $decidedAt, $geographyBreadcrumbV2);
     }
 
     /** @param list<CanonicalHistoryEntry> $history */

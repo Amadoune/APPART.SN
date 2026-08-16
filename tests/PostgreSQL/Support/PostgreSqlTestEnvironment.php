@@ -24,6 +24,7 @@ final class PostgreSqlTestEnvironment
         if (! str_starts_with($version, '18.')) {
             throw new RuntimeException('PostgreSQL 18.x is required for this test suite.');
         }
+        self::assertSafeTestDatabase($connection);
 
         return $connection;
     }
@@ -109,6 +110,9 @@ final class PostgreSqlTestEnvironment
             dirname(__DIR__, 3).'/src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/Migrations/095_iam_session_policy_authority.sql',
             dirname(__DIR__, 3).'/src/Modules/PublicationReview/Infrastructure/Persistence/PostgreSql/Migrations/096_publication_review_queue.sql',
             dirname(__DIR__, 3).'/src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/Migrations/097_listing_publication_command_gateway.sql',
+            dirname(__DIR__, 3).'/src/Modules/Geography/Infrastructure/Persistence/PostgreSql/Migrations/098_geography_places.sql',
+            dirname(__DIR__, 3).'/src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/Migrations/099_property_authoring_source_completeness.sql',
+            dirname(__DIR__, 3).'/src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/Migrations/100_property_promotion.sql',
         ];
         foreach ($migrations as $migration) {
             $sql = file_get_contents($migration);
@@ -121,6 +125,7 @@ final class PostgreSqlTestEnvironment
 
     public static function reset(PDO $connection): void
     {
+        self::assertSafeTestDatabase($connection);
         $connection->exec('TRUNCATE publication_review.command_ledger, publication_review.queue_items');
         $connection->exec('TRUNCATE listing_lifecycle.publication_command_gateway_ledger');
         $connection->exec('TRUNCATE administration_audit.public_append_records');
@@ -139,6 +144,7 @@ final class PostgreSqlTestEnvironment
         $connection->exec('TRUNCATE identity_access.account_status_lifecycle_transitions');
         $connection->exec('TRUNCATE geography.place_lifecycle_transitions');
         $connection->exec('TRUNCATE geography.place_lifecycle_event_inbox');
+        $connection->exec('TRUNCATE geography.places CASCADE');
         $connection->exec('TRUNCATE administration_audit.administrative_action_lifecycle_event_inbox');
         $connection->exec('TRUNCATE administration_audit.administrative_action_lifecycle_transition_contexts');
         $connection->exec('TRUNCATE content_seo.historical_redirect_decisions');
@@ -166,7 +172,50 @@ final class PostgreSqlTestEnvironment
         foreach (['listing_lifecycle', 'real_estate_catalog', 'media', 'search_discovery', 'content_seo', 'reservation_lifecycle', 'contacts_leads', 'professionals', 'administration_audit', 'geography', 'identity_access'] as $schema) {
             $connection->exec("TRUNCATE {$schema}.public_projection_outbox_replays, {$schema}.public_projection_outbox_cursors, {$schema}.public_projection_outbox_deliveries, {$schema}.public_projection_outbox_messages CASCADE");
         }
-        $connection->exec('TRUNCATE listing_lifecycle.authoring_public_fact_handoffs, media.media_items, media.media_id_reservations, media.media_collections, real_estate_catalog.property_addresses, real_estate_catalog.property_reference_reservations, real_estate_catalog.properties, listing_lifecycle.listing_revisions, listing_lifecycle.listings, administration_audit.administrative_action_audit_entries, administration_audit.administrative_action_decisions, administration_audit.administrative_action_approvals, administration_audit.administrative_actions');
+        $connection->exec('TRUNCATE real_estate_catalog.property_promotion_commands, listing_lifecycle.authoring_public_fact_handoffs, media.media_items, media.media_id_reservations, media.media_collections, real_estate_catalog.property_addresses, real_estate_catalog.property_reference_reservations, real_estate_catalog.properties, listing_lifecycle.listing_revisions, listing_lifecycle.listings, administration_audit.administrative_action_audit_entries, administration_audit.administrative_action_decisions, administration_audit.administrative_action_approvals, administration_audit.administrative_actions');
+    }
+
+    public static function assertDatabaseNamesAreIsolated(string $testDatabase, string $applicationDatabase): void
+    {
+        if (preg_match('/(?:^|_)test(?:$|_)/i', $testDatabase) !== 1) {
+            throw new RuntimeException('PostgreSQL destructive tests require an explicitly test-only database name.');
+        }
+        if ($applicationDatabase === '') {
+            throw new RuntimeException('The local application PostgreSQL database must be declared before destructive tests can run.');
+        }
+        if (hash_equals(strtolower($applicationDatabase), strtolower($testDatabase))) {
+            throw new RuntimeException('PostgreSQL tests refuse to use the local application database.');
+        }
+    }
+
+    private static function assertSafeTestDatabase(PDO $connection): void
+    {
+        $database = $connection->query('SELECT current_database()')->fetchColumn();
+        if (! is_string($database) || $database === '') {
+            throw new RuntimeException('The PostgreSQL test database identity is unavailable.');
+        }
+
+        self::assertDatabaseNamesAreIsolated($database, self::applicationDatabase());
+    }
+
+    private static function applicationDatabase(): string
+    {
+        $configured = getenv('APPART_APPLICATION_PG_DATABASE');
+        if (is_string($configured) && $configured !== '') {
+            return $configured;
+        }
+
+        $environment = dirname(__DIR__, 3).'/.env';
+        $contents = is_file($environment) ? file($environment, FILE_IGNORE_NEW_LINES) : false;
+        if (is_array($contents)) {
+            foreach ($contents as $line) {
+                if (str_starts_with($line, 'DB_DATABASE=')) {
+                    return trim(substr($line, strlen('DB_DATABASE=')), " \t\n\r\0\x0B\"'");
+                }
+            }
+        }
+
+        return '';
     }
 
     private static function environment(string $name): string

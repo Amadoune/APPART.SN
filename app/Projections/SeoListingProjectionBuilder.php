@@ -5,6 +5,7 @@ namespace App\Projections;
 use Appart\Modules\ContentSeo\Domain\Model\BreadcrumbItem;
 use Appart\Modules\ContentSeo\Domain\Model\CanonicalHistoryEntry;
 use Appart\Modules\ContentSeo\Domain\Model\ListingSeoDecision;
+use Appart\Modules\ContentSeo\Domain\Model\PublicGeographyBreadcrumbItemV2;
 use Appart\Modules\ContentSeo\Domain\ValueObject\ExpiredListingTreatment;
 use Appart\Modules\ContentSeo\Domain\ValueObject\RobotsPolicy;
 use Appart\Modules\ContentSeo\Domain\ValueObject\SeoIndexability;
@@ -50,6 +51,12 @@ final readonly class SeoListingProjectionBuilder
             expiresAt: $decision->expiresAt,
             decidedAt: $decision->decidedAt,
             expiredListingTreatment: $decision->expiredTreatment->value,
+            breadcrumbSchemaVersion: $decision->geographyBreadcrumbV2 === [] ? 'content-seo-breadcrumb-v1' : 'public-geography-breadcrumb-v2',
+            geographyBreadcrumb: array_map(static fn (PublicGeographyBreadcrumbItemV2 $item): array => [
+                'placeId' => $item->placeId,
+                'type' => $item->type,
+                'label' => $item->label,
+            ], $decision->geographyBreadcrumbV2),
         );
     }
 

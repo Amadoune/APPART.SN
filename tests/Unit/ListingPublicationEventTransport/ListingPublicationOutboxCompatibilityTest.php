@@ -25,6 +25,9 @@ use App\Application\PublicProjectionDelivery\PublicProjectionDeliveryOrder;
 use App\Application\PublicProjectionDelivery\PublicProjectionDeliveryPayloadVersion;
 use App\Application\PublicProjectionDelivery\PublicProjectionDeliveryPublishableFact;
 use App\Application\PublicProjectionDelivery\PublicProjectionDeliverySourceModule;
+use Appart\Modules\ContentSeo\Application\Materialization\ContentSeoMaterializationResult;
+use Appart\Modules\ContentSeo\Application\Materialization\Contract\MaterializeContentSeoSnapshotV1;
+use Appart\Modules\ContentSeo\Domain\ValueObject\ListingId as ContentSeoListingId;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\ListingPublicationEvent;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\ListingPublicationEventCatalog;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\Event\ListingPublicationEventInstant;
@@ -34,6 +37,9 @@ use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPubli
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationState;
 use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPublicationTransition;
 use Appart\Modules\ListingLifecycle\Domain\ValueObject\ListingId;
+use Appart\Modules\SearchDiscovery\Application\Materialization\Contract\MaterializePublicSearchDecisionV1;
+use Appart\Modules\SearchDiscovery\Application\Materialization\PublicSearchMaterializationResult;
+use Appart\Modules\SearchDiscovery\Domain\ValueObject\ListingId as SearchListingId;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -80,7 +86,7 @@ final class ListingPublicationOutboxCompatibilityTest extends TestCase
     {
         $router = new ConsumerRouterSpy($routing);
         $message = $this->message();
-        $result = (new ListingPublicationEventDeliveryConsumer($router))->consume($message);
+        $result = (new ListingPublicationEventDeliveryConsumer($router, new UnusedSearchDecisionMaterializer, new UnusedContentSeoMaterializer))->consume($message);
 
         self::assertSame($expected, $result);
         self::assertEquals($this->event(), $router->received);
@@ -102,7 +108,7 @@ final class ListingPublicationOutboxCompatibilityTest extends TestCase
         $message = $this->message();
         $invalid = new PublicProjectionDeliveryMessage($message->messageId, $message->idempotencyKey, $message->eventType, $message->payloadVersion, $message->sourceModule, $message->aggregateType, $message->aggregateId, $message->order, $message->occurredAt, $message->recordedAt, new PublicProjectionDeliveryListingPayload($message->aggregateId->value));
 
-        self::assertSame(PublicProjectionDeliveryConsumptionResult::DivergentPayload, (new ListingPublicationEventDeliveryConsumer($router))->consume($invalid));
+        self::assertSame(PublicProjectionDeliveryConsumptionResult::DivergentPayload, (new ListingPublicationEventDeliveryConsumer($router, new UnusedSearchDecisionMaterializer, new UnusedContentSeoMaterializer))->consume($invalid));
         self::assertSame(0, $router->calls);
     }
 
@@ -137,6 +143,14 @@ final class ListingPublicationOutboxCompatibilityTest extends TestCase
     }
 }
 
+final readonly class UnusedContentSeoMaterializer implements MaterializeContentSeoSnapshotV1
+{
+    public function materialize(ContentSeoListingId $listingId): ContentSeoMaterializationResult
+    {
+        throw new \LogicException('The ContentSeo materializer must not be called for a non-Published event.');
+    }
+}
+
 final class ConsumerRouterSpy implements ListingPublicationEventRouter
 {
     public int $calls = 0;
@@ -151,5 +165,13 @@ final class ConsumerRouterSpy implements ListingPublicationEventRouter
         $this->received = $event;
 
         return $this->result;
+    }
+}
+
+final readonly class UnusedSearchDecisionMaterializer implements MaterializePublicSearchDecisionV1
+{
+    public function materialize(SearchListingId $listingId): PublicSearchMaterializationResult
+    {
+        throw new \LogicException('The Search materializer must not be called for a non-Published event.');
     }
 }

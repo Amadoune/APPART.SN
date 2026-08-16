@@ -36,7 +36,7 @@ final class PublicationReviewExperienceController extends Controller
             $queueItemId,
             (string) $request->validated('commandId'),
             (int) $request->validated('expectedVersion'),
-            new DateTimeImmutable,
+            new DateTimeImmutable((string) $request->validated('occurredAt')),
         );
 
         return $this->render($result, 'claimed');
@@ -49,7 +49,7 @@ final class PublicationReviewExperienceController extends Controller
             $queueItemId,
             (string) $request->validated('commandId'),
             (int) $request->validated('expectedVersion'),
-            new DateTimeImmutable,
+            new DateTimeImmutable((string) $request->validated('occurredAt')),
         );
 
         return $this->render($result, 'reviewing', [
@@ -69,10 +69,13 @@ final class PublicationReviewExperienceController extends Controller
             (string) $request->validated('commandId'),
             (string) $request->validated('projectionCommandId'),
             (int) $request->validated('expectedVersion'),
-            new DateTimeImmutable,
+            new DateTimeImmutable((string) $request->validated('occurredAt')),
         );
 
-        return $this->render($result, 'confirmed');
+        return $this->render(
+            $result,
+            $result->status === PublicationReviewExperienceStatus::NotReady ? 'not-ready' : 'confirmed',
+        );
     }
 
     /** @param array<string, mixed> $context */

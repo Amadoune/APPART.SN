@@ -17,6 +17,7 @@ final readonly class AuthoringOperationCommand
         public int $expectedVersion,
         public array $data,
         public DateTimeImmutable $occurredAt,
+        public ?int $expectedAuthoringVersion = null,
     ) {
         foreach (['intentId' => $intentId, 'actorAccountId' => $actorAccountId] as $field => $value) {
             if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', strtolower($value)) !== 1) {
@@ -25,6 +26,9 @@ final readonly class AuthoringOperationCommand
         }
         if ($expectedVersion < 0) {
             throw new InvalidArgumentException('Invalid expectedVersion.');
+        }
+        if ($expectedAuthoringVersion !== null && $expectedAuthoringVersion < 1) {
+            throw new InvalidArgumentException('Invalid expectedAuthoringVersion.');
         }
     }
 
@@ -37,6 +41,7 @@ final readonly class AuthoringOperationCommand
             'actorAccountId' => strtolower($this->actorAccountId),
             'data' => $data,
             'expectedVersion' => $this->expectedVersion,
+            'expectedAuthoringVersion' => $this->expectedAuthoringVersion,
             'intentId' => strtolower($this->intentId),
             'listingId' => $this->listingId === null ? null : strtolower($this->listingId),
             'occurredAt' => $this->occurredAt->format('Y-m-d\TH:i:s.uP'),

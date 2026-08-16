@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Application\PublicAuthoringIntegration\PublicAuthoringJourneyOperation;
+use Appart\Modules\Geography\Domain\ValueObject\PlaceType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -22,6 +23,9 @@ final class PublicAuthoringJourneyHttpRequest extends FormRequest
             'propertyId' => $this->propertyRule(),
             'listingId' => $this->listingRule(),
             'expectedVersion' => ['bail', 'required', 'integer', 'min:0'],
+            'expectedAuthoringVersion' => $this->operation() === PublicAuthoringJourneyOperation::SubmitListing
+                ? ['bail', 'required', 'integer', 'min:1']
+                : ['prohibited'],
             'requestedAt' => ['bail', 'required', 'date_format:Y-m-d\TH:i:s.u\Z'],
             'revisionId' => $this->operation() === PublicAuthoringJourneyOperation::CreateListing
                 ? ['bail', 'required', 'uuid']
@@ -37,6 +41,17 @@ final class PublicAuthoringJourneyHttpRequest extends FormRequest
             'propertyType' => $this->propertyContentRule([Rule::in(['apartment', 'house', 'villa', 'land', 'office', 'commercial'])]),
             'city' => $this->propertyContentRule(['string', 'min:2', 'max:120']),
             'neighborhood' => $this->propertyContentRule(['string', 'min:2', 'max:120']),
+            'propertyReference' => $this->propertyContentRule(['string', 'regex:~^[A-Za-z0-9][A-Za-z0-9._/-]{3,63}$~']),
+            'surfaceSquareMeters' => $this->propertyContentRule(['nullable', 'integer', 'min:1', 'max:10000000']),
+            'rooms' => $this->propertyContentRule(['nullable', 'integer', 'min:0', 'max:1000']),
+            'bathrooms' => $this->propertyContentRule(['nullable', 'integer', 'min:0', 'max:1000']),
+            'constructionYear' => $this->propertyContentRule(['nullable', 'integer', 'min:1800', 'max:9999']),
+            'addressLine' => $this->propertyContentRule(['nullable', 'string', 'min:3', 'max:255']),
+            'geographicPlaceId' => $this->propertyContentRule(['uuid']),
+            'geographicPlaceType' => $this->propertyContentRule(['required_with:geographicPlaceId', Rule::enum(PlaceType::class)]),
+            'geographicParentPlaceId' => $this->propertyContentRule(['present_with:geographicPlaceId', 'nullable', 'uuid']),
+            'geographicSelectionCursor' => $this->propertyContentRule(['present_with:geographicPlaceId', 'nullable', 'string', 'max:2048']),
+            'geographicSelectionLimit' => $this->propertyContentRule(['required_with:geographicPlaceId', 'integer', 'min:1', 'max:100']),
             'delegateAccountId' => in_array($this->operation(), [
                 PublicAuthoringJourneyOperation::GrantDelegation,
                 PublicAuthoringJourneyOperation::RevokeDelegation,

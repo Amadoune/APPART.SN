@@ -28,6 +28,8 @@ use Appart\Modules\ListingLifecycle\Application\PublicationWorkflow\ListingPubli
 use Appart\Modules\ListingLifecycle\Domain\ValueObject\ListingId;
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\ListingPublicationWorkflowMapper;
 use Appart\Modules\ListingLifecycle\Infrastructure\Persistence\PostgreSql\PostgreSqlListingPublicationWorkflowRepository;
+use Appart\Modules\PublicationReview\Application\Queue\PublicationReviewConsumer;
+use Appart\Modules\PublicationReview\Infrastructure\Persistence\PostgreSql\PostgreSqlPublicationReviewQueue;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -61,6 +63,7 @@ final class PostgreSqlListingPublicationEventIntegrationTest extends TestCase
         $canonical = json_decode($payload['canonicalEvent'], true, flags: JSON_THROW_ON_ERROR);
         self::assertSame('2026-07-20T10:00:00.000000Z', $canonical['metadata']['occurredAt']);
         self::assertSame('2026-07-20T10:00:01.000000Z', $canonical['metadata']['recordedAt']);
+        self::assertSame(1, (int) $this->connection->query("SELECT count(*) FROM publication_review.queue_items WHERE listing_id='{$id->value}' AND state='pending'")->fetchColumn());
     }
 
     public function test_denied_transition_writes_neither_transition_nor_outbox(): void
@@ -123,6 +126,7 @@ final class PostgreSqlListingPublicationEventIntegrationTest extends TestCase
             new PublicProjectionDeliveryCatalogMessageFactory(new PublicProjectionDeliveryEventCatalog),
             $writer,
             PublicProjectionOutboxConsumerId::fromString('public-projection-updater'),
+            new PublicationReviewConsumer(new PostgreSqlPublicationReviewQueue($this->connection)),
         );
     }
 
