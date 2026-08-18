@@ -114,7 +114,7 @@ final class PostgreSqlPublicProjectionOutboxIntegrationTest extends TestCase
         self::assertSame(1, (int) $external->query('SELECT count(*) FROM listing_lifecycle.public_projection_outbox_messages')->fetchColumn());
     }
 
-    public function test_aggregate_and_outbox_roll_back_together_and_nested_transactions_are_refused(): void
+    public function test_aggregate_and_outbox_roll_back_together(): void
     {
         $fixtures = new FakeListingRegistryHarness;
         $listing = $fixtures->minimalListing();
@@ -134,14 +134,67 @@ final class PostgreSqlPublicProjectionOutboxIntegrationTest extends TestCase
         }
         self::assertSame(0, $this->countRows('listing_lifecycle.listings'));
         self::assertSame(0, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
+    }
+
+    public function test_aggregate_and_outbox_use_a_savepoint_inside_an_existing_transaction(): void
+    {
+        $fixtures = new FakeListingRegistryHarness;
+        $listing = $fixtures->minimalListing();
+        $participant = new PostgreSqlAggregateOutboxParticipantTransaction($this->connection);
+        $repository = new PostgreSqlListingRepository($this->connection, new ListingMapper, $participant);
+        $transaction = new PostgreSqlAggregateOutboxTransaction($this->connection);
 
         $this->connection->beginTransaction();
         try {
-            $this->expectException(RuntimeException::class);
-            $transaction->run(static fn (): null => null);
+            $transaction->run(function () use ($repository, $listing): void {
+                $repository->add($listing);
+                self::assertSame(PublicProjectionOutboxWriteResult::Applied, $this->writer->append($this->message($listing->id()->value), $this->consumer));
+            });
+
+            self::assertTrue($this->connection->inTransaction());
+            self::assertSame(1, $this->countRows('listing_lifecycle.listings'));
+            self::assertSame(1, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
         } finally {
             $this->connection->rollBack();
         }
+
+        self::assertSame(0, $this->countRows('listing_lifecycle.listings'));
+        self::assertSame(0, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
+    }
+
+    public function test_aggregate_and_outbox_failure_rolls_back_to_savepoint_without_closing_the_outer_transaction(): void
+    {
+        $fixtures = new FakeListingRegistryHarness;
+        $outerListing = $fixtures->minimalListing();
+        $innerListing = $fixtures->minimalListing($fixtures->distinctId());
+        $participant = new PostgreSqlAggregateOutboxParticipantTransaction($this->connection);
+        $repository = new PostgreSqlListingRepository($this->connection, new ListingMapper, $participant);
+        $transaction = new PostgreSqlAggregateOutboxTransaction($this->connection);
+
+        $this->connection->beginTransaction();
+        try {
+            $repository->add($outerListing);
+
+            try {
+                $transaction->run(function () use ($repository, $innerListing): void {
+                    $repository->add($innerListing);
+                    self::assertSame(PublicProjectionOutboxWriteResult::Applied, $this->writer->append($this->message($innerListing->id()->value), $this->consumer));
+                    throw new RuntimeException('controlled savepoint rollback');
+                });
+                self::fail('The savepoint operation must fail.');
+            } catch (RuntimeException $error) {
+                self::assertSame('controlled savepoint rollback', $error->getMessage());
+            }
+
+            self::assertTrue($this->connection->inTransaction());
+            self::assertSame(1, $this->countRows('listing_lifecycle.listings'));
+            self::assertSame(0, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
+        } finally {
+            $this->connection->rollBack();
+        }
+
+        self::assertSame(0, $this->countRows('listing_lifecycle.listings'));
+        self::assertSame(0, $this->countRows('listing_lifecycle.public_projection_outbox_messages'));
     }
 
     private function message(string $id = '32000000-0000-4000-8000-000000000001'): PublicProjectionDeliveryMessage
