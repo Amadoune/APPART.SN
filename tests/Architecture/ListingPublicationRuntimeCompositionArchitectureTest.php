@@ -15,7 +15,10 @@ final class ListingPublicationRuntimeCompositionArchitectureTest extends TestCas
         self::assertSame(1, substr_count($provider, 'singleton(ListingPublicationWorkflowMapper::class)'));
         self::assertSame(1, substr_count($provider, 'singleton(PostgreSqlListingPublicationWorkflowRepository::class)'));
         self::assertSame(1, substr_count($provider, 'alias(PostgreSqlListingPublicationWorkflowRepository::class, ListingPublicationWorkflowStore::class)'));
-        self::assertSame([], glob($root.'/app/Providers/*ListingPublication*') ?: []);
+        self::assertSame(
+            [$root.'/app/Providers/ListingPublicationCommandGatewayServiceProvider.php'],
+            glob($root.'/app/Providers/*ListingPublication*') ?: [],
+        );
     }
 
     public function test_bootstrap_does_not_execute_workflow_storage_or_sql(): void

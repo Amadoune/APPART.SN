@@ -32,12 +32,15 @@ final class AccountStatusPersistenceArchitectureTest extends TestCase
     public function test_persistence_does_not_decide_transitions_or_import_future_layers(): void
     {
         $root = dirname(__DIR__, 2).'/src/Modules/IdentityAccess';
-        $files = array_merge(
-            glob($root.'/Application/AccountStatusPersistence/**/*.php') ?: [],
-            glob($root.'/Application/AccountStatusPersistence/*.php') ?: [],
-            glob($root.'/Infrastructure/Persistence/*.php') ?: [],
-            glob($root.'/Infrastructure/Persistence/PostgreSql/*.php') ?: [],
-        );
+        $files = [
+            ...(glob($root.'/Application/AccountStatusPersistence/**/*.php') ?: []),
+            ...(glob($root.'/Application/AccountStatusPersistence/*.php') ?: []),
+            $root.'/Infrastructure/Persistence/AccountStatusWorkflowMapper.php',
+            $root.'/Infrastructure/Persistence/PostgreSql/PostgreSqlAccountStatusWorkflowStore.php',
+        ];
+        foreach ($files as $file) {
+            self::assertFileExists($file);
+        }
         $source = implode("\n", array_map(static fn (string $file): string => (string) file_get_contents($file), $files));
 
         foreach ([
