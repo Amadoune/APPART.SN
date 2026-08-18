@@ -15,7 +15,7 @@
     "image": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636"
   },
   "githubRunner": "ubuntu-24.04",
-  "sourceBaseCommit": "6e4f4997f9b82648ba7a3319f7462f638e66eeb6",
-  "candidateTag": "appart-sn-release-candidate-rc2-r8",
+  "sourceBaseCommit": "ebef23e12707d019eda7c1de799689ae470e1582",
+  "candidateTag": "appart-sn-release-candidate-rc2-r9",
   "identityPolicy": "annotated-candidate-tag-resolves-head-and-source-base-is-ancestor"
 }

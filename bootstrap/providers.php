@@ -1,14 +1,14 @@
 <?php
 
-use App\Providers\AddressIdentityServiceProvider;
 use App\Providers\ActiveGenerationBootstrapServiceProvider;
+use App\Providers\AddressIdentityServiceProvider;
 use App\Providers\AdministrationAuditPublicAppendServiceProvider;
 use App\Providers\AdministrationConsoleHttpServiceProvider;
 use App\Providers\AdministrationConsoleOwnerReaderServiceProvider;
 use App\Providers\AdministrationConsoleRuntimeServiceProvider;
 use App\Providers\AppServiceProvider;
-use App\Providers\AuthoringPublicFactHandoffServiceProvider;
 use App\Providers\AuthoringDraftResumeServiceProvider;
+use App\Providers\AuthoringPublicFactHandoffServiceProvider;
 use App\Providers\BusinessYearAuthorityServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerReaderServiceProvider;
 use App\Providers\ContactsLeadsAntiAbuseOwnerSourceRuntimeReadServiceProvider;
@@ -77,10 +77,10 @@ use App\Providers\PublicationReviewAuthorizationServiceProvider;
 use App\Providers\PublicationReviewExperienceServiceProvider;
 use App\Providers\PublicationReviewQueueServiceProvider;
 use App\Providers\PublicAuthoringIntegrationServiceProvider;
-use App\Providers\PublicProjectionRuntimeServiceProvider;
-use App\Providers\PublicPropertyPromotionServiceProvider;
 use App\Providers\PublicMediaBinaryDeliveryServiceProvider;
 use App\Providers\PublicMediaMaterializationServiceProvider;
+use App\Providers\PublicProjectionRuntimeServiceProvider;
+use App\Providers\PublicPropertyPromotionServiceProvider;
 use App\Providers\PublicSearchDecisionMaterializationServiceProvider;
 use App\Providers\PublicSearchQueryResolutionReaderServiceProvider;
 use App\Providers\PublicSearchResultsServiceProvider;
