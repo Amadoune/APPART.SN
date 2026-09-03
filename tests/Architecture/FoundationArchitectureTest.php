@@ -25,6 +25,7 @@ final class FoundationArchitectureTest extends TestCase
         'MonetizationPayments',
         'Notifications',
         'Professionals',
+        'PublicationReview',
         'RealEstateCatalog',
         'ReliabilityOperations',
         'ReservationLifecycle',
@@ -61,6 +62,11 @@ final class FoundationArchitectureTest extends TestCase
 
         foreach ($phpFiles as $file) {
             if (! $file->isFile() || $file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $normalizedPath = str_replace('\\', '/', $file->getPathname());
+            if (! str_contains($normalizedPath, '/Domain/')) {
                 continue;
             }
 

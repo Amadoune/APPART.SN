@@ -31,7 +31,7 @@ final class ProjectionRebuildRuntimeSourceArchitectureTest extends TestCase
     {
         $contents = file_get_contents(dirname(__DIR__, 2).'/app/Infrastructure/ProjectionRebuildRuntimeSource/CertifiedPublicProjectionCandidateFactory.php');
         self::assertIsString($contents);
-        foreach (['InspectablePublicListingProjectionSource', 'SearchListingProjectionBuilder', 'ListingSeoDecisionPolicy', 'SeoListingProjectionBuilder', 'PublicListingReadModelBuilder'] as $dependency) {
+        foreach (['CandidatePublicListingProjectionSource', 'SearchListingProjectionBuilder', 'ListingSeoDecisionPolicy', 'SeoListingProjectionBuilder', 'PublicListingReadModelBuilder'] as $dependency) {
             self::assertStringContainsString($dependency, $contents);
         }
         self::assertDoesNotMatchRegularExpression('/(?:\bnow\s*\(|CURRENT_TIMESTAMP|clock_timestamp|\bPDO\b|\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|Http|Laravel|Illuminate)/i', $contents);

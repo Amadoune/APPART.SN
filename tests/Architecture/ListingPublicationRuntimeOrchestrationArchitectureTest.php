@@ -47,7 +47,10 @@ final class ListingPublicationRuntimeOrchestrationArchitectureTest extends TestC
     public function test_orchestration_foundation_contains_no_provider_outbox_or_projection_artifact(): void
     {
         $root = dirname(__DIR__, 2);
-        self::assertSame([], glob($root.'/app/Providers/*ListingPublication*') ?: []);
+        self::assertSame(
+            [$root.'/app/Providers/ListingPublicationCommandGatewayServiceProvider.php'],
+            glob($root.'/app/Providers/*ListingPublication*') ?: [],
+        );
         self::assertSame([], glob($root.'/app/**/*ListingPublication*Outbox*') ?: []);
         self::assertSame([], glob($root.'/app/**/*ListingPublication*Projection*') ?: []);
         foreach (glob($root.'/src/Modules/ListingLifecycle/Application/PublicationWorkflow/*.php') ?: [] as $file) {

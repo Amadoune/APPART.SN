@@ -8,11 +8,12 @@ final class PublicGeographyV2ConsumerAlignmentArchitectureTest extends TestCase
 {
     public function test_v2_contracts_have_no_url_slug_or_search_dependency(): void
     {
+        $root = dirname(__DIR__, 2);
         $paths = [
-            app_path('Application/PublicGeographySource/PublicGeographyDecisionV2.php'),
-            app_path('Application/PublicGeographySource/PublicGeographyBreadcrumbItemV2.php'),
-            base_path('src/Modules/ContentSeo/Domain/Model/PublicGeographySeoSourceV2.php'),
-            base_path('src/Modules/ContentSeo/Domain/Model/PublicGeographyBreadcrumbItemV2.php'),
+            $root.'/app/Application/PublicGeographySource/PublicGeographyDecisionV2.php',
+            $root.'/app/Application/PublicGeographySource/PublicGeographyBreadcrumbItemV2.php',
+            $root.'/src/Modules/ContentSeo/Domain/Model/PublicGeographySeoSourceV2.php',
+            $root.'/src/Modules/ContentSeo/Domain/Model/PublicGeographyBreadcrumbItemV2.php',
         ];
 
         foreach ($paths as $path) {
@@ -26,7 +27,7 @@ final class PublicGeographyV2ConsumerAlignmentArchitectureTest extends TestCase
 
     public function test_alignment_adds_no_migration(): void
     {
-        $matches = glob(database_path('migrations/*public*geography*v2*'));
+        $matches = glob(dirname(__DIR__, 2).'/database/migrations/*public*geography*v2*');
 
         self::assertSame([], $matches === false ? [] : $matches);
     }

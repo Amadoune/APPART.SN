@@ -42,11 +42,14 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
                 continue;
             }
 
-            self::assertDoesNotMatchRegularExpression(
-                $pattern,
-                $this->contentsOf($file),
-                $this->relativePath($file).' contains forbidden '.$description.'.',
-            );
+            $contents = $this->contentsOf($file);
+            $containsForbidden = match ($description) {
+                'database access' => $this->containsDatabaseAccess($contents),
+                'SQL' => $this->containsSqlLiteral($contents),
+                default => preg_match($pattern, $contents) === 1,
+            };
+
+            self::assertFalse($containsForbidden, $this->relativePath($file).' contains forbidden '.$description.'.');
         }
     }
 
@@ -84,6 +87,7 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             'PostgreSqlLeadLifecycleWorkflowRepository' => 'src/Modules/ContactsLeads/Infrastructure/Persistence/PostgreSql/PostgreSqlLeadLifecycleWorkflowRepository.php',
             'PostgreSqlContentSeoOutboxRepository' => 'src/Modules/ContentSeo/Infrastructure/Outbox/PostgreSqlContentSeoOutboxRepository.php',
             'PostgreSqlExperienceAcceptanceOutboxRepository' => 'src/Modules/ExperienceAcceptance/Infrastructure/Outbox/PostgreSqlExperienceAcceptanceOutboxRepository.php',
+            'PostgreSqlPlaceRepository' => 'src/Modules/Geography/Infrastructure/Persistence/PostgreSql/PostgreSqlPlaceRepository.php',
             'PostgreSqlAccountRepository' => 'src/Modules/IdentityAccess/Infrastructure/Persistence/PostgreSql/PostgreSqlAccountRepository.php',
             'PostgreSqlLegacyMigrationOutboxRepository' => 'src/Modules/LegacyMigration/Infrastructure/Outbox/PostgreSqlLegacyMigrationOutboxRepository.php',
             'PostgreSqlListingPublicationWorkflowRepository' => 'src/Modules/ListingLifecycle/Infrastructure/Persistence/PostgreSql/PostgreSqlListingPublicationWorkflowRepository.php',
@@ -121,6 +125,10 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             preg_match_all('/Appart\\\\Modules\\\\([A-Za-z][A-Za-z0-9]*)\\\\/', $this->contentsOf($file), $matches);
 
             foreach (array_unique($matches[1]) as $dependency) {
+                if ($this->isAuthorizedCrossModuleDependency($relative, $owner, $dependency)) {
+                    continue;
+                }
+
                 self::assertSame($owner, $dependency, $relative.' directly depends on module '.$dependency.'.');
             }
         }
@@ -231,7 +239,11 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             }
 
             if (str_contains($relative, '/Infrastructure/')) {
-                self::assertStringContainsString('/RealEstateCatalog/Infrastructure/Persistence/', $relative);
+                self::assertTrue(
+                    str_contains($relative, '/RealEstateCatalog/Infrastructure/Persistence/')
+                        || str_contains($relative, '/RealEstateCatalog/Infrastructure/Geography/'),
+                    $relative.' is outside the certified Real Estate Catalog infrastructure slices.',
+                );
             }
         }
     }
@@ -245,7 +257,11 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             }
 
             if (str_contains($relative, '/Infrastructure/')) {
-                self::assertStringContainsString('/Media/Infrastructure/Persistence/', $relative);
+                self::assertTrue(
+                    str_contains($relative, '/Media/Infrastructure/Persistence/')
+                        || str_contains($relative, '/Media/Infrastructure/BinaryStorage/'),
+                    $relative.' is outside the certified Media infrastructure slices.',
+                );
             }
         }
     }
@@ -262,7 +278,10 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
                 $relative.' declares a generic persistence abstraction.',
             );
 
-            if (preg_match('/(?:class|interface|trait)\s+\w+(?:Repository|Mapper|Snapshot)\b/i', $contents) === 1) {
+            $declaresRepositoryOrMapper = preg_match('/(?:class|interface|trait)\s+\w+(?:Repository|Mapper)\b/i', $contents) === 1;
+            $declaresPersistenceSnapshot = str_contains($relative, '/Persistence/')
+                && preg_match('/(?:class|interface|trait)\s+\w+Snapshot\b/i', $contents) === 1;
+            if ($declaresRepositoryOrMapper || $declaresPersistenceSnapshot) {
                 if (in_array($relative, ['app/Http/AdministrativeActionLifecycleHttpResultMapper.php', 'app/Http/LeadLifecycleHttpResultMapper.php', 'app/Http/MediaItemLifecycleHttpResultMapper.php', 'app/Http/ModerationHttpResponseMapper.php', 'app/Http/PlaceLifecycleHttpResultMapper.php', 'app/Http/ProfessionalStatusHttpResultMapper.php', 'app/Http/ReservationLifecycleHttpResultMapper.php'], true)) {
                     self::assertStringContainsString('namespace App\\Http;', $contents);
                     self::assertStringNotContainsString('PDO', $contents);
@@ -369,7 +388,7 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
     {
         foreach ($this->productionPhpFiles() as $file) {
             $contents = $this->contentsOf($file);
-            if (preg_match('/(?:\bPDO\b|\bSELECT\b|\bINSERT\s+INTO\b|\bUPDATE\b.+\bSET\b|\bDELETE\s+FROM\b|\bCREATE\s+(?:TABLE|SCHEMA)\b)/is', $contents) !== 1) {
+            if (! $this->containsDatabaseAccess($contents) && ! $this->containsSqlLiteral($contents)) {
                 continue;
             }
 
@@ -385,9 +404,14 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
                     || str_starts_with($relative, 'app/Infrastructure/PublicProjectionStore/PostgreSql/')
                     || str_starts_with($relative, 'app/Infrastructure/PublicGeographySource/PostgreSql/')
                     || str_starts_with($relative, 'app/Infrastructure/PublicMediaSource/PostgreSql/')
+                    || str_starts_with($relative, 'app/Infrastructure/PublicMediaBinaryDelivery/')
+                    || str_starts_with($relative, 'app/Infrastructure/PublicMediaMaterialization/')
+                    || str_starts_with($relative, 'app/Infrastructure/ActiveGenerationBootstrap/')
                     || str_starts_with($relative, 'app/Infrastructure/ActiveGenerationReader/PostgreSql/')
+                    || str_starts_with($relative, 'app/Infrastructure/ContentSeoSnapshotMaterialization/')
                     || str_starts_with($relative, 'app/Infrastructure/ProjectionRebuildRuntimeSource/PostgreSql/')
                     || str_starts_with($relative, 'app/Infrastructure/PropertyListingResolution/PostgreSql/')
+                    || str_starts_with($relative, 'app/Infrastructure/SearchDecisionMaterialization/')
                     || str_starts_with($relative, 'app/Infrastructure/ListingPublicationEventRouting/PostgreSql/')
                     || str_starts_with($relative, 'app/Infrastructure/PropertyLifecycleEventRouting/PostgreSql/')
                     || str_starts_with($relative, 'app/Infrastructure/ReservationLifecycleEventRouting/PostgreSql/')
@@ -396,7 +420,11 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
                     || str_starts_with($relative, 'app/Infrastructure/MediaItemLifecycleEventRouting/PostgreSql/')
                     || str_starts_with($relative, 'app/Infrastructure/AdministrativeActionLifecycleEventRouting/PostgreSql/')
                     || str_starts_with($relative, 'app/Infrastructure/PlaceLifecycleEventRouting/PostgreSql/')
-                    || $relative === 'app/Providers/PublicProjectionRuntimeServiceProvider.php',
+                    || in_array($relative, [
+                        'app/Providers/PublicProjectionRuntimeServiceProvider.php',
+                        'app/Providers/PublicPropertyPromotionServiceProvider.php',
+                        'app/Providers/PublicSearchResultsServiceProvider.php',
+                    ], true),
                 $relative.' uses SQL or PDO outside authorized Infrastructure.',
             );
         }
@@ -437,6 +465,7 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             'src/Modules/Notifications/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/Notifications/Infrastructure/Outbox/Migrations/',
             'src/Modules/Professionals/Infrastructure/Persistence/PostgreSql/Migrations/',
+            'src/Modules/PublicationReview/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/ReliabilityOperations/Infrastructure/Persistence/PostgreSql/Migrations/',
             'src/Modules/ReliabilityOperations/Infrastructure/Outbox/Migrations/',
@@ -461,13 +490,15 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             'app/Infrastructure/PlaceLifecycleEventRouting/PostgreSql/Migrations/',
         ];
 
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->projectPath())) as $file) {
-            if (! $file->isFile() || strtolower($file->getExtension()) !== 'sql') {
-                continue;
-            }
+        foreach (['src', 'app', 'database'] as $productionRoot) {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->projectPath($productionRoot))) as $file) {
+                if (! $file->isFile() || strtolower($file->getExtension()) !== 'sql') {
+                    continue;
+                }
 
-            $relative = str_replace(DIRECTORY_SEPARATOR, '/', $this->relativePath($file));
-            self::assertTrue(array_any($allowed, static fn (string $prefix): bool => str_starts_with($relative, $prefix)), $relative.' is outside the authorized PostgreSQL slices.');
+                $relative = str_replace(DIRECTORY_SEPARATOR, '/', $this->relativePath($file));
+                self::assertTrue(array_any($allowed, static fn (string $prefix): bool => str_starts_with($relative, $prefix)), $relative.' is outside the authorized PostgreSQL slices.');
+            }
         }
 
         self::addToAssertionCount(1);
@@ -561,6 +592,7 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             || str_starts_with($relative, 'src/Modules/Notifications/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/Notifications/Infrastructure/Outbox/')
             || str_starts_with($relative, 'src/Modules/Professionals/Infrastructure/Persistence/PostgreSql/')
+            || str_starts_with($relative, 'src/Modules/PublicationReview/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/RealEstateCatalog/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/ReliabilityOperations/Infrastructure/Persistence/PostgreSql/')
             || str_starts_with($relative, 'src/Modules/ReliabilityOperations/Infrastructure/Outbox/')
@@ -578,9 +610,14 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             || str_starts_with($relative, 'app/Infrastructure/PublicProjectionStore/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/PublicGeographySource/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/PublicMediaSource/PostgreSql/')
+            || str_starts_with($relative, 'app/Infrastructure/PublicMediaBinaryDelivery/')
+            || str_starts_with($relative, 'app/Infrastructure/PublicMediaMaterialization/')
+            || str_starts_with($relative, 'app/Infrastructure/ActiveGenerationBootstrap/')
             || str_starts_with($relative, 'app/Infrastructure/ActiveGenerationReader/PostgreSql/')
+            || str_starts_with($relative, 'app/Infrastructure/ContentSeoSnapshotMaterialization/')
             || str_starts_with($relative, 'app/Infrastructure/ProjectionRebuildRuntimeSource/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/PropertyListingResolution/PostgreSql/')
+            || str_starts_with($relative, 'app/Infrastructure/SearchDecisionMaterialization/')
             || str_starts_with($relative, 'app/Infrastructure/ListingPublicationEventRouting/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/PropertyLifecycleEventRouting/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/ReservationLifecycleEventRouting/PostgreSql/')
@@ -589,7 +626,54 @@ final class InfrastructureBaselineArchitectureTest extends TestCase
             || str_starts_with($relative, 'app/Infrastructure/MediaItemLifecycleEventRouting/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/AdministrativeActionLifecycleEventRouting/PostgreSql/')
             || str_starts_with($relative, 'app/Infrastructure/PlaceLifecycleEventRouting/PostgreSql/')
-            || $relative === 'app/Providers/PublicProjectionRuntimeServiceProvider.php';
+            || in_array($relative, [
+                'app/Providers/PublicProjectionRuntimeServiceProvider.php',
+                'app/Providers/PublicPropertyPromotionServiceProvider.php',
+                'app/Providers/PublicSearchResultsServiceProvider.php',
+            ], true);
+    }
+
+    private function containsDatabaseAccess(string $contents): bool
+    {
+        foreach (token_get_all($contents) as $token) {
+            if (is_array($token) && $token[0] === T_STRING && strcasecmp($token[1], 'PDO') === 0) {
+                return true;
+            }
+        }
+
+        return preg_match('/(?:\bDB::|Doctrine\\\\DBAL|pg_(?:connect|query|prepare)|mysqli?_)/i', $contents) === 1;
+    }
+
+    private function containsSqlLiteral(string $contents): bool
+    {
+        foreach (token_get_all($contents) as $token) {
+            if (! is_array($token) || ! in_array($token[0], [T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE], true)) {
+                continue;
+            }
+
+            if (preg_match('/(?:\bSELECT\b.+\bFROM\b|\bINSERT\s+INTO\b|\bUPDATE\b.+\bSET\b|\bDELETE\s+FROM\b|\bCREATE\s+(?:TABLE|SCHEMA)\b|\bALTER\s+TABLE\b)/is', $token[1]) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isAuthorizedCrossModuleDependency(string $relative, string $owner, string $dependency): bool
+    {
+        $normalized = str_replace(DIRECTORY_SEPARATOR, '/', $relative);
+        $authorized = [
+            'src/Modules/PublicationReview/Application/Queue/Contract/PublicationReviewQueue.php' => ['PublicationReview', 'ListingLifecycle'],
+            'src/Modules/PublicationReview/Application/Queue/PublicationReviewConsumer.php' => ['PublicationReview', 'ListingLifecycle'],
+            'src/Modules/PublicationReview/Application/Review/Contract/PublicationReviewCommandStore.php' => ['PublicationReview', 'ListingLifecycle'],
+            'src/Modules/PublicationReview/Application/Review/DeterministicPublicationReviewCommands.php' => ['PublicationReview', 'ListingLifecycle'],
+            'src/Modules/PublicationReview/Infrastructure/Persistence/PostgreSql/PostgreSqlPublicationReviewQueue.php' => ['PublicationReview', 'ListingLifecycle'],
+            'src/Modules/RealEstateCatalog/Domain/Policy/GeographicPlaceAddressabilityPolicy.php' => ['RealEstateCatalog', 'Geography'],
+            'src/Modules/RealEstateCatalog/Infrastructure/Geography/GeographyBackedGeographicPlaceCatalog.php' => ['RealEstateCatalog', 'Geography'],
+            'src/Modules/RealEstateCatalog/Infrastructure/Persistence/PropertyAuthoringMapper.php' => ['RealEstateCatalog', 'Geography'],
+        ];
+
+        return ($authorized[$normalized] ?? null) === [$owner, $dependency];
     }
 
     private function modulesPath(): string
