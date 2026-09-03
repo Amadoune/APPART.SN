@@ -44,6 +44,22 @@ final class MediaIngestionPersistenceArchitectureTest extends TestCase
     }
 
     #[Test]
+    public function migration_058_rollback_explicitly_drops_only_its_eight_tables_before_its_schema(): void
+    {
+        $root = dirname(__DIR__, 2).'/src/Modules/Media/Infrastructure/Persistence/PostgreSql/Migrations/';
+        $rollback = (string) file_get_contents($root.'058_media_ingestion.down.sql');
+
+        self::assertStringNotContainsString('CASCADE', strtoupper($rollback));
+        self::assertSame(8, substr_count(strtoupper($rollback), 'DROP TABLE IF EXISTS MEDIA_INGESTION.'));
+        foreach (['uploads', 'assets', 'processing', 'quotas', 'upload_intents', 'asset_intents', 'processing_intents', 'quota_intents'] as $table) {
+            self::assertStringContainsString('DROP TABLE IF EXISTS media_ingestion.'.$table.';', $rollback);
+        }
+        self::assertStringEndsWith("DROP SCHEMA IF EXISTS media_ingestion;\n", $rollback);
+        self::assertStringNotContainsString('media.media_attachment_intents', $rollback);
+        self::assertStringNotContainsString('event_outbox_', $rollback);
+    }
+
+    #[Test]
     public function each_owner_has_its_own_port_store_and_intent_table(): void
     {
         $application = dirname(__DIR__, 2).'/src/Modules/Media/Application/IngestionPersistence/Contract/';
