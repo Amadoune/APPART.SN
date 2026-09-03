@@ -104,7 +104,7 @@ final class PostgreSqlMediaIngestionMigrationRollbackTest extends TestCase
     private function relationsOutsideMediaIngestion(PDO $connection): array
     {
         $statement = $connection->query(<<<'SQL'
-            SELECT n.nspname || '.' || c.relname || ':' || c.relkind
+            SELECT n.nspname || '.' || c.relname || ':' || c.relkind::text
             FROM pg_catalog.pg_class c
             JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
             WHERE n.nspname NOT IN ('media_ingestion', 'pg_catalog', 'information_schema')
@@ -121,7 +121,7 @@ final class PostgreSqlMediaIngestionMigrationRollbackTest extends TestCase
     private function ownerScopedObjects(PDO $connection): array
     {
         $statement = $connection->query(<<<'SQL'
-            SELECT 'relation:' || c.relkind || ':' || c.relname
+            SELECT 'relation:' || c.relkind::text || ':' || c.relname
             FROM pg_catalog.pg_class c
             JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
             WHERE n.nspname = 'media_ingestion'
