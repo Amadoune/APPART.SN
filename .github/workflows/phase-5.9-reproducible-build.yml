@@ -3,7 +3,7 @@ name: Phase 5.9 Reproducible Build
 on:
   push:
     tags:
-      - 'appart-sn-release-candidate-rc2-r5'
+      - 'appart-sn-release-candidate-rc2-r13'
   workflow_dispatch:
 
 permissions:
@@ -28,9 +28,9 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      SOURCE_BASE_SHA: 984c0de2462cc6e34c77ac82bd9f695c72c94ebf
-      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r5
-      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r5
+      SOURCE_BASE_SHA: 1f5f1b5e5fec63dcb607fe31929a566c9ca1ab9b
+      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r13
+      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r13
       APP_ENV: testing
       APP_KEY: ${{ secrets.RC2_TEST_APP_KEY }}
       DB_CONNECTION: pgsql
@@ -48,6 +48,10 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
+
+      - name: Restore annotated candidate tag object
+        shell: bash
+        run: git fetch --force --no-tags origin "refs/tags/${CANDIDATE_TAG}:refs/tags/${CANDIDATE_TAG}"
 
       - name: Verify source relation and clean checkout
         shell: bash

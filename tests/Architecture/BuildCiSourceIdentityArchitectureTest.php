@@ -6,11 +6,11 @@ use PHPUnit\Framework\TestCase;
 
 final class BuildCiSourceIdentityArchitectureTest extends TestCase
 {
-    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r5';
+    private const CANDIDATE_TAG = 'appart-sn-release-candidate-rc2-r13';
 
-    private const SOURCE_BASE = '984c0de2462cc6e34c77ac82bd9f695c72c94ebf';
+    private const SOURCE_BASE = '1f5f1b5e5fec63dcb607fe31929a566c9ca1ab9b';
 
-    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2-r4';
+    private const PREDECESSOR_TAG = 'appart-sn-release-candidate-rc2-r12';
 
     private const LEGACY_CANDIDATE_TAG = 'phase-5.9-baseline-candidate-r5';
 
@@ -72,7 +72,7 @@ final class BuildCiSourceIdentityArchitectureTest extends TestCase
     {
         foreach ($this->controls() as $control) {
             self::assertStringNotContainsString(str_repeat('0', 40), $control);
-            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r6', $control);
+            self::assertStringNotContainsString('appart-sn-release-candidate-rc2-r14', $control);
         }
     }
 
