@@ -3,7 +3,7 @@ name: Phase 5.9 Reproducible Build
 on:
   push:
     tags:
-      - 'appart-sn-release-candidate-rc2-r10'
+      - 'appart-sn-release-candidate-rc2-r11'
   workflow_dispatch:
 
 permissions:
@@ -28,9 +28,9 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      SOURCE_BASE_SHA: afa494648d082a6f85825a1ad05b80d712befc8f
-      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r10
-      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r10
+      SOURCE_BASE_SHA: 145cd1c6d0280b4d67d4d2e0867b050f893f3466
+      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r11
+      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r11
       APP_ENV: testing
       APP_KEY: ${{ secrets.RC2_TEST_APP_KEY }}
       DB_CONNECTION: pgsql
@@ -48,6 +48,10 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
+
+      - name: Restore annotated candidate tag object
+        shell: bash
+        run: git fetch --force --no-tags origin "refs/tags/${CANDIDATE_TAG}:refs/tags/${CANDIDATE_TAG}"
 
       - name: Verify source relation and clean checkout
         shell: bash
@@ -106,11 +110,12 @@ jobs:
 
       - name: Build deterministic release artifact
         env:
+          PYTHONDONTWRITEBYTECODE: '1'
           BUILD_SHA: ${{ github.sha }}
           SOURCE_BASE_SHA: ${{ env.SOURCE_BASE_SHA }}
           CANDIDATE_TAG: ${{ env.CANDIDATE_TAG }}
           BUILD_ENVIRONMENT_IDENTITY: ${{ runner.os }}-${{ runner.arch }}-${{ runner.name }}-${{ github.run_id }}-${{ github.run_attempt }}
-        run: bash tools/release/build-release.sh
+        run: python3 tools/release/run-packaging-campaign.py
 
       - name: Upload release evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

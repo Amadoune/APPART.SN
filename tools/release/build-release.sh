@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly EXPECTED_SOURCE_BASE="afa494648d082a6f85825a1ad05b80d712befc8f"
-readonly EXPECTED_CANDIDATE_TAG="appart-sn-release-candidate-rc2-r10"
+# Prospective mandate33 campaign identity; fail before Packaging side effects.
+PACKAGING_CAMPAIGN_VALIDATOR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/campaign-timestamp.php"
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) PACKAGING_CAMPAIGN_VALIDATOR="$(cygpath -w "$PACKAGING_CAMPAIGN_VALIDATOR")" ;;
+esac
+readonly PACKAGING_CAMPAIGN_VALIDATOR
+export PACKAGING_CAMPAIGN_VALIDATOR
+php "$PACKAGING_CAMPAIGN_VALIDATOR" > /dev/null
+
+readonly EXPECTED_SOURCE_BASE="145cd1c6d0280b4d67d4d2e0867b050f893f3466"
+readonly EXPECTED_CANDIDATE_TAG="appart-sn-release-candidate-rc2-r11"
 readonly ROOT="$(git rev-parse --show-toplevel)"
 readonly BUILD_SHA="$(git rev-parse HEAD)"
 readonly OUTPUT_DIR="${1:-$ROOT/dist/release}"
@@ -19,8 +28,20 @@ test "$(git cat-file -t "refs/tags/${EXPECTED_CANDIDATE_TAG}")" = "tag"
 test "$(git rev-parse "${EXPECTED_CANDIDATE_TAG}^{commit}")" = "$BUILD_SHA"
 git merge-base --is-ancestor "$EXPECTED_SOURCE_BASE" "$BUILD_SHA"
 test -z "$(git status --porcelain)"
-test "$(sha256sum composer.lock | cut -d' ' -f1)" = "f15dde645598d805143d9ec1d3fab666730ac58ada078b0a3448c498bbd02be5"
-test "$(sha256sum package-lock.json | cut -d' ' -f1)" = "1a717514aba144013fe85101e951f18cc74de01f311c9f9b5378b767d00ed26a"
+# Current invocation only; stdout bytes and process status must both succeed.
+require_sha256() {
+  local target="$1" expected="$2" output status=1
+  output=$(mktemp "${TMPDIR:-/tmp}/appart-hash-guard.XXXXXXXX") || return 1
+  if sha256sum --binary "$target" > "$output"; then
+    if printf '%s *%s\n' "$expected" "$target" | cmp -s -- "$output" -; then
+      status=0
+    fi
+  fi
+  rm -f -- "$output" || return 1
+  return "$status"
+}
+require_sha256 composer.lock "f15dde645598d805143d9ec1d3fab666730ac58ada078b0a3448c498bbd02be5"
+require_sha256 package-lock.json "1a717514aba144013fe85101e951f18cc74de01f311c9f9b5378b767d00ed26a"
 
 if [[ "${APPART_IDENTITY_CHECK_ONLY:-0}" == "1" ]]; then
   echo "Candidate identity verified: ${EXPECTED_CANDIDATE_TAG} -> ${BUILD_SHA} (source base ${EXPECTED_SOURCE_BASE})"
@@ -67,6 +88,8 @@ test -n "$COMPOSER_VERSION"
 export APPART_COMPOSER_VERSION="$COMPOSER_VERSION"
 
 php -r '
+require getenv("PACKAGING_CAMPAIGN_VALIDATOR");
+$campaignDate=packagingCampaignTimestamp();
 $root=$argv[1]; $out=$argv[2]; $project=getcwd();
 $migrations=[];
 $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
@@ -79,7 +102,7 @@ $manifest=[
  "candidateCommitSha"=>getenv("BUILD_SHA"),
  "candidateTag"=>getenv("CANDIDATE_TAG"),
  "buildCommitSha"=>getenv("BUILD_SHA"),
- "buildDateUtc"=>gmdate("Y-m-d\\TH:i:s\\Z"),
+ "buildDateUtc"=>$campaignDate,
  "phpVersion"=>PHP_VERSION,
  "composerVersion"=>getenv("APPART_COMPOSER_VERSION"),
  "nodeVersion"=>trim((string)shell_exec("node --version")),
