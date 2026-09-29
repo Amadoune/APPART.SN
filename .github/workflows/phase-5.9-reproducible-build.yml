@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'appart-sn-release-candidate-rc2-r11'
+      - 'appart-sn-release-candidate-rc2-r11.1'
   workflow_dispatch:
 
 permissions:
@@ -29,8 +30,8 @@ jobs:
           --health-retries 20
     env:
       SOURCE_BASE_SHA: 145cd1c6d0280b4d67d4d2e0867b050f893f3466
-      CANDIDATE_TAG: appart-sn-release-candidate-rc2-r11
-      RELEASE_CANDIDATE_ID: appart-sn-release-candidate-rc2-r11
+      CANDIDATE_TAG: ${{ github.ref_name }}
+      RELEASE_CANDIDATE_ID: ${{ github.ref_name }}
       APP_ENV: testing
       APP_KEY: ${{ secrets.RC2_TEST_APP_KEY }}
       DB_CONNECTION: pgsql
@@ -51,14 +52,49 @@ jobs:
 
       - name: Restore annotated candidate tag object
         shell: bash
-        run: git fetch --force --no-tags origin "refs/tags/${CANDIDATE_TAG}:refs/tags/${CANDIDATE_TAG}"
+        run: |
+          test "$GITHUB_REPOSITORY" = "Amadoune/APPART.SN"
+          test "$GITHUB_REF_TYPE" = "tag"
+          test "$GITHUB_REF" = "refs/tags/$CANDIDATE_TAG"
+          case "$GITHUB_EVENT_NAME" in push|workflow_dispatch) ;; *) exit 1 ;; esac
+          case "$CANDIDATE_TAG" in
+            appart-sn-release-candidate-rc2-r11|appart-sn-release-candidate-rc2-r11.1) ;;
+            *) exit 1 ;;
+          esac
+          test "$GITHUB_WORKFLOW_REF" = "Amadoune/APPART.SN/.github/workflows/phase-5.9-reproducible-build.yml@$GITHUB_REF"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          git fetch --force --no-tags origin "refs/tags/${CANDIDATE_TAG}:refs/tags/${CANDIDATE_TAG}"
 
       - name: Verify source relation and clean checkout
         shell: bash
         run: |
-          test "$(git cat-file -t "refs/tags/${CANDIDATE_TAG}")" = "tag"
+          readonly EXPECTED_SOURCE_BASE="145cd1c6d0280b4d67d4d2e0867b050f893f3466"
+          readonly IMMUTABLE_R11_COMMIT="640f6567a669c7c643938c7dce584070a3c5ea67"
+          case "${CANDIDATE_TAG:-}" in
+            appart-sn-release-candidate-rc2-r11|appart-sn-release-candidate-rc2-r11.1) ;;
+            *) echo "Unauthorized release identity" >&2; exit 1 ;;
+          esac
+          test "${SOURCE_BASE_SHA:-}" = "$EXPECTED_SOURCE_BASE"
+          readonly EXPECTED_CANDIDATE_TAG="$CANDIDATE_TAG"
+          readonly ROOT="$(git rev-parse --show-toplevel)"
+          test "${BUILD_SHA:-$(git rev-parse HEAD)}" = "$(git rev-parse HEAD)"
+          readonly BUILD_SHA="$(git rev-parse HEAD)"
+          test "$(git cat-file -t "refs/tags/${EXPECTED_CANDIDATE_TAG}")" = "tag"
+          tag_header="$(git cat-file tag "refs/tags/${EXPECTED_CANDIDATE_TAG}")"
+          tag_target="$(printf '%s\n' "$tag_header" | sed -n '1s/^object //p')"
+          test "$(printf '%s\n' "$tag_header" | sed -n '2p')" = "type commit"
+          test "$(printf '%s\n' "$tag_header" | sed -n '3p')" = "tag $EXPECTED_CANDIDATE_TAG"
+          test "$(git cat-file -t "$tag_target")" = "commit"
+          test "$(git rev-parse "${CANDIDATE_TAG}^{commit}")" = "$BUILD_SHA"
+          test "$tag_target" = "$BUILD_SHA"
+          if [[ "$CANDIDATE_TAG" == "appart-sn-release-candidate-rc2-r11" ]]; then
+            test "$BUILD_SHA" = "$IMMUTABLE_R11_COMMIT"
+          else
+            test "$(git show -s --format=%P "$BUILD_SHA")" = "$IMMUTABLE_R11_COMMIT"
+          fi
+          git merge-base --is-ancestor "$EXPECTED_SOURCE_BASE" "$BUILD_SHA"
           test "$(git rev-parse "${CANDIDATE_TAG}^{commit}")" = "$GITHUB_SHA"
-          git merge-base --is-ancestor "$SOURCE_BASE_SHA" "$GITHUB_SHA"
           test -z "$(git status --porcelain)"
 
       - name: Setup PHP and pinned Composer

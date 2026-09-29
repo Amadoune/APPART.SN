@@ -11,8 +11,15 @@ export PACKAGING_CAMPAIGN_VALIDATOR
 php "$PACKAGING_CAMPAIGN_VALIDATOR" > /dev/null
 
 readonly EXPECTED_SOURCE_BASE="145cd1c6d0280b4d67d4d2e0867b050f893f3466"
-readonly EXPECTED_CANDIDATE_TAG="appart-sn-release-candidate-rc2-r11"
+readonly IMMUTABLE_R11_COMMIT="640f6567a669c7c643938c7dce584070a3c5ea67"
+case "${CANDIDATE_TAG:-}" in
+  appart-sn-release-candidate-rc2-r11|appart-sn-release-candidate-rc2-r11.1) ;;
+  *) echo "Unauthorized release identity" >&2; exit 1 ;;
+esac
+test "${SOURCE_BASE_SHA:-}" = "$EXPECTED_SOURCE_BASE"
+readonly EXPECTED_CANDIDATE_TAG="$CANDIDATE_TAG"
 readonly ROOT="$(git rev-parse --show-toplevel)"
+test "${BUILD_SHA:-$(git rev-parse HEAD)}" = "$(git rev-parse HEAD)"
 readonly BUILD_SHA="$(git rev-parse HEAD)"
 readonly OUTPUT_DIR="${1:-$ROOT/dist/release}"
 readonly RELEASE_ROOT="$OUTPUT_DIR/root"
@@ -25,7 +32,18 @@ if [[ "${APPART_ALIGNMENT_CHECK_ONLY:-0}" == "1" ]]; then
 fi
 
 test "$(git cat-file -t "refs/tags/${EXPECTED_CANDIDATE_TAG}")" = "tag"
-test "$(git rev-parse "${EXPECTED_CANDIDATE_TAG}^{commit}")" = "$BUILD_SHA"
+tag_header="$(git cat-file tag "refs/tags/${EXPECTED_CANDIDATE_TAG}")"
+tag_target="$(printf '%s\n' "$tag_header" | sed -n '1s/^object //p')"
+test "$(printf '%s\n' "$tag_header" | sed -n '2p')" = "type commit"
+test "$(printf '%s\n' "$tag_header" | sed -n '3p')" = "tag $EXPECTED_CANDIDATE_TAG"
+test "$(git cat-file -t "$tag_target")" = "commit"
+test "$(git rev-parse "${CANDIDATE_TAG}^{commit}")" = "$BUILD_SHA"
+test "$tag_target" = "$BUILD_SHA"
+if [[ "$CANDIDATE_TAG" == "appart-sn-release-candidate-rc2-r11" ]]; then
+  test "$BUILD_SHA" = "$IMMUTABLE_R11_COMMIT"
+else
+  test "$(git show -s --format=%P "$BUILD_SHA")" = "$IMMUTABLE_R11_COMMIT"
+fi
 git merge-base --is-ancestor "$EXPECTED_SOURCE_BASE" "$BUILD_SHA"
 test -z "$(git status --porcelain)"
 # Current invocation only; stdout bytes and process status must both succeed.
