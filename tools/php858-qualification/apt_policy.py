@@ -1,5 +1,6 @@
 """Gate59 source normalization. Pure parsers; no package-manager mutation."""
 import itertools
+from diagnostics import option_context, source_context
 import re
 import shlex
 import urllib.parse
@@ -37,6 +38,7 @@ def uri(value):
     return parsed.scheme.lower() + "://" + parsed.hostname.lower() + "/ubuntu/"
 
 
+@source_context('DEB822')
 def deb822(text):
     records = []
     stanza = {}
@@ -56,13 +58,15 @@ def deb822(text):
         require(":" in line, "invalid deb822 source field")
         key, value = line.split(":", 1)
         key = key.lower()
-        require(key in FIELDS and key not in stanza, "unknown or duplicate source field")
-        require("-----BEGIN" not in value, "embedded key unsupported")
-        stanza[key] = value.strip()
+        with option_context(key, value):
+            require(key in FIELDS and key not in stanza, "unknown or duplicate source field")
+            require("-----BEGIN" not in value, "embedded key unsupported")
+            stanza[key] = value.strip()
         previous = key
     return records
 
 
+@source_context('ONE_LINE')
 def lists(text):
     records = []
     for line in text.splitlines():
@@ -78,16 +82,18 @@ def lists(text):
         if options:
             require(not any(c in options for c in "\\\"\'"), "unsupported quoted or escaped source option")
             for token in options.split():
-                require("=" in token, "malformed source option")
-                key, value = token.split("=", 1)
-                require(key in OPTIONS, "unknown source option")
-                key = OPTIONS[key]
-                require(key not in record, "duplicate source option")
-                record[key] = value.replace(",", " ")
+                with option_context(token.split('=', 1)[0], token.split('=', 1)[1] if '=' in token else None, 'VALUE_PRESENT' if '=' in token else 'VALUELESS'):
+                    require("=" in token, "malformed source option")
+                    key, value = token.split("=", 1)
+                    require(key in OPTIONS, "unknown source option")
+                    key = OPTIONS[key]
+                    require(key not in record, "duplicate source option")
+                    record[key] = value.replace(",", " ")
         records.append(record)
     return records
 
 
+@source_context('OTHER_EXACT')
 def normalize(records, mirror_reader):
     result = []
     for record in records:
@@ -173,6 +179,7 @@ def trust_boolean(value):
     raise PolicyFailure("APT_BOOLEAN_MALFORMED")
 
 
+@source_context('APT_CONFIG')
 def configuration_policy(text):
     """Validate effective apt-config dump output, not arbitrary apt.conf syntax.
 
@@ -196,23 +203,24 @@ def configuration_policy(text):
         require(match is not None, "APT_CONFIG_PARSE_FAILED")
         raw_key, value = match.groups()
         key = raw_key.lower()
-        require(key not in settings or key == "acquire::languages::", "APT_OPTION_DUPLICATE_OR_COLLISION")
-        if key in CONFIG_PATHS:
-            require(value == CONFIG_PATHS[key], "APT_CONFIGURATION_PATH_UNGOVERNED")
-        elif key in CONFIG_FALSE:
-            require(trust_boolean(value) is False, "APT_UNSAFE_TRUST_OPTION")
-        elif key in CONFIG_TRUE:
-            require(trust_boolean(value) is True, "APT_UNSAFE_TRUST_OPTION")
-        elif key in CONFIG_FIXED:
-            require(value == CONFIG_FIXED[key], "APT_CONFIGURATION_VALUE_UNGOVERNED")
-        elif key in CONFIG_NON_TRUST:
-            # Translation language selection does not change package signature,
-            # key, repository-origin or package-hash authentication. No wildcard
-            # acceptance of other Acquire properties is implied.
-            require(value == "" and key == "acquire::languages" or bool(re.fullmatch(r"[A-Za-z]{2,3}(?:_[A-Za-z]{2})?|none|environment", value)), "APT_LANGUAGE_METADATA_MALFORMED")
-        elif key in containers:
-            require(value == "", "APT_NAMESPACE_VALUE_UNGOVERNED")
-        else:
-            raise PolicyFailure("APT_UNKNOWN_OPTION")
+        with option_context(key, value, boolean=key in CONFIG_TRUE or key in CONFIG_FALSE):
+            require(key not in settings or key == "acquire::languages::", "APT_OPTION_DUPLICATE_OR_COLLISION")
+            if key in CONFIG_PATHS:
+                require(value == CONFIG_PATHS[key], "APT_CONFIGURATION_PATH_UNGOVERNED")
+            elif key in CONFIG_FALSE:
+                require(trust_boolean(value) is False, "APT_UNSAFE_TRUST_OPTION")
+            elif key in CONFIG_TRUE:
+                require(trust_boolean(value) is True, "APT_UNSAFE_TRUST_OPTION")
+            elif key in CONFIG_FIXED:
+                require(value == CONFIG_FIXED[key], "APT_CONFIGURATION_VALUE_UNGOVERNED")
+            elif key in CONFIG_NON_TRUST:
+                # Translation language selection does not change package signature,
+                # key, repository-origin or package-hash authentication. No wildcard
+                # acceptance of other Acquire properties is implied.
+                require(value == "" and key == "acquire::languages" or bool(re.fullmatch(r"[A-Za-z]{2,3}(?:_[A-Za-z]{2})?|none|environment", value)), "APT_LANGUAGE_METADATA_MALFORMED")
+            elif key in containers:
+                require(value == "", "APT_NAMESPACE_VALUE_UNGOVERNED")
+            else:
+                raise PolicyFailure("APT_UNKNOWN_OPTION")
         settings[key] = value
     return settings

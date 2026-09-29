@@ -45,6 +45,20 @@ class Evidence:
             if self.data["first_failure"] is None:
                 reason = str(exc) if isinstance(exc, PolicyFailure) else "internal observation failure: " + type(exc).__name__
                 self.data["first_failure"] = {"stage": self._active_stage["stage"], "rule": reason}
+                if hasattr(exc, "diagnostic"):
+                    # Diagnostic JSON shares the stage stderr allowance. The
+                    # original policy failure wins even if retention overflows.
+                    # Charge a conservative pretty-printed field envelope,
+                    # including indentation, key and separators, not just values.
+                    rendered = json.dumps(exc.diagnostic, sort_keys=True, indent=2)
+                    encoded = ("diagnostic: " + " ".join("        " + line for line in rendered.splitlines())).encode("utf-8")
+                    budget = self._active_stage["output"]["stderr"]
+                    budget["observed_bytes"] += len(encoded)
+                    if len(encoded) <= max(0, 1048576 - budget["retained_bytes"]):
+                        budget["retained_bytes"] += len(encoded)
+                        self.data["first_failure"]["diagnostic"] = exc.diagnostic
+                    else:
+                        budget["overflow"] = True
 
     def command(self, argv, cwd=None, env=None):
         require(self._active_stage is not None, "command outside qualified stage")
@@ -260,10 +274,10 @@ class AptObservation:
         if Path("/etc/apt/sources.list").exists():
             source_paths.append(Path("/etc/apt/sources.list"))
         records = []
-        for path in sorted(source_paths, key=lambda p: str(p).encode()):
+        for source_index, path in enumerate(sorted(source_paths, key=lambda p: str(p).encode())):
             require(path.suffix in {".list", ".sources"}, "unexpected source file extension")
             contents = self.text(path)
-            records.extend(deb822(contents) if path.suffix == ".sources" else lists(contents))
+            records.extend(deb822(contents, source_id=f"apt-source-{source_index}", source_path=str(path)) if path.suffix == ".sources" else lists(contents, source_id=f"apt-source-{source_index}", source_path=str(path)))
         self.path_inventory = sorted(str(p) for p in source_paths + config_paths)
         normalized = normalize(records, self.mirrors)
         observed_keys = {}
