@@ -1,0 +1,47 @@
+name: Gate62 non-release PHP 8.5.8 qualification
+run-name: Gate62 PHP runtime qualification
+
+on:
+  workflow_dispatch:
+    inputs:
+      qualification_commit:
+        description: Exact reviewed non-release qualification commit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    name: Non-release PHP runtime qualification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Require exact first-attempt qualification identity
+        env:
+          QUALIFICATION_COMMIT: ${{ inputs.qualification_commit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$GITHUB_SHA" = "$QUALIFICATION_COMMIT"
+          test "$GITHUB_REF" = refs/heads/main
+          [[ "$QUALIFICATION_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+      - name: Checkout qualification vehicle
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Execute frozen non-release specification once
+        shell: bash
+        run: /usr/bin/python3 -B tools/php858-qualification/qualification.py
+      - name: Preserve bounded qualification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gate62-qualification-evidence
+          path: ${{ runner.temp }}/appart-php858-qualification-${{ github.run_id }}-${{ github.run_attempt }}/evidence/
+          if-no-files-found: error
+          retention-days: 30
