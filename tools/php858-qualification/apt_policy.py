@@ -227,7 +227,7 @@ def _explicit_configuration_policy(text):
 
 
 # Gate78: reviewed evidence, never a baseline learned from the observed dump.
-BASELINE_SHA256 = "68f667ccb4b090c6656306422ed1c0a039612d924a9cc55f2823454c69c83388"
+BASELINE_SHA256 = "a7cdfa262800a446d42d02e59079c053f782e9d50638f3dc611d981d37bfee9e"
 PROVENANCE_DOMAINS = frozenset({
     "APT_CONFIG_FILE", "RUNNER_IMAGE_PROVISIONED", "BASE_IMAGE_PROVISIONED",
     "WORKFLOW_INJECTED", "LOCAL_ACTION_INJECTED", "THIRD_PARTY_ACTION_INJECTED",
@@ -281,6 +281,8 @@ def _provenance_state(document, provenance):
     require(provenance["environment"] == "CONTROLLED_NO_APT_CONFIG", "APT_PROVENANCE_UNQUALIFIED")
     require(provenance["inventory_complete"] is True, "APT_PROVENANCE_ABSENT")
     require(document["source"]["sha256"] == "088522b3613b28fdbcfa61f1f7e476bf6dc6b0120a8f74409e9527580c9f9d3b", "APT_PROVENANCE_INVALID")
+    build = document.get("build_evidence")
+    require(isinstance(build, dict) and build == QUALIFIED_BUILD_EVIDENCE, "APT_PROVENANCE_INVALID")
     records = {}
     for row in document["intrinsic"]:
         require(set(row) == {"key", "kind", "values", "source", "phase", "condition"}, "APT_PROVENANCE_INVALID")
@@ -298,7 +300,7 @@ def _provenance_state(document, provenance):
         parts = key.rstrip(":").split("::")
         for i in range(1, len(parts)):
             parent = "::".join(parts[:i])
-            require(parent in records and records[parent]["kind"] == "container", "APT_PROVENANCE_INVALID")
+            require(parent in records and records[parent]["kind"] in {"container", "scalar"}, "APT_PROVENANCE_INVALID")
         if key.endswith("::"):
             require(key[:-2] in records and records[key[:-2]]["kind"] == "container", "APT_PROVENANCE_INVALID")
     certificates = document["external_certificates"]
@@ -343,7 +345,7 @@ def _provenance_state(document, provenance):
             if effect["operation"] == "append":
                 require(key in records and records[key]["kind"] == "list", "APT_PROVENANCE_INVALID")
                 values = records[key]["values"] + values
-            records[key] = dict(key=key, kind=effect["kind"], values=values, origin="TRUSTED_EXPLICITLY_QUALIFIED_EXTERNAL")
+            records[key] = dict(key=key, kind=effect["kind"], values=values, origin="TRUSTED_EXPLICITLY_QUALIFIED_EXTERNAL", source=path, source_class=cert["source_class"], source_sha256=cert["sha256"], certificate_reference=cert["review"])
     return records
 
 
@@ -351,7 +353,8 @@ def _provenance_state(document, provenance):
 def configuration_policy(text, provenance=None):
     """Admit effective records only with independent identity and input proof."""
     try:
-        expected = _provenance_state(baseline_document(), provenance)
+        document = baseline_document()
+        expected = _provenance_state(document, provenance)
         require(isinstance(text, str) and "\x00" not in text, "APT_CONFIG_PARSE_FAILED")
         observed = {}
         catalog = set(CONFIG_PATHS) | CONFIG_FALSE | CONFIG_TRUE | set(CONFIG_FIXED) | CONFIG_NON_TRUST
@@ -373,8 +376,48 @@ def configuration_policy(text, provenance=None):
                 require(observed[key] == row["values"][:len(observed[key])], "APT_PROVENANCE_VALUE_MISMATCH")
         require(set(observed) == set(expected), "APT_PROVENANCE_INCOMPLETE")
         require(all(values == expected[key]["values"] for key, values in observed.items()), "APT_PROVENANCE_VALUE_MISMATCH")
-        return {key: values[-1] for key, values in observed.items()}
+        return QualifiedSettings({key: values[-1] for key, values in observed.items()}, decision_records(document, provenance, expected))
     except PolicyFailure:
         raise
     except Exception:
         raise PolicyFailure("APT_PROVENANCE_INVALID") from None
+
+
+QUALIFIED_BUILD_EVIDENCE = {'authority': 'https://launchpad.net/ubuntu/+source/apt/2.8.3/+build/30594802', 'build_log_sha256': '4e76dc327f2c5d0f7a46cbd29b3169336ff81db241428faa3970d1f862ea61ee', 'buildinfo_sha256': '461dc14ce404909b889c716c9850a477e0a3dac2ed0487af4e5f42d258aca9a3', 'source_sha256': '088522b3613b28fdbcfa61f1f7e476bf6dc6b0120a8f74409e9527580c9f9d3b', 'identity': {'architecture': 'amd64', 'build': 'Ubuntu apt/libapt-pkg6.0t64 2.8.3', 'distribution': 'ubuntu-noble', 'libapt_version': '2.8.3', 'version': '2.8.3'}, 'configuration': {'CMAKE_INSTALL_SYSCONFDIR': '/etc', 'CONF_DIR': '/etc/apt'}, 'derivation': 'CMakeLists.txt:233; CMake/config.h.in:78; apt-pkg/init.cc:151; no CONF_DIR override in build invocation'}
+
+
+class QualifiedSettings(dict):
+    """Private validated policy output; public metadata never grants trust."""
+    def __init__(self, settings, records):
+        super().__init__(settings)
+        self.records = records
+
+
+def decision_records(document, provenance, expected):
+    from diagnostics import identifier
+    records = {}
+    for key, row in sorted(expected.items()):
+        external = row['origin'] == 'TRUSTED_EXPLICITLY_QUALIFIED_EXTERNAL'
+        source = row.get('source', 'qualified-external-certificate')
+        reference = row.get('certificate_reference', 'launchpad:ubuntu:apt:2.8.3:build:30594802')
+        records[key] = dict(
+            canonical_key=key,
+            source_class=row.get('source_class', 'APT_UPSTREAM_INTRINSIC'),
+            source_identity=dict(source_reference=identifier(source)[0],
+                source_sha256=row.get('source_sha256', document['source']['sha256']),
+                build_or_certificate_reference=identifier(reference)[0], verification_status='VERIFIED'),
+            apt_identity=dict(version=provenance['identity']['version'], build='ubuntu-noble-apt-2.8.3-amd64',
+                architecture=provenance['identity']['architecture'], binary_binding_status='VERIFIED', observation_status='OBSERVED'),
+            baseline_identity=dict(sha256=BASELINE_SHA256, source_sha256=document['source']['sha256']),
+            value_evidence=dict(value_class=row['kind'].upper(), qualified_value_match=True),
+            override_status='QUALIFIED' if external else 'NONE_PROVEN',
+            decision_class=row['origin'], reason_code='QUALIFIED_PROVENANCE_VALUE_MATCH')
+    return records
+
+
+def validate_decision_records(settings, text, provenance):
+    # Re-evaluate private inputs, not public diagnostics or self-declared classes.
+    require(type(settings) is QualifiedSettings, 'APT_PROVENANCE_ABSENT')
+    fresh = configuration_policy(text, provenance)
+    require(settings == fresh and settings.records == fresh.records, 'APT_PROVENANCE_INVALID')
+    return settings.records

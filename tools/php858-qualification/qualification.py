@@ -15,7 +15,7 @@ import threading
 import urllib.request
 import time
 
-from apt_policy import baseline_document, _provenance_state as provenance_state, ARCHIVE_KEY, PolicyFailure, configuration_policy, deb822, lists, normalize, require
+from apt_policy import validate_decision_records, baseline_document, _provenance_state as provenance_state, ARCHIVE_KEY, PolicyFailure, configuration_policy, deb822, lists, normalize, require
 
 SPEC_HASH = "9107f9f45f14c976f734e12a061cea08529146f4d15fe315b3a0ef77d7290efc"
 SAFE_ENV = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "TZ": "UTC"}
@@ -32,6 +32,86 @@ class Evidence:
         self.data = {"stages": [], "observations": {}, "first_failure": None, "retry_count": 0}
         self._active_stage = None
         self._output_lock = threading.Lock()
+
+    def measure_phase(self, name, operation):
+        require(self._active_stage is not None, 'timing outside qualified stage')
+        started = time.monotonic()
+        row = dict(phase=name, parent=self._active_stage['stage'], start_offset_seconds=started - self.start, status='RUNNING')
+        self.data.setdefault('timing_phases', []).append(row)
+        try:
+            result = operation()
+            row['status'] = 'PASS'
+            return result
+        except Exception:
+            row['status'] = 'FAIL'
+            raise
+        finally:
+            finished = time.monotonic()
+            row['end_offset_seconds'] = finished - self.start
+            row['duration_seconds'] = finished - started
+
+    def provenance(self, record):
+        """Charge every retained provenance byte to this stage's stderr budget."""
+        require(self._active_stage is not None, 'provenance outside qualified stage')
+        from diagnostics import identifier
+        decision_fields = {'canonical_key', 'source_class', 'source_identity', 'apt_identity',
+                           'baseline_identity', 'value_evidence', 'override_status', 'decision_class', 'reason_code'}
+        status_fields = {'phase', 'apt_version', 'source', 'decision_class', 'reason_code', 'binary_binding_status'}
+        require(isinstance(record, dict) and set(record) in (decision_fields, status_fields), 'APT_PROVENANCE_INVALID')
+        if set(record) == decision_fields:
+            from apt_policy import PROVENANCE_DOMAINS
+            schemas = {
+                'source_identity': {'source_reference', 'source_sha256', 'build_or_certificate_reference', 'verification_status'},
+                'apt_identity': {'version', 'build', 'architecture', 'binary_binding_status', 'observation_status'},
+                'baseline_identity': {'sha256', 'source_sha256'},
+                'value_evidence': {'value_class', 'qualified_value_match'},
+            }
+            require(all(isinstance(record[key], dict) and set(record[key]) == fields for key, fields in schemas.items()), 'APT_PROVENANCE_INVALID')
+            require(record['source_class'] in PROVENANCE_DOMAINS | {'APT_UPSTREAM_INTRINSIC'}, 'APT_PROVENANCE_INVALID')
+            require(record['decision_class'] in {'TRUSTED_APT_INTRINSIC', 'TRUSTED_EXPLICITLY_QUALIFIED_EXTERNAL'}, 'APT_PROVENANCE_INVALID')
+            require(record['override_status'] in {'NONE_PROVEN', 'QUALIFIED'}, 'APT_PROVENANCE_INVALID')
+            require(record['reason_code'] == 'QUALIFIED_PROVENANCE_VALUE_MATCH', 'APT_PROVENANCE_INVALID')
+            require(record['value_evidence']['value_class'] in {'SCALAR', 'BOOLEAN', 'CONTAINER', 'LIST'} and record['value_evidence']['qualified_value_match'] is True, 'APT_PROVENANCE_INVALID')
+        else:
+            require(record['phase'] in {'VERSION_OBSERVED', 'COLLECTION_REJECTED', 'POLICY_REJECTED'}, 'APT_PROVENANCE_INVALID')
+            require(record['decision_class'] in {'REJECT', 'UNRESOLVED'} and record['binary_binding_status'] == 'NOT_VERIFIED', 'APT_PROVENANCE_INVALID')
+        redacted = False
+        def safe(value, key=''):
+            nonlocal redacted
+            if isinstance(value, dict):
+                return {name: safe(item, name) for name, item in value.items()}
+            if type(value) is bool:
+                return value
+            require(isinstance(value, str), 'APT_PROVENANCE_INVALID')
+            if key.endswith('sha256') and re.fullmatch(r'[0-9a-f]{64}', value):
+                return value
+            result, changed = identifier(value, 64 if key in {'source_class', 'reason_code'} else 256)
+            redacted = redacted or changed or result in {'REDACTED', 'UNSAFE_IDENTIFIER_REDACTED', 'OVERLONG_REDACTED'}
+            return result
+        projection = safe(record)
+        rendered = json.dumps(projection, sort_keys=True, indent=2)
+        encoded = rendered.encode('utf-8')
+        # Include conservative enclosing JSON overhead in the existing allowance.
+        charge = len(encoded) + 8 * len(rendered.splitlines()) + 64
+        require(charge <= 2048, 'provenance record overflow')
+        with self._output_lock:
+            budget = self._active_stage['output']['stderr']
+            budget['observed_bytes'] += charge
+            if charge > max(0, 1048576 - budget['retained_bytes']):
+                budget['overflow'] = True
+                self.data['provenance_evidence_complete'] = False
+                overflow = True
+            else:
+                budget['retained_bytes'] += charge
+                self.data.setdefault('provenance', []).append(json.loads(encoded))
+                overflow = False
+                if redacted:
+                    self.data['provenance_identifier_redacted'] = True
+                    self.data['provenance_evidence_complete'] = False
+        if overflow:
+            self._failure(PolicyFailure('provenance evidence overflow'))
+            raise PolicyFailure(self.data['first_failure']['rule'])
+
 
     def save(self):
         self.data["elapsed_seconds"] = time.monotonic() - self.start
@@ -171,7 +251,7 @@ class Evidence:
         require(self.data["first_failure"] is None, "previous qualified failure")
         require(not any(row["stage"] == name for row in self.data["stages"]), "duplicate qualified stage")
         started = time.monotonic()
-        row = {"stage": name, "utc_start": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "status": "RUNNING",
+        row = {"stage": name, "start_offset_seconds": started - self.start, "utc_start": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "status": "RUNNING",
                "output_bound_bytes_per_channel": 1048576,
                "output": {label: {"observed_bytes": 0, "retained_bytes": 0, "overflow": False}
                           for label in ("stdout", "stderr")}}
@@ -188,7 +268,9 @@ class Evidence:
             self._failure(exc)
             raise PolicyFailure(self.data["first_failure"]["rule"]) from None
         finally:
-            row["duration_seconds"] = time.monotonic() - started
+            finished = time.monotonic()
+            row["end_offset_seconds"] = finished - self.start
+            row["duration_seconds"] = finished - started
             try:
                 self.save()
             except Exception as exc:
@@ -258,6 +340,28 @@ class AptObservation:
         require(bool(fingerprints), "no archive signing key")
         return fingerprints
 
+    def retain_provenance_status(self, phase, failure=None):
+        from diagnostics import identifier, category
+        observed = getattr(self, 'observed_version', None)
+        version = 'NOT_OBSERVED'
+        if observed is not None:
+            matches = [re.fullmatch(r'apt ([0-9][0-9A-Za-z.+:~_-]{0,63}) ([a-z0-9-]{1,32})', line) for line in observed]
+            matches = [match for match in matches if match is not None]
+            if len(matches) == 1:
+                version = identifier(matches[0].group(1), 64)[0]
+            else:
+                version = 'MALFORMED_OBSERVATION'
+        reason = category(str(failure)) if isinstance(failure, PolicyFailure) else 'PROVENANCE_INVALID'
+        row = dict(phase=phase, apt_version=version,
+                   source=identifier(getattr(self, 'provenance_source', None))[0],
+                   decision_class='REJECT' if failure else 'UNRESOLVED',
+                   reason_code=reason if failure else 'VERSION_OBSERVATION_ONLY',
+                   binary_binding_status='NOT_VERIFIED')
+        if failure is not None and hasattr(self.evidence, '_failure'):
+            self.evidence._failure(failure)
+        self.evidence.provenance(row)
+
+
     def provenance_inventory(self):
         require(not os.environ.get("APT_CONFIG"), "APT_PROVENANCE_UNQUALIFIED")
         for name in ("/etc", "/etc/apt"):
@@ -274,6 +378,15 @@ class AptObservation:
         return paths
 
     def provenance_identity(self, document):
+        tool = Path("/usr/bin/dpkg-query").lstat()
+        require(stat.S_ISREG(tool.st_mode) and tool.st_uid == 0 and not tool.st_mode & 0o022, "APT_PROVENANCE_UNQUALIFIED")
+        version, _ = self.evidence.command([
+            "/usr/bin/dpkg-query", "-W", "-f=${Package} ${Version} ${Architecture}\\n",
+            "apt", "libapt-pkg6.0t64",
+        ])
+        self.observed_version = version.splitlines()
+        self.retain_provenance_status("VERSION_OBSERVED")
+        require(version.splitlines() == ["apt 2.8.3 amd64", "libapt-pkg6.0t64 2.8.3 amd64"], "APT_VERSION_MISMATCH")
         bindings = document["binary_bindings"]
         require(set(bindings) == {"/usr/bin/apt-config", "/usr/lib/x86_64-linux-gnu/libapt-pkg.so.6.0.0"}, "APT_PROVENANCE_INVALID")
         hashes = {}
@@ -298,11 +411,6 @@ class AptObservation:
         # OS supplies the loader and package database, as in Gate59.
         link = Path("/usr/lib/x86_64-linux-gnu/libapt-pkg.so.6.0")
         require(str(link.resolve(strict=True)) == "/usr/lib/x86_64-linux-gnu/libapt-pkg.so.6.0.0", "APT_VERSION_MISMATCH")
-        version, _ = self.evidence.command([
-            "/usr/bin/dpkg-query", "-W", "-f=${Package} ${Version} ${Architecture}\\n",
-            "apt", "libapt-pkg6.0t64",
-        ])
-        require(version.splitlines() == ["apt 2.8.3 amd64", "libapt-pkg6.0t64 2.8.3 amd64"], "APT_VERSION_MISMATCH")
         return dict(document["identity"]), hashes
 
     @source_context('APT_CONFIG')
@@ -313,26 +421,43 @@ class AptObservation:
             paths = self.provenance_inventory()
             artifacts = []
             for path in paths:
+                self.provenance_source = str(path)
                 require(path.lstat().st_size <= 1048576, "APT_PROVENANCE_INVALID")
                 artifacts.append({"path": str(path), "sha256": sha(self.read(path))})
             context = dict(identity=identity, command=["/usr/bin/apt-config", "dump"],
                            environment="CONTROLLED_NO_APT_CONFIG", inventory_complete=True,
                            artifacts=artifacts)
             # Validate all certificates before invoking the observation command.
+            for artifact in artifacts:
+                self.provenance_source = artifact["path"]
+                require(any(cert["path"] == artifact["path"] and cert["sha256"] == artifact["sha256"] for cert in document["external_certificates"]), "APT_PROVENANCE_UNQUALIFIED")
             provenance_state(document, context)
             return context, binaries, paths
-        except PolicyFailure:
-            raise
-        except Exception:
+        except Exception as exc:
+            self.retain_provenance_status("COLLECTION_REJECTED", exc)
+            if isinstance(exc, PolicyFailure):
+                raise
             raise PolicyFailure("APT_PROVENANCE_INVALID") from None
 
 
     def observe(self):
-        require(not os.environ.get("APT_CONFIG"), "ambient APT_CONFIG")
+        if os.environ.get("APT_CONFIG"):
+            self.provenance_source = "environment:APT_CONFIG"
+            failure = PolicyFailure("ambient APT_CONFIG")
+            self.retain_provenance_status("COLLECTION_REJECTED", failure)
+            raise failure
         self.provenance_context, self.binary_seal, config_paths = self.provenance_observe()
         config, _ = self.evidence.command(["/usr/bin/apt-config", "dump"])
         # Do not retain raw apt configuration, which can contain credentials.
-        settings = configuration_policy(config, self.provenance_context)
+        try:
+            settings = configuration_policy(config, self.provenance_context)
+        except Exception as exc:
+            self.provenance_source = getattr(exc, 'diagnostic', {}).get('normalized_name', 'NOT_OBSERVED')
+            self.retain_provenance_status("POLICY_REJECTED", exc)
+            raise
+        self.decision_records = validate_decision_records(settings, config, self.provenance_context)
+        for decision in self.decision_records.values():
+            self.evidence.provenance(decision)
         expected_paths = {"dir": "/", "dir::etc": "etc/apt", "dir::etc::sourcelist": "sources.list", "dir::etc::sourceparts": "sources.list.d", "dir::etc::main": "apt.conf", "dir::etc::parts": "apt.conf.d", "dir::etc::trusted": "trusted.gpg", "dir::etc::trustedparts": "trusted.gpg.d"}
         require(all(settings.get(k) == v for k, v in expected_paths.items()), "alternate apt configuration paths")
         self.config_digest = sha(config.encode())
@@ -376,6 +501,8 @@ class AptObservation:
         context, binaries, _ = self.provenance_observe()
         require(context == self.provenance_context and binaries == self.binary_seal, "APT_PROVENANCE_CHANGED")
         config, _ = self.evidence.command(["/usr/bin/apt-config", "dump"])
+        settings = configuration_policy(config, context)
+        require(validate_decision_records(settings, config, context) == self.decision_records, "APT_PROVENANCE_CHANGED")
         require(sha(config.encode()) == self.config_digest, "apt configuration changed after observation")
         current = list(Path("/etc/apt/sources.list.d").iterdir()) + list(Path("/etc/apt/apt.conf.d").iterdir())
         for name in ("/etc/apt/sources.list", "/etc/apt/apt.conf"):
@@ -530,7 +657,10 @@ class Campaign:
         return target
 
     def source(self):
-        archive = self.download(self.spec["php_source_identity"], "php-8.5.8.tar.xz")
+        archive = self.evidence.measure_phase("source download/verification", lambda: self.download(self.spec["php_source_identity"], "php-8.5.8.tar.xz"))
+        return self.evidence.measure_phase("extraction", lambda: self.extract_source(archive))
+
+    def extract_source(self, archive):
         with tarfile.open(archive, "r:xz") as contents:
             members = contents.getmembers()
             require(bool(members), "empty source archive")
@@ -637,7 +767,93 @@ class Campaign:
         self.evidence.data["observations"]["negative_matrix"] = results
 
 
+TIMING_STAGES = ('runner observation', 'apt trust', 'apt index/package', 'source verification',
+                 'configure', 'compile', 'install', 'post-install PHP verification',
+                 'Composer provisioning/verification', 'platform', 'runtime negative matrix')
+
+# No independently qualified timing upper-bound certificate currently exists.
+# These immutable certificate digests cannot be populated from runtime evidence.
+QUALIFIED_TIMING_BOUND_IDENTITIES = frozenset()
+
+
+def release_time_decision(evidence, qualified_bounds=None):
+    """Gate61/Gate81: measurements are not independently supported bounds."""
+    import math
+    try:
+        if evidence.get('timeout') is True or evidence.get('first_failure'):
+            return 'FAIL'
+        stages = evidence.get('stages', [])
+        seen = set()
+        end = 0.0
+        for row in stages:
+            name = row['stage']
+            if name in seen or name not in TIMING_STAGES:
+                return 'FAIL'
+            seen.add(name)
+            if not {'start_offset_seconds', 'end_offset_seconds', 'duration_seconds', 'status'} <= set(row):
+                return 'UNRESOLVED'
+            values = [row['start_offset_seconds'], row['end_offset_seconds'], row['duration_seconds']]
+            if any(type(v) not in (int, float) or not math.isfinite(v) or v < 0 for v in values):
+                return 'FAIL'
+            start, finish, duration = values
+            if start < end or finish < start or abs(finish - start - duration) > 0.000001:
+                return 'FAIL'
+            end = finish
+            if row['status'] == 'FAIL':
+                return 'FAIL'
+        if seen != set(TIMING_STAGES) or any(row['status'] != 'PASS' for row in stages):
+            return 'UNRESOLVED'
+        if tuple(row['stage'] for row in stages) != TIMING_STAGES:
+            return 'FAIL'
+        phases = evidence.get('timing_phases', [])
+        if not phases:
+            return 'UNRESOLVED'
+        if [row['phase'] for row in phases] != ['source download/verification', 'extraction']:
+            return 'FAIL'
+        source = next(row for row in stages if row['stage'] == 'source verification')
+        phase_end = source['start_offset_seconds']
+        for row in phases:
+            start, finish, duration = [row[key] for key in ('start_offset_seconds', 'end_offset_seconds', 'duration_seconds')]
+            if any(type(v) not in (int, float) or not math.isfinite(v) or v < 0 for v in (start, finish, duration)):
+                return 'FAIL'
+            if row['parent'] != 'source verification' or row['status'] != 'PASS' or start < phase_end or finish > source['end_offset_seconds'] or finish < start or abs(finish - start - duration) > 0.000001:
+                return 'FAIL'
+            phase_end = finish
+        total = evidence.get('elapsed_seconds')
+        if total is None:
+            return 'UNRESOLVED'
+        if type(total) not in (int, float) or not math.isfinite(total) or total < end:
+            return 'FAIL'
+        # Caller must supply independently reviewed, immutable bounds. Runtime
+        # never constructs them from observed measurements; no bounds are bundled.
+        if qualified_bounds is None:
+            return 'UNRESOLVED'
+        identity = sha(json.dumps(qualified_bounds, sort_keys=True, separators=(',', ':'), allow_nan=False).encode())
+        if identity not in QUALIFIED_TIMING_BOUND_IDENTITIES:
+            return 'UNRESOLVED'
+        if set(qualified_bounds) != {'runtime', 'remaining_release', 'outside_overhead'}:
+            return 'UNRESOLVED'
+        upper = 0.0
+        for name, row in sorted(qualified_bounds.items()):
+            if set(row) != {'seconds', 'authority', 'scope', 'sha256'}:
+                return 'FAIL'
+            if row['scope'] != name or not re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', row['authority']):
+                return 'FAIL'
+            if not re.fullmatch(r'[0-9a-f]{64}', row['sha256']):
+                return 'FAIL'
+            value = row['seconds']
+            if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+                return 'FAIL'
+            if name == 'runtime' and value < total:
+                return 'FAIL'
+            upper += value
+        return 'PASS' if upper < 3600 else 'FAIL'
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return 'FAIL'
+
+
 def main():
+    qualification_started = time.monotonic()
     require(sys.platform == "linux", "Hosted Linux execution required")
     require(os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch" and os.environ.get("GITHUB_RUN_ATTEMPT") == "1", "non-release first manual attempt required")
     spec_bytes = Path(__file__).with_name("gate61-spec.json").read_bytes()
@@ -659,18 +875,22 @@ def main():
     for key in ("source", "composer", "composer_wrapper", "ini"):
         Path(layout[key]).parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     evidence = Evidence(Path(layout["evidence"]))
+    evidence.start = qualification_started
     campaign = Campaign(spec, layout, evidence)
     try:
         for name, operation in (("runner observation", campaign.runner), ("apt trust", campaign.apt.observe), ("apt index/package", campaign.packages), ("source verification", campaign.source), ("configure", campaign.configure), ("compile", campaign.compile), ("install", campaign.install), ("post-install PHP verification", campaign.php), ("Composer provisioning/verification", campaign.composer), ("platform", campaign.platform), ("runtime negative matrix", campaign.negative)):
             evidence.stage(name, operation)
         evidence.data["technical_success"] = True
-        evidence.data["release_time_fit"] = "UNRESOLVED"
+        evidence.save()
+        evidence.data["release_time_fit"] = release_time_decision(evidence.data)
         evidence.data["cache_required"] = "UNRESOLVED"
         evidence.data["time_fit_limitation"] = "Retained successful Packaging B/upload upper bounds are absent; no release-fit assertion is possible from provisioning duration alone."
         return 0
     except Exception:
         return 1
     finally:
+        evidence.save()
+        evidence.data["release_time_fit"] = release_time_decision(evidence.data)
         evidence.save()
         # Retain owned temporary state until evidence upload and ephemeral teardown.
         # No cleanup can obscure the first failure or delete outside this root.

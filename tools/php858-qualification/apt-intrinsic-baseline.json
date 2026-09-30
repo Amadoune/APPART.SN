@@ -7,6 +7,24 @@
     "image": "ubuntu-24.04/20260920.314.1",
     "sbom_sha256": "14fa0a5222e8aab58a209cd569e96f0ca36c04636c176a3f0cc55a2b73efc186"
   },
+  "build_evidence": {
+    "authority": "https://launchpad.net/ubuntu/+source/apt/2.8.3/+build/30594802",
+    "build_log_sha256": "4e76dc327f2c5d0f7a46cbd29b3169336ff81db241428faa3970d1f862ea61ee",
+    "buildinfo_sha256": "461dc14ce404909b889c716c9850a477e0a3dac2ed0487af4e5f42d258aca9a3",
+    "configuration": {
+      "CMAKE_INSTALL_SYSCONFDIR": "/etc",
+      "CONF_DIR": "/etc/apt"
+    },
+    "derivation": "CMakeLists.txt:233; CMake/config.h.in:78; apt-pkg/init.cc:151; no CONF_DIR override in build invocation",
+    "identity": {
+      "architecture": "amd64",
+      "build": "Ubuntu apt/libapt-pkg6.0t64 2.8.3",
+      "distribution": "ubuntu-noble",
+      "libapt_version": "2.8.3",
+      "version": "2.8.3"
+    },
+    "source_sha256": "088522b3613b28fdbcfa61f1f7e476bf6dc6b0120a8f74409e9527580c9f9d3b"
+  },
   "coverage": "Finite reviewed assignments only; all unsupported records and all uncertified configuration artifacts reject. No actual runner configuration certificates are asserted.",
   "external_certificates": [],
   "identity": {
@@ -105,6 +123,86 @@
       "source": "apt-pkg/init.cc:191",
       "values": [
         "_apt"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:137",
+      "values": [
+        "/"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir::etc",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:151",
+      "values": [
+        "etc/apt"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir::etc::main",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:154",
+      "values": [
+        "apt.conf"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir::etc::parts",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:157",
+      "values": [
+        "apt.conf.d"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir::etc::sourcelist",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:152",
+      "values": [
+        "sources.list"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir::etc::sourceparts",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:153",
+      "values": [
+        "sources.list.d"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir::etc::trusted",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:160",
+      "values": [
+        "trusted.gpg"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree; exact independently qualified source/build",
+      "key": "dir::etc::trustedparts",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:161",
+      "values": [
+        "trusted.gpg.d"
       ]
     }
   ],
