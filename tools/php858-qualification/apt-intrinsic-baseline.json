@@ -1,0 +1,117 @@
+{
+  "binary_bindings": {
+    "/usr/bin/apt-config": "44ec8b9197670a2c12ed2c6b837dd623c23b641e8c491be03ccefc23dd0fba8c",
+    "/usr/lib/x86_64-linux-gnu/libapt-pkg.so.6.0.0": "a550bb7ffd9d27ef5034611134a4c3587fcf6aa2e4f5d3353b37fc52dc686780"
+  },
+  "binary_evidence": {
+    "image": "ubuntu-24.04/20260920.314.1",
+    "sbom_sha256": "14fa0a5222e8aab58a209cd569e96f0ca36c04636c176a3f0cc55a2b73efc186"
+  },
+  "coverage": "Finite reviewed assignments only; all unsupported records and all uncertified configuration artifacts reject. No actual runner configuration certificates are asserted.",
+  "external_certificates": [],
+  "identity": {
+    "architecture": "amd64",
+    "build": "Ubuntu apt/libapt-pkg6.0t64 2.8.3",
+    "distribution": "ubuntu-noble",
+    "libapt_version": "2.8.3",
+    "version": "2.8.3"
+  },
+  "intrinsic": [
+    {
+      "condition": "parent construction for reviewed descendant",
+      "key": "acquire",
+      "kind": "container",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/contrib/configuration.cc:Configuration::Lookup",
+      "values": [
+        ""
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree",
+      "key": "acquire::allowinsecurerepositories",
+      "kind": "boolean",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:183",
+      "values": [
+        "0"
+      ]
+    },
+    {
+      "condition": "parent construction for reviewed descendant",
+      "key": "apt",
+      "kind": "container",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/contrib/configuration.cc:Configuration::Lookup",
+      "values": [
+        ""
+      ]
+    },
+    {
+      "condition": "parent construction for reviewed descendant",
+      "key": "apt::build-essential",
+      "kind": "container",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/contrib/configuration.cc:Configuration::Lookup",
+      "values": [
+        ""
+      ]
+    },
+    {
+      "condition": "parent absent in fresh tree",
+      "key": "apt::build-essential::",
+      "kind": "list",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:130-131",
+      "values": [
+        "build-essential"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree",
+      "key": "apt::install-recommends",
+      "kind": "boolean",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:132",
+      "values": [
+        "1"
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree",
+      "key": "apt::install-suggests",
+      "kind": "boolean",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:133",
+      "values": [
+        "0"
+      ]
+    },
+    {
+      "condition": "parent construction for reviewed descendant",
+      "key": "apt::sandbox",
+      "kind": "container",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/contrib/configuration.cc:Configuration::Lookup",
+      "values": [
+        ""
+      ]
+    },
+    {
+      "condition": "CndSet in fresh tree",
+      "key": "apt::sandbox::user",
+      "kind": "scalar",
+      "phase": "PRE_CONFIG_FILES",
+      "source": "apt-pkg/init.cc:191",
+      "values": [
+        "_apt"
+      ]
+    }
+  ],
+  "schema": 1,
+  "source": {
+    "archive": "apt_2.8.3.tar.xz",
+    "review": "Gate76 exact source proof; Gate77 finite initialization-record model",
+    "sha256": "088522b3613b28fdbcfa61f1f7e476bf6dc6b0120a8f74409e9527580c9f9d3b"
+  }
+}

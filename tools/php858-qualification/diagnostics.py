@@ -27,6 +27,17 @@ def identifier(value, maximum=256):
 
 
 def category(reason):
+    provenance = {
+        'APT_VERSION_MISMATCH': 'PROVENANCE_VERSION_FAILURE',
+        'APT_PROVENANCE_ABSENT': 'PROVENANCE_ABSENT',
+        'APT_PROVENANCE_INVALID': 'PROVENANCE_INVALID',
+        'APT_PROVENANCE_UNQUALIFIED': 'PROVENANCE_UNQUALIFIED',
+        'APT_PROVENANCE_VALUE_MISMATCH': 'PROVENANCE_VALUE_FAILURE',
+        'APT_PROVENANCE_INCOMPLETE': 'PROVENANCE_INCOMPLETE',
+        'APT_PROVENANCE_CHANGED': 'PROVENANCE_CHANGED',
+    }
+    if reason in provenance:
+        return provenance[reason]
     if reason == 'APT_UNKNOWN_OPTION' or reason in {'unknown source option', 'unknown or duplicate source field'}:
         return 'UNKNOWN_OPTION'
     if reason == 'APT_NAMESPACE_VALUE_UNGOVERNED':

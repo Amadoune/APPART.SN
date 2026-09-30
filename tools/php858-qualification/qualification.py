@@ -1,5 +1,6 @@
 """Gate62 non-release execution vehicle. No automatic retry or fallback."""
 import hashlib
+from diagnostics import source_context
 import json
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ import threading
 import urllib.request
 import time
 
-from apt_policy import ARCHIVE_KEY, PolicyFailure, configuration_policy, deb822, lists, normalize, require
+from apt_policy import baseline_document, _provenance_state as provenance_state, ARCHIVE_KEY, PolicyFailure, configuration_policy, deb822, lists, normalize, require
 
 SPEC_HASH = "9107f9f45f14c976f734e12a061cea08529146f4d15fe315b3a0ef77d7290efc"
 SAFE_ENV = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "TZ": "UTC"}
@@ -257,19 +258,84 @@ class AptObservation:
         require(bool(fingerprints), "no archive signing key")
         return fingerprints
 
+    def provenance_inventory(self):
+        require(not os.environ.get("APT_CONFIG"), "APT_PROVENANCE_UNQUALIFIED")
+        for name in ("/etc", "/etc/apt"):
+            parent = Path(name).lstat()
+            require(stat.S_ISDIR(parent.st_mode) and parent.st_uid == 0 and not parent.st_mode & 0o022, "APT_PROVENANCE_UNQUALIFIED")
+        directory = Path("/etc/apt/apt.conf.d")
+        info = directory.lstat()
+        require(stat.S_ISDIR(info.st_mode) and info.st_uid == 0 and not info.st_mode & 0o022, "APT_PROVENANCE_UNQUALIFIED")
+        paths = sorted(directory.iterdir(), key=lambda path: str(path).encode())
+        main = Path("/etc/apt/apt.conf")
+        if main.exists() or main.is_symlink():
+            paths.append(main)
+        require(len(paths) <= 128, "APT_PROVENANCE_INVALID")
+        return paths
+
+    def provenance_identity(self, document):
+        bindings = document["binary_bindings"]
+        require(set(bindings) == {"/usr/bin/apt-config", "/usr/lib/x86_64-linux-gnu/libapt-pkg.so.6.0.0"}, "APT_PROVENANCE_INVALID")
+        hashes = {}
+        for name, expected in bindings.items():
+            path = Path(name)
+            info = path.lstat()
+            require(stat.S_ISREG(info.st_mode) and info.st_uid == 0 and not info.st_mode & 0o022, "APT_VERSION_MISMATCH")
+            require(0 < info.st_size <= 16777216, "APT_VERSION_MISMATCH")
+            digest = hashlib.sha256()
+            consumed = 0
+            with path.open("rb") as stream:
+                while True:
+                    block = stream.read(65536)
+                    if not block:
+                        break
+                    consumed += len(block)
+                    require(consumed <= 16777216, "APT_VERSION_MISMATCH")
+                    digest.update(block)
+            require(consumed == info.st_size and digest.hexdigest() == expected, "APT_VERSION_MISMATCH")
+            hashes[name] = expected
+        # Controlled environment removes loader overrides; the governed ephemeral
+        # OS supplies the loader and package database, as in Gate59.
+        link = Path("/usr/lib/x86_64-linux-gnu/libapt-pkg.so.6.0")
+        require(str(link.resolve(strict=True)) == "/usr/lib/x86_64-linux-gnu/libapt-pkg.so.6.0.0", "APT_VERSION_MISMATCH")
+        version, _ = self.evidence.command([
+            "/usr/bin/dpkg-query", "-W", "-f=${Package} ${Version} ${Architecture}\\n",
+            "apt", "libapt-pkg6.0t64",
+        ])
+        require(version.splitlines() == ["apt 2.8.3 amd64", "libapt-pkg6.0t64 2.8.3 amd64"], "APT_VERSION_MISMATCH")
+        return dict(document["identity"]), hashes
+
+    @source_context('APT_CONFIG')
+    def provenance_observe(self):
+        try:
+            document = baseline_document()
+            identity, binaries = self.provenance_identity(document)
+            paths = self.provenance_inventory()
+            artifacts = []
+            for path in paths:
+                require(path.lstat().st_size <= 1048576, "APT_PROVENANCE_INVALID")
+                artifacts.append({"path": str(path), "sha256": sha(self.read(path))})
+            context = dict(identity=identity, command=["/usr/bin/apt-config", "dump"],
+                           environment="CONTROLLED_NO_APT_CONFIG", inventory_complete=True,
+                           artifacts=artifacts)
+            # Validate all certificates before invoking the observation command.
+            provenance_state(document, context)
+            return context, binaries, paths
+        except PolicyFailure:
+            raise
+        except Exception:
+            raise PolicyFailure("APT_PROVENANCE_INVALID") from None
+
+
     def observe(self):
         require(not os.environ.get("APT_CONFIG"), "ambient APT_CONFIG")
+        self.provenance_context, self.binary_seal, config_paths = self.provenance_observe()
         config, _ = self.evidence.command(["/usr/bin/apt-config", "dump"])
         # Do not retain raw apt configuration, which can contain credentials.
-        settings = configuration_policy(config)
+        settings = configuration_policy(config, self.provenance_context)
         expected_paths = {"dir": "/", "dir::etc": "etc/apt", "dir::etc::sourcelist": "sources.list", "dir::etc::sourceparts": "sources.list.d", "dir::etc::main": "apt.conf", "dir::etc::parts": "apt.conf.d", "dir::etc::trusted": "trusted.gpg", "dir::etc::trustedparts": "trusted.gpg.d"}
         require(all(settings.get(k) == v for k, v in expected_paths.items()), "alternate apt configuration paths")
         self.config_digest = sha(config.encode())
-        config_paths = list(Path("/etc/apt/apt.conf.d").iterdir())
-        if Path("/etc/apt/apt.conf").exists():
-            config_paths.append(Path("/etc/apt/apt.conf"))
-        for path in sorted(config_paths, key=lambda p: str(p).encode()):
-            self.text(path)
         source_paths = list(Path("/etc/apt/sources.list.d").iterdir())
         if Path("/etc/apt/sources.list").exists():
             source_paths.append(Path("/etc/apt/sources.list"))
@@ -307,6 +373,8 @@ class AptObservation:
         self.evidence.save()
 
     def recheck(self):
+        context, binaries, _ = self.provenance_observe()
+        require(context == self.provenance_context and binaries == self.binary_seal, "APT_PROVENANCE_CHANGED")
         config, _ = self.evidence.command(["/usr/bin/apt-config", "dump"])
         require(sha(config.encode()) == self.config_digest, "apt configuration changed after observation")
         current = list(Path("/etc/apt/sources.list.d").iterdir()) + list(Path("/etc/apt/apt.conf.d").iterdir())
